@@ -1,5 +1,6 @@
 import localFont from "next/font/local";
 import "./globals.css";
+import { paperTextureStyle } from "@/lib/paperTexture";
 
 // Fuentes AUTO-ALOJADAS (next/font/local) en lugar de next/font/google.
 // Motivo: next/font/google descarga las fuentes de Google EN TIEMPO DE BUILD,
@@ -42,7 +43,12 @@ export default function RootLayout({ children }) {
       lang="es"
       className={`${playfair.variable} ${montserrat.variable} h-full antialiased`}
     >
-      <body className="paper-texture min-h-full flex flex-col">{children}</body>
+      <body
+        className="paper-texture min-h-full flex flex-col"
+        style={paperTextureStyle}
+      >
+        {children}
+      </body>
     </html>
   );
 }

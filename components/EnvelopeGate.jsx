@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { paperTextureStyle, paperTextureOverlay } from "@/lib/paperTexture";
 
 /*
   EnvelopeGate — "efecto sobre" de alta gama.
@@ -55,8 +56,9 @@ export default function EnvelopeGate({ monograma = "R&C", nombres, children }) {
       {!fuera && (
         <div
           aria-hidden={subido}
-          className="paper-texture fixed inset-0 z-50 flex items-center justify-center bg-marfil px-6 transition-[transform,opacity] ease-[cubic-bezier(0.76,0,0.24,1)]"
+          className="fixed inset-0 z-50 flex items-center justify-center px-6 transition-[transform,opacity] ease-[cubic-bezier(0.76,0,0.24,1)]"
           style={{
+            ...paperTextureStyle,
             transitionDuration: `${TIEMPOS.subida}ms`,
             transform: subido ? "translateY(-105%)" : "translateY(0)",
             opacity: subido ? 0 : 1,
@@ -69,7 +71,10 @@ export default function EnvelopeGate({ monograma = "R&C", nombres, children }) {
             {/* ── EL SOBRE ── */}
             <div className="preserve-3d relative h-[460px] w-[78vw] max-w-[340px]">
               {/* Forro interior del sobre */}
-              <div className="paper-texture absolute inset-0 rounded-[2px] bg-crema shadow-[0_30px_60px_-20px_rgba(42,39,34,0.35)] ring-1 ring-linea" />
+              <div
+                className="absolute inset-0 rounded-[2px] bg-crema shadow-[0_30px_60px_-20px_rgba(42,39,34,0.35)] ring-1 ring-linea"
+                style={paperTextureOverlay}
+              />
 
               {/* Tarjeta interior (teaser) que asoma dentro del sobre */}
               <div
@@ -90,8 +95,11 @@ export default function EnvelopeGate({ monograma = "R&C", nombres, children }) {
 
               {/* Bolsillo frontal del sobre (tapa la parte baja de la tarjeta) */}
               <div
-                className="paper-texture absolute inset-x-0 bottom-0 z-20 h-[58%] rounded-b-[2px] bg-hueso ring-1 ring-linea"
-                style={{ clipPath: "polygon(0 22%, 50% 0, 100% 22%, 100% 100%, 0 100%)" }}
+                className="absolute inset-x-0 bottom-0 z-20 h-[58%] rounded-b-[2px] bg-hueso ring-1 ring-linea"
+                style={{
+                  ...paperTextureOverlay,
+                  clipPath: "polygon(0 22%, 50% 0, 100% 22%, 100% 100%, 0 100%)",
+                }}
               />
 
               {/* Solapa superior — gira en el eje X al abrir */}
