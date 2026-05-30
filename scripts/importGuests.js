@@ -33,11 +33,20 @@ const { getAuth, signInWithEmailAndPassword } = require("firebase/auth");
 // ║  (Borra estos ejemplos y pega la tuya.)                                ║
 // ╚═══════════════════════════════════════════════════════════════════════╝
 const INVITADOS = [
-  { nombres: "Pablo y María", esPareja: true },
-  { nombres: "Lucía y Daniel", esPareja: true },
-  { nombres: "Carlos", esPareja: false },
-  { nombres: "Abuela Carmen", esPareja: false },
-  // { nombres: "...", esPareja: true },
+  // ── Invitados confirmados en la lista ──
+  { nombres: "Juanda y Acompañante", esPareja: true },
+  { nombres: "Cristina Romero", esPareja: false },
+  { nombres: "Blanca Fontan", esPareja: false },
+
+  // ╭───────────────────────────────────────────────────────────────────╮
+  // │  👇 PEGA AQUÍ EL RESTO DE TU LISTA (amigos y familiares).           │
+  // │  Una línea por invitación. Reglas:                                  │
+  // │   • Pareja  →  esPareja: true   (ej: { nombres: "Ana y Luis", ... }) │
+  // │   • Una sola persona → esPareja: false                              │
+  // │  El id (slug) de la URL se genera solo a partir de `nombres`.       │
+  // ╰───────────────────────────────────────────────────────────────────╯
+  // { nombres: "Ana y Luis", esPareja: true },
+  // { nombres: "Marta García", esPareja: false },
 ];
 
 // ── Configuración de Firebase (desde .env.local) ──────────────────────────
