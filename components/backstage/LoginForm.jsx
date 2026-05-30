@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { getAuthClient } from "@/lib/firebase";
 import { BODA } from "@/lib/event";
 
 export default function LoginForm() {
@@ -16,7 +16,7 @@ export default function LoginForm() {
     setError("");
     setCargando(true);
     try {
-      await signInWithEmailAndPassword(auth, email.trim(), password);
+      await signInWithEmailAndPassword(getAuthClient(), email.trim(), password);
       // onAuthStateChanged (en Backstage) se encarga del resto.
     } catch (err) {
       setError("Email o contraseña incorrectos.");

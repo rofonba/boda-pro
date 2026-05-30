@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { signOut } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { getAuthClient } from "@/lib/firebase";
 import { subscribeGuests } from "@/lib/guests";
 
 /* nº de adultos de una invitación (los niños van aparte en `ninos`) */
@@ -114,7 +114,7 @@ export default function Dashboard({ user }) {
             Exportar a Excel
           </button>
           <button
-            onClick={() => signOut(auth)}
+            onClick={() => signOut(getAuthClient())}
             className="text-[11px] tracking-luxe text-grafito uppercase underline decoration-champagne/50 underline-offset-4 hover:text-carbon"
           >
             Salir

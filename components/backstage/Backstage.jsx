@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { getAuthClient } from "@/lib/firebase";
 import LoginForm from "./LoginForm";
 import Dashboard from "./Dashboard";
 
@@ -11,7 +11,7 @@ export default function Backstage() {
   const [cargando, setCargando] = useState(true);
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (u) => {
+    const unsub = onAuthStateChanged(getAuthClient(), (u) => {
       setUser(u);
       setCargando(false);
     });

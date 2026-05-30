@@ -2,23 +2,28 @@ rules_version = '2';
 
 // Reglas de seguridad para la colección de invitados.
 //
-// Modelo:
-//  - Cualquier invitado (sin login) puede LEER su documento y ESCRIBIR
-//    únicamente los campos del formulario de confirmación (RSVP).
-//  - El panel /backstage (Roberto y Cristina) accede autenticado y puede
-//    leer toda la colección.
+// Modelo de acceso:
+//  - GET  (un documento por su id): PÚBLICO. El invitado entra por su enlace
+//    (?id=...) y necesita leer SU documento para ver la invitación personalizada.
+//  - LIST (consultar/listar la colección entera): SOLO ADMIN autenticado.
+//    Así nadie sin login puede descargarse la lista completa de invitados.
+//  - UPDATE: PÚBLICO pero limitado a los campos del RSVP del propio documento
+//    (no pueden alterar nombres, esPareja, etc.). Deben conocer el id.
+//  - CREATE / DELETE: SOLO ADMIN autenticado (script de importación, panel).
 //
-// Súbelas con:  firebase deploy --only firestore:rules
+// Súbelas con:  firebase deploy --only firestore:rules --project TU_PROJECT_ID
 service cloud.firestore {
   match /databases/{database}/documents {
 
     match /invitados/{invitadoId} {
 
-      // Lectura pública: el invitado necesita ver su invitación por la URL.
-      allow read: if true;
+      // Leer UN invitado concreto (get): público — necesario para el enlace.
+      allow get: if true;
 
-      // Escritura pública SOLO para la confirmación, y solo de los campos
-      // permitidos (no pueden tocar nombres, esPareja, etc.).
+      // Listar / consultar TODA la colección: solo administradores.
+      allow list: if request.auth != null;
+
+      // RSVP público: solo se permiten los campos del formulario, nada más.
       allow update: if
         request.resource.data.diff(resource.data).affectedKeys()
           .hasOnly(['confirmado', 'asiste', 'autobus', 'alergias', 'ninos', 'respondidoEn'])
