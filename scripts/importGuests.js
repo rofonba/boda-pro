@@ -128,12 +128,15 @@ async function main() {
       await setDoc(ref, {
         id,
         nombres,
-        esPareja,
+        esPareja, // solo pre-marca el checkbox de acompañante por defecto
         confirmado: null, // aún no ha respondido
+        nombreCompleto: "",
         asiste: false,
+        acompanante: esPareja,
+        nombreAcompanante: "",
         autobus: false,
-        alergias: "",
         ninos: 0,
+        alergias: "",
       });
       creados++;
       console.log(`＋ Creado       ${id}  (${nombres})`);

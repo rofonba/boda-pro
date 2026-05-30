@@ -24,9 +24,14 @@ service cloud.firestore {
       allow list: if request.auth != null;
 
       // RSVP público: solo se permiten los campos del formulario, nada más.
+      // (No pueden tocar nombres, esPareja, id…)
       allow update: if
         request.resource.data.diff(resource.data).affectedKeys()
-          .hasOnly(['confirmado', 'asiste', 'autobus', 'alergias', 'ninos', 'respondidoEn'])
+          .hasOnly([
+            'confirmado', 'nombreCompleto', 'asiste',
+            'acompanante', 'nombreAcompanante',
+            'autobus', 'ninos', 'alergias', 'respondidoEn'
+          ])
         && request.resource.data.ninos is int
         && request.resource.data.ninos >= 0;
 

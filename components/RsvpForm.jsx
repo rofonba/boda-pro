@@ -3,12 +3,8 @@
 import { useState } from "react";
 import { submitRsvp } from "@/lib/guests";
 
-/* Botón de opción Sí / No, elegante y táctil para móvil */
-function Toggle({ value, onChange, name }) {
-  const opciones = [
-    { v: true, label: "Sí" },
-    { v: false, label: "No" },
-  ];
+/* Grupo tipo "radio" elegante (dos opciones) */
+function Opciones({ value, onChange, opciones }) {
   return (
     <div className="inline-flex overflow-hidden rounded-full ring-1 ring-linea">
       {opciones.map((o) => {
@@ -19,7 +15,7 @@ function Toggle({ value, onChange, name }) {
             type="button"
             aria-pressed={activo}
             onClick={() => onChange(o.v)}
-            className={`min-w-[88px] px-6 py-2.5 text-sm tracking-wide transition-colors ${
+            className={`px-6 py-2.5 text-sm tracking-wide transition-colors ${
               activo
                 ? "bg-carbon text-marfil"
                 : "bg-transparent text-grafito hover:text-carbon"
@@ -30,6 +26,32 @@ function Toggle({ value, onChange, name }) {
         );
       })}
     </div>
+  );
+}
+
+/* Interruptor (switch) minimalista */
+function Switch({ checked, onChange, label }) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      onClick={() => onChange(!checked)}
+      className="inline-flex items-center gap-3"
+    >
+      <span
+        className={`relative h-6 w-11 rounded-full transition-colors ${
+          checked ? "bg-champagne" : "bg-linea"
+        }`}
+      >
+        <span
+          className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${
+            checked ? "translate-x-[22px]" : "translate-x-0.5"
+          }`}
+        />
+      </span>
+      <span className="text-sm text-carbon">{label}</span>
+    </button>
   );
 }
 
@@ -45,18 +67,31 @@ function Campo({ etiqueta, children }) {
 }
 
 export default function RsvpForm({ guest }) {
-  const pareja = Boolean(guest?.esPareja);
+  // Estado inicial: si ya respondió, precargamos sus datos; si no, valores
+  // por defecto (acompañante se pre-marca según esPareja de la invitación).
+  const yaRespondio = guest?.confirmado === true;
 
-  const [asiste, setAsiste] = useState(
-    typeof guest?.asiste === "boolean" && guest?.confirmado ? guest.asiste : null
+  const [nombreCompleto, setNombreCompleto] = useState(
+    guest?.nombreCompleto || guest?.nombres || ""
   );
-  const [autobus, setAutobus] = useState(
-    typeof guest?.autobus === "boolean" ? guest.autobus : null
+  const [asiste, setAsiste] = useState(yaRespondio ? guest.asiste : null);
+  const [acompanante, setAcompanante] = useState(
+    yaRespondio ? Boolean(guest.acompanante) : Boolean(guest?.esPareja)
   );
-  const [alergias, setAlergias] = useState(guest?.alergias ?? "");
+  const [nombreAcompanante, setNombreAcompanante] = useState(
+    guest?.nombreAcompanante || ""
+  );
+  const [autobus, setAutobus] = useState(Boolean(guest?.autobus));
   const [ninos, setNinos] = useState(guest?.ninos ?? 0);
+  const [alergias, setAlergias] = useState(guest?.alergias ?? "");
 
   const [estado, setEstado] = useState("idle"); // idle | enviando | ok | error
+
+  // Al desmarcar acompañante, limpiamos el nombre.
+  function toggleAcompanante(v) {
+    setAcompanante(v);
+    if (!v) setNombreAcompanante("");
+  }
 
   // Sin enlace personal no se puede confirmar (no hay documento que actualizar)
   if (!guest?.id) {
@@ -71,16 +106,26 @@ export default function RsvpForm({ guest }) {
     );
   }
 
+  // Validación: nombre obligatorio; asistencia elegida; nombre de acompañante
+  // si va a venir acompañado.
+  const valido =
+    nombreCompleto.trim() !== "" &&
+    asiste !== null &&
+    (!(asiste && acompanante) || nombreAcompanante.trim() !== "");
+
   async function onSubmit(e) {
     e.preventDefault();
-    if (asiste === null) return;
+    if (!valido) return;
     setEstado("enviando");
     try {
       await submitRsvp(guest.id, {
+        nombreCompleto,
         asiste,
-        autobus: Boolean(autobus),
-        alergias,
-        ninos,
+        acompanante: asiste ? acompanante : false,
+        nombreAcompanante,
+        autobus: asiste ? autobus : false,
+        ninos: asiste ? ninos : 0,
+        alergias: asiste ? alergias : "",
       });
       setEstado("ok");
     } catch (err) {
@@ -98,8 +143,8 @@ export default function RsvpForm({ guest }) {
         </h2>
         <p className="mx-auto mt-4 max-w-md text-sm leading-relaxed text-grafito">
           {asiste
-            ? "Hemos recibido vuestra confirmación. Nos hace muchísima ilusión compartir este día con vosotros."
-            : "Sentimos que no podáis acompañarnos. Gracias de corazón por hacérnoslo saber."}
+            ? "Hemos recibido tu confirmación. Nos hace muchísima ilusión compartir este día contigo."
+            : "Sentimos que no puedas acompañarnos. Gracias de corazón por hacérnoslo saber."}
         </p>
         <button
           onClick={() => setEstado("idle")}
@@ -117,40 +162,66 @@ export default function RsvpForm({ guest }) {
         Confirmación
       </h2>
       <p className="mt-3 text-center text-sm text-grafito">
-        {pareja
-          ? "Rogamos confirméis vuestra asistencia."
-          : "Rogamos confirmes tu asistencia."}
+        Rogamos confirmes tu asistencia.
       </p>
 
       <div className="mt-10 space-y-8">
-        <Campo etiqueta={pareja ? "¿Asistiréis?" : "¿Asistirás?"}>
-          <Toggle value={asiste} onChange={setAsiste} name="asiste" />
+        <Campo etiqueta="Nombre completo">
+          <input
+            type="text"
+            value={nombreCompleto}
+            onChange={(e) => setNombreCompleto(e.target.value)}
+            required
+            placeholder="Tu nombre y apellidos"
+            className="w-full rounded-sm border border-linea bg-crema px-4 py-3 text-sm text-carbon outline-none transition-colors placeholder:text-grafito/60 focus:border-champagne"
+          />
         </Campo>
 
-        {/* El resto solo tiene sentido si asisten */}
+        <Campo etiqueta="¿Podrás asistir?">
+          <Opciones
+            value={asiste}
+            onChange={setAsiste}
+            opciones={[
+              { v: true, label: "Sí, confirmo" },
+              { v: false, label: "No puedo ir" },
+            ]}
+          />
+        </Campo>
+
+        {/* El resto solo tiene sentido si asiste */}
         {asiste && (
           <>
-            <Campo etiqueta="¿Necesitáis autobús?">
-              <Toggle value={autobus} onChange={setAutobus} name="autobus" />
+            <Campo etiqueta="Acompañante">
+              <Switch
+                checked={acompanante}
+                onChange={toggleAcompanante}
+                label="Voy con acompañante"
+              />
+              {/* Subformulario condicional: aparece/desaparece con animación */}
+              <div
+                className={`grid transition-all duration-300 ${
+                  acompanante
+                    ? "mt-1 grid-rows-[1fr] opacity-100"
+                    : "grid-rows-[0fr] opacity-0"
+                }`}
+              >
+                <div className="overflow-hidden">
+                  <input
+                    type="text"
+                    value={nombreAcompanante}
+                    onChange={(e) => setNombreAcompanante(e.target.value)}
+                    placeholder="Nombre completo del acompañante"
+                    className="w-full rounded-sm border border-linea bg-crema px-4 py-3 text-sm text-carbon outline-none transition-colors placeholder:text-grafito/60 focus:border-champagne"
+                  />
+                </div>
+              </div>
             </Campo>
 
-            <Campo
-              etiqueta={
-                pareja
-                  ? "Alergias o intolerancias (de ambos)"
-                  : "Alergias o intolerancias"
-              }
-            >
-              <textarea
-                value={alergias}
-                onChange={(e) => setAlergias(e.target.value)}
-                rows={3}
-                placeholder={
-                  pareja
-                    ? "Ej: María — sin gluten · Pablo — alérgico a frutos secos"
-                    : "Indícanos si tienes alguna alergia o intolerancia"
-                }
-                className="w-full resize-none rounded-sm border border-linea bg-crema px-4 py-3 text-sm text-carbon outline-none transition-colors placeholder:text-grafito/60 focus:border-champagne"
+            <Campo etiqueta="Transporte">
+              <Switch
+                checked={autobus}
+                onChange={setAutobus}
+                label="Necesito plaza en el autobús"
               />
             </Campo>
 
@@ -177,6 +248,16 @@ export default function RsvpForm({ guest }) {
                 </button>
               </div>
             </Campo>
+
+            <Campo etiqueta="Alergias o intolerancias">
+              <textarea
+                value={alergias}
+                onChange={(e) => setAlergias(e.target.value)}
+                rows={3}
+                placeholder="Indícanos cualquier alergia o intolerancia alimentaria"
+                className="w-full resize-none rounded-sm border border-linea bg-crema px-4 py-3 text-sm text-carbon outline-none transition-colors placeholder:text-grafito/60 focus:border-champagne"
+              />
+            </Campo>
           </>
         )}
       </div>
@@ -184,7 +265,7 @@ export default function RsvpForm({ guest }) {
       <div className="mt-12 text-center">
         <button
           type="submit"
-          disabled={asiste === null || estado === "enviando"}
+          disabled={!valido || estado === "enviando"}
           className="min-w-[220px] bg-carbon px-10 py-4 text-[11px] tracking-luxe text-marfil uppercase transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
         >
           {estado === "enviando" ? "Enviando…" : "Enviar confirmación"}

@@ -5,8 +5,12 @@ import { signOut } from "firebase/auth";
 import { getAuthClient } from "@/lib/firebase";
 import { subscribeGuests } from "@/lib/guests";
 
-/* nº de adultos de una invitación (los niños van aparte en `ninos`) */
-const adultosDe = (g) => (g.esPareja ? 2 : 1);
+/* nº de adultos de una invitación: el principal + acompañante (si viene).
+   Los niños se cuentan aparte en `ninos`. */
+const adultosDe = (g) => 1 + (g.acompanante ? 1 : 0);
+
+/* Nombre a mostrar del invitado principal */
+const principalDe = (g) => g.nombreCompleto || g.nombres || "";
 
 function Tarjeta({ valor, etiqueta }) {
   return (
@@ -25,6 +29,12 @@ function Estado({ g }) {
   if (g.confirmado === true && g.asiste === false)
     return <span className="text-red-700">No asiste</span>;
   return <span className="text-grafito">Pendiente</span>;
+}
+
+/* Escapa un valor para CSV (comillas, separador, saltos de línea) */
+function csvEscape(v) {
+  const s = String(v ?? "");
+  return /[";\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 
 export default function Dashboard({ user }) {
@@ -58,44 +68,43 @@ export default function Dashboard({ user }) {
     };
   }, [guests]);
 
-  async function exportarExcel() {
-    // Importación dinámica para no cargar SheetJS hasta que se use.
-    const XLSX = await import("xlsx");
+  // Descarga un .csv (compatible con Excel) con los invitados que han respondido.
+  function exportarCSV() {
+    const confirmados = guests.filter((g) => g.confirmado === true);
 
-    const filas = guests.map((g) => ({
-      Invitación: g.nombres ?? "",
-      Tipo: g.esPareja ? "Pareja" : "Individual",
-      Estado: !g.confirmado ? "Pendiente" : g.asiste ? "Asiste" : "No asiste",
-      Adultos: g.confirmado && g.asiste ? adultosDe(g) : 0,
-      Niños: g.confirmado && g.asiste ? Number(g.ninos) || 0 : 0,
-      Autobús: g.confirmado && g.asiste && g.autobus ? "Sí" : "No",
-      "Alergias / Intolerancias": g.alergias ?? "",
-      ID: g.id,
-    }));
-
-    // Fila de totales al final, útil para el catering.
-    filas.push({});
-    filas.push({
-      Invitación: "TOTALES (asisten)",
-      Adultos: stats.adultos,
-      Niños: stats.ninos,
-      Autobús: `${stats.autobus} pers.`,
-    });
-
-    const ws = XLSX.utils.json_to_sheet(filas);
-    ws["!cols"] = [
-      { wch: 26 },
-      { wch: 12 },
-      { wch: 12 },
-      { wch: 9 },
-      { wch: 8 },
-      { wch: 9 },
-      { wch: 40 },
-      { wch: 16 },
+    const columnas = [
+      "Invitado Principal",
+      "Asistencia",
+      "Acompañante",
+      "Autobús",
+      "Niños",
+      "Alergias",
     ];
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Invitados");
-    XLSX.writeFile(wb, "invitados-boda-RyC.xlsx");
+
+    const filas = confirmados.map((g) => [
+      principalDe(g),
+      g.asiste ? "Sí" : "No",
+      g.acompanante ? g.nombreAcompanante || "Sí" : "No",
+      g.asiste && g.autobus ? "Sí" : "No",
+      g.asiste ? Number(g.ninos) || 0 : 0,
+      g.asiste ? g.alergias || "" : "",
+    ]);
+
+    // BOM (﻿) + separador ';' → Excel en español lo abre en columnas.
+    const lineas = [columnas, ...filas].map((fila) =>
+      fila.map(csvEscape).join(";")
+    );
+    const csv = "﻿" + lineas.join("\r\n");
+
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "confirmaciones-boda-RyC.csv";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   }
 
   return (
@@ -108,10 +117,10 @@ export default function Dashboard({ user }) {
         </div>
         <div className="flex items-center gap-6">
           <button
-            onClick={exportarExcel}
+            onClick={exportarCSV}
             className="bg-carbon px-6 py-3 text-[11px] tracking-luxe text-marfil uppercase transition-opacity hover:opacity-90"
           >
-            Exportar a Excel
+            Exportar CSV
           </button>
           <button
             onClick={() => signOut(getAuthClient())}
@@ -136,22 +145,21 @@ export default function Dashboard({ user }) {
 
       {/* Tabla */}
       <div className="mt-12 overflow-x-auto border border-linea bg-crema">
-        <table className="w-full min-w-[760px] text-left text-sm">
+        <table className="w-full min-w-[820px] text-left text-sm">
           <thead>
             <tr className="border-b border-linea text-[10px] tracking-luxe text-grafito uppercase">
-              <th className="px-4 py-4 font-medium">Invitación</th>
-              <th className="px-4 py-4 font-medium">Tipo</th>
+              <th className="px-4 py-4 font-medium">Invitado principal</th>
               <th className="px-4 py-4 font-medium">Estado</th>
-              <th className="px-4 py-4 text-center font-medium">Adultos</th>
-              <th className="px-4 py-4 text-center font-medium">Niños</th>
+              <th className="px-4 py-4 font-medium">Acompañante</th>
               <th className="px-4 py-4 text-center font-medium">Autobús</th>
+              <th className="px-4 py-4 text-center font-medium">Niños</th>
               <th className="px-4 py-4 font-medium">Alergias</th>
             </tr>
           </thead>
           <tbody>
             {guests.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-4 py-10 text-center text-grafito">
+                <td colSpan={6} className="px-4 py-10 text-center text-grafito">
                   Aún no hay invitados en Firestore.
                 </td>
               </tr>
@@ -161,21 +169,20 @@ export default function Dashboard({ user }) {
                 key={g.id}
                 className="border-b border-linea/60 last:border-0 text-carbon"
               >
-                <td className="px-4 py-4 font-serif">{g.nombres}</td>
-                <td className="px-4 py-4 text-grafito">
-                  {g.esPareja ? "Pareja" : "Individual"}
-                </td>
+                <td className="px-4 py-4 font-serif">{principalDe(g)}</td>
                 <td className="px-4 py-4">
                   <Estado g={g} />
                 </td>
-                <td className="px-4 py-4 text-center">
-                  {g.confirmado && g.asiste ? adultosDe(g) : "—"}
-                </td>
-                <td className="px-4 py-4 text-center">
-                  {g.confirmado && g.asiste ? Number(g.ninos) || 0 : "—"}
+                <td className="px-4 py-4 text-grafito">
+                  {g.confirmado && g.asiste && g.acompanante
+                    ? g.nombreAcompanante || "Sí"
+                    : "—"}
                 </td>
                 <td className="px-4 py-4 text-center">
                   {g.confirmado && g.asiste && g.autobus ? "Sí" : "—"}
+                </td>
+                <td className="px-4 py-4 text-center">
+                  {g.confirmado && g.asiste ? Number(g.ninos) || 0 : "—"}
                 </td>
                 <td className="px-4 py-4 text-grafito">{g.alergias || "—"}</td>
               </tr>
