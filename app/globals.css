@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+/*
+  Paleta "elegante / minimalista / elitista"
+  - marfil / hueso: fondos cálidos blanco roto
+  - champagne / oro: dorado sutil (acentos, filetes, lacre)
+  - carbón / grafito: tipografía profunda
+*/
+@theme {
+  --color-marfil: #f8f4ec; /* fondo principal, marfil cálido */
+  --color-hueso: #efe8da; /* blanco roto algo más profundo */
+  --color-crema: #fdfbf6; /* casi blanco para tarjetas */
+
+  --color-champagne: #c8aa6e; /* dorado sutil */
+  --color-champagne-soft: #ddc9a0; /* dorado apagado para filetes */
+  --color-oro: #b08d52; /* acento dorado profundo */
+
+  --color-carbon: #2a2722; /* gris carbón profundo para texto */
+  --color-grafito: #6d685d; /* texto secundario apagado */
+  --color-linea: #e4dccb; /* hairlines / bordes finos */
+}
+
+/* Las fuentes se inyectan vía next/font como variables CSS */
+@theme inline {
+  --font-serif: var(--font-playfair);
+  --font-sans: var(--font-montserrat);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-marfil);
+  color: var(--color-carbon);
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Utilidades de apoyo para las animaciones 3D del sobre */
+.perspective {
+  perspective: 1800px;
+}
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+/* Espaciado de letras fino para titulares en mayúsculas */
+.tracking-luxe {
+  letter-spacing: 0.32em;
+}
