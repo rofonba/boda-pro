@@ -1,19 +1,33 @@
-import { Playfair_Display, Montserrat } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
-const playfair = Playfair_Display({
+// Fuentes AUTO-ALOJADAS (next/font/local) en lugar de next/font/google.
+// Motivo: next/font/google descarga las fuentes de Google EN TIEMPO DE BUILD,
+// y en los servidores de compilación de Vercel esa descarga puede fallar
+// ("Retrying 1/3…") y romper el build / generar un output corrupto (404).
+// Con los .woff2 en app/fonts/ el build no depende de ninguna red.
+const playfair = localFont({
   variable: "--font-playfair",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  style: ["normal", "italic"],
   display: "swap",
+  src: [
+    { path: "./fonts/PlayfairDisplay-400.woff2", weight: "400", style: "normal" },
+    { path: "./fonts/PlayfairDisplay-500.woff2", weight: "500", style: "normal" },
+    { path: "./fonts/PlayfairDisplay-600.woff2", weight: "600", style: "normal" },
+    { path: "./fonts/PlayfairDisplay-700.woff2", weight: "700", style: "normal" },
+    { path: "./fonts/PlayfairDisplay-400-italic.woff2", weight: "400", style: "italic" },
+    { path: "./fonts/PlayfairDisplay-600-italic.woff2", weight: "600", style: "italic" },
+  ],
 });
 
-const montserrat = Montserrat({
+const montserrat = localFont({
   variable: "--font-montserrat",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600"],
   display: "swap",
+  src: [
+    { path: "./fonts/Montserrat-300.woff2", weight: "300", style: "normal" },
+    { path: "./fonts/Montserrat-400.woff2", weight: "400", style: "normal" },
+    { path: "./fonts/Montserrat-500.woff2", weight: "500", style: "normal" },
+    { path: "./fonts/Montserrat-600.woff2", weight: "600", style: "normal" },
+  ],
 });
 
 export const metadata = {
