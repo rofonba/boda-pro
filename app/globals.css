@@ -1,13 +1,13 @@
 @import "tailwindcss";
 
 /*
-  Paleta "elegante / minimalista / elitista"
-  - marfil / hueso: fondos cálidos blanco roto
-  - champagne / oro: dorado sutil (acentos, filetes, lacre)
-  - carbón / grafito: tipografía profunda
+  Paleta MODO DÍA (valores por defecto).
+  Tailwind v4 genera las utilidades de color como var(--color-*), así que
+  basta con redefinir estas variables en [data-theme="night"] para invertir
+  TODO el tema sin tocar las clases de los componentes.
 */
 @theme {
-  --color-marfil: #f8f4ec; /* fondo principal, marfil cálido */
+  --color-marfil: #f5efe1; /* fondo principal, papel crema */
   --color-hueso: #efe8da; /* blanco roto algo más profundo */
   --color-crema: #fdfbf6; /* casi blanco para tarjetas */
 
@@ -15,15 +15,39 @@
   --color-champagne-soft: #ddc9a0; /* dorado apagado para filetes */
   --color-oro: #b08d52; /* acento dorado profundo */
 
-  --color-carbon: #2a2722; /* gris carbón profundo para texto */
+  --color-carbon: #221f1a; /* texto: negro/antracita */
   --color-grafito: #6d685d; /* texto secundario apagado */
-  --color-linea: #e4dccb; /* hairlines / bordes finos */
+  --color-linea: #e0d7c3; /* hairlines / bordes finos */
 }
 
-/* Las fuentes se inyectan vía next/font como variables CSS */
+/* Fuentes (next/font) como variables CSS */
 @theme inline {
   --font-serif: var(--font-playfair);
   --font-sans: var(--font-montserrat);
+  --font-script: var(--font-pinyon); /* caligráfica barroca */
+}
+
+/* Imagen de textura del fondo según el modo (Roberto las pone en public/images) */
+:root,
+[data-theme="day"] {
+  --bg-paper: url("/images/bg-paper-day.jpg");
+}
+
+/* ───────── MODO NOCHE: paleta invertida, fondo azul profundo ───────── */
+[data-theme="night"] {
+  --bg-paper: url("/images/bg-paper-night.jpg");
+
+  --color-marfil: #0d1430; /* fondo: azul noche profundo */
+  --color-hueso: #141d40;
+  --color-crema: #16204a; /* tarjetas */
+
+  --color-champagne: #d8bd86; /* dorado algo más luminoso de noche */
+  --color-champagne-soft: #e7d4a9;
+  --color-oro: #cdab66;
+
+  --color-carbon: #f4efe3; /* texto: blanco marfil */
+  --color-grafito: #b6b0a0; /* texto secundario claro */
+  --color-linea: #2b3568; /* bordes finos azulados */
 }
 
 html {
@@ -36,6 +60,39 @@ body {
   font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+}
+
+/* Fondo de papel con textura (imagen real) + color de respaldo del tema */
+.bg-paper {
+  background-color: var(--color-marfil);
+  background-image: var(--bg-paper);
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+/* Campo de estrellas sutil para el MODO NOCHE (destellos dorados/plateados) */
+.starfield {
+  background-image:
+    radial-gradient(1px 1px at 20% 30%, rgba(216, 189, 134, 0.9), transparent),
+    radial-gradient(1px 1px at 70% 60%, rgba(255, 255, 255, 0.7), transparent),
+    radial-gradient(1.5px 1.5px at 40% 80%, rgba(216, 189, 134, 0.85), transparent),
+    radial-gradient(1px 1px at 85% 25%, rgba(255, 255, 255, 0.6), transparent),
+    radial-gradient(1px 1px at 55% 12%, rgba(216, 189, 134, 0.7), transparent),
+    radial-gradient(1px 1px at 12% 70%, rgba(255, 255, 255, 0.6), transparent),
+    radial-gradient(1.5px 1.5px at 90% 82%, rgba(216, 189, 134, 0.8), transparent),
+    radial-gradient(1px 1px at 33% 52%, rgba(255, 255, 255, 0.5), transparent);
+  background-repeat: repeat;
+  background-size: 340px 340px;
+  animation: twinkle 6s ease-in-out infinite alternate;
+}
+@keyframes twinkle {
+  from {
+    opacity: 0.45;
+  }
+  to {
+    opacity: 0.95;
+  }
 }
 
 /* Utilidades de apoyo para las animaciones 3D del sobre */
@@ -52,14 +109,4 @@ body {
 /* Espaciado de letras fino para titulares en mayúsculas */
 .tracking-luxe {
   letter-spacing: 0.32em;
-}
-
-/*
-  Textura de "papel de algodón de alto gramaje": una capa de ruido SVG
-  muy sutil (greyscale, opacidad baja) sobre el color de fondo. Da sensación
-  de fibra de papel sin distraer del contenido.
-*/
-.paper-texture {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)' opacity='0.045'/%3E%3C/svg%3E");
-  background-repeat: repeat;
 }

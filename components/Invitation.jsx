@@ -3,6 +3,31 @@
 import { BODA } from "@/lib/event";
 import RsvpForm from "./RsvpForm";
 import GiftSection from "./GiftSection";
+import { useTheme } from "./theme/ThemeProvider";
+
+/* Acuarela de la mansión: crossfade suave entre la versión de día y la de noche.
+   Roberto deja los archivos en public/images/house-day.png y house-night.png. */
+function HouseWatercolor({ isNight }) {
+  return (
+    <div className="relative mx-auto mb-12 aspect-[4/3] w-full max-w-lg">
+      <img
+        src="/images/house-day.png"
+        alt="Ilustración en acuarela de la mansión a la luz del día"
+        className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-1000 ease-in-out ${
+          isNight ? "opacity-0" : "opacity-100"
+        }`}
+      />
+      <img
+        src="/images/house-night.png"
+        alt=""
+        aria-hidden
+        className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-1000 ease-in-out ${
+          isNight ? "opacity-100" : "opacity-0"
+        }`}
+      />
+    </div>
+  );
+}
 
 /* Pequeño separador con rombo dorado centrado */
 function Separador() {
@@ -43,6 +68,8 @@ function DetalleEvento({ data }) {
 }
 
 export default function Invitation({ guest }) {
+  const { isNight } = useTheme();
+
   // Saludo personalizado según el invitado (o genérico si no hay id válido).
   let saludo;
   if (guest?.nombres) {
@@ -56,16 +83,21 @@ export default function Invitation({ guest }) {
   return (
     <main className="mx-auto w-full max-w-2xl px-6 pb-24">
       {/* ── PORTADA ── */}
-      <section className="flex min-h-[88vh] flex-col items-center justify-center text-center">
+      <section className="flex min-h-[92vh] flex-col items-center justify-center pt-16 text-center">
+        {/* La acuarela de la mansión: el elemento visual rey */}
+        <HouseWatercolor isNight={isNight} />
+
         <span className="text-[11px] tracking-luxe text-grafito uppercase">
           {BODA.fecha.dia} · {BODA.fecha.largo}
         </span>
 
-        <h1 className="mt-8 font-serif text-6xl leading-none text-carbon sm:text-7xl">
+        <h1 className="mt-6 font-script text-7xl leading-[0.9] text-carbon sm:text-8xl">
           {BODA.novios.nombres.split("&")[0].trim()}
         </h1>
-        <span className="my-3 font-serif text-2xl italic text-champagne">&</span>
-        <h1 className="font-serif text-6xl leading-none text-carbon sm:text-7xl">
+        <span className="my-1 font-script text-4xl text-champagne sm:text-5xl">
+          &amp;
+        </span>
+        <h1 className="font-script text-7xl leading-[0.9] text-carbon sm:text-8xl">
           {BODA.novios.nombres.split("&")[1]?.trim()}
         </h1>
 

@@ -1,0 +1,18 @@
+IMÁGENES DE LA WEB — suelta aquí los archivos finales con ESTOS nombres exactos:
+
+  bg-paper-day.jpg    → textura de papel/lienzo/pergamino crema (fondo MODO DÍA)
+  bg-paper-night.jpg  → textura de papel azul noche profundo, con destellos
+                        dorados/plateados sutiles (fondo MODO NOCHE)
+
+  house-day.png       → acuarela de la mansión a plena luz (tonos pastel/romántico)
+                        Recomendado PNG con fondo transparente.
+  house-night.png     → la MISMA mansión de noche: cielo oscuro y ventanas
+                        con luces cálidas encendidas. PNG transparente.
+
+Notas:
+- Mientras no existan, la web funciona igual: se ve el color de fondo de
+  respaldo (crema en día / azul noche en noche) y un hueco para la acuarela.
+- Tamaño sugerido fondos: 1920x1080+ (se recortan con "cover").
+- Tamaño sugerido acuarela: ~1200px de ancho.
+- Las rutas en el código apuntan a /images/<nombre>, que corresponde a
+  public/images/<nombre>.

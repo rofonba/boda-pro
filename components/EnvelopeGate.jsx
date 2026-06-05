@@ -1,7 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { paperTextureStyle, paperTextureOverlay } from "@/lib/paperTexture";
+
+// Colores FIJOS del sobre: la "carta" se mantiene crema en día y noche
+// (una carta de papel crema sobre el fondo nocturno azul resulta elegante).
+const CREMA = "#fdfbf6";
+const HUESO = "#efe8da";
+const TINTA = "#221f1a";
+const TINTA_SUAVE = "#6d685d";
 
 /*
   EnvelopeGate — "efecto sobre" de alta gama.
@@ -56,9 +62,9 @@ export default function EnvelopeGate({ monograma = "R&C", nombres, children }) {
       {!fuera && (
         <div
           aria-hidden={subido}
-          className="fixed inset-0 z-50 flex items-center justify-center px-6 transition-[transform,opacity] ease-[cubic-bezier(0.76,0,0.24,1)]"
+          className="bg-paper fixed inset-0 z-50 flex items-center justify-center px-6 transition-[transform,opacity] ease-[cubic-bezier(0.76,0,0.24,1)]"
           style={{
-            ...paperTextureStyle,
+            backgroundColor: "var(--color-marfil)",
             transitionDuration: `${TIEMPOS.subida}ms`,
             transform: subido ? "translateY(-105%)" : "translateY(0)",
             opacity: subido ? 0 : 1,
@@ -72,32 +78,44 @@ export default function EnvelopeGate({ monograma = "R&C", nombres, children }) {
             <div className="preserve-3d relative h-[460px] w-[78vw] max-w-[340px]">
               {/* Forro interior del sobre */}
               <div
-                className="absolute inset-0 rounded-[2px] bg-crema shadow-[0_30px_60px_-20px_rgba(42,39,34,0.35)] ring-1 ring-linea"
-                style={paperTextureOverlay}
+                className="absolute inset-0 rounded-[2px] shadow-[0_30px_60px_-20px_rgba(0,0,0,0.45)] ring-1 ring-black/5"
+                style={{ backgroundColor: CREMA }}
               />
 
               {/* Tarjeta interior (teaser) que asoma dentro del sobre */}
               <div
-                className="absolute inset-x-5 top-6 bottom-20 flex flex-col items-center justify-center rounded-[2px] bg-white text-center shadow-sm ring-1 ring-linea/80 transition-transform duration-700"
-                style={{ transform: abierto ? "translateY(-10px)" : "none" }}
+                className="absolute inset-x-5 top-6 bottom-20 flex flex-col items-center justify-center rounded-[2px] text-center shadow-sm ring-1 ring-black/5 transition-transform duration-700"
+                style={{
+                  backgroundColor: "#ffffff",
+                  transform: abierto ? "translateY(-10px)" : "none",
+                }}
               >
-                <span className="font-serif text-xs tracking-luxe text-grafito uppercase">
+                <span
+                  className="font-serif text-xs tracking-luxe uppercase"
+                  style={{ color: TINTA_SUAVE }}
+                >
                   Nos casamos
                 </span>
-                <div className="my-4 font-serif text-4xl text-carbon">
+                <div
+                  className="my-4 font-script text-5xl"
+                  style={{ color: TINTA }}
+                >
                   {monograma}
                 </div>
                 <span className="h-px w-10 bg-champagne" />
-                <span className="mt-4 font-serif text-sm italic text-grafito">
+                <span
+                  className="mt-4 font-serif text-sm italic"
+                  style={{ color: TINTA_SUAVE }}
+                >
                   15 · 05 · 2027
                 </span>
               </div>
 
               {/* Bolsillo frontal del sobre (tapa la parte baja de la tarjeta) */}
               <div
-                className="absolute inset-x-0 bottom-0 z-20 h-[58%] rounded-b-[2px] bg-hueso ring-1 ring-linea"
+                className="absolute inset-x-0 bottom-0 z-20 h-[58%] rounded-b-[2px] ring-1 ring-black/5"
                 style={{
-                  ...paperTextureOverlay,
+                  backgroundColor: HUESO,
                   clipPath: "polygon(0 22%, 50% 0, 100% 22%, 100% 100%, 0 100%)",
                 }}
               />
@@ -142,11 +160,12 @@ export default function EnvelopeGate({ monograma = "R&C", nombres, children }) {
                   {/* halo sutil que late */}
                   <span className="absolute inset-0 animate-ping rounded-full bg-champagne/20" />
                   <span
-                    className="relative flex h-20 w-20 items-center justify-center rounded-full font-serif text-xl text-marfil shadow-lg ring-1 ring-oro/40"
+                    className="relative flex h-20 w-20 items-center justify-center rounded-full font-serif text-xl shadow-lg ring-1 ring-oro/40"
                     style={{
+                      color: "#fbf6ec",
                       background:
                         "radial-gradient(circle at 35% 30%, #d8bd86 0%, #c8aa6e 45%, #b08d52 100%)",
-                      textShadow: "0 1px 1px rgba(0,0,0,0.25)",
+                      textShadow: "0 1px 2px rgba(0,0,0,0.3)",
                     }}
                   >
                     {monograma}

@@ -1,6 +1,6 @@
 import localFont from "next/font/local";
 import "./globals.css";
-import { paperTextureStyle } from "@/lib/paperTexture";
+import ThemeProvider from "@/components/theme/ThemeProvider";
 
 // Fuentes AUTO-ALOJADAS (next/font/local) en lugar de next/font/google.
 // Motivo: next/font/google descarga las fuentes de Google EN TIEMPO DE BUILD,
@@ -31,6 +31,13 @@ const montserrat = localFont({
   ],
 });
 
+// Fuente caligráfica barroca (estilo Regencia) para nombres / acentos.
+const pinyon = localFont({
+  variable: "--font-pinyon",
+  display: "swap",
+  src: [{ path: "./fonts/PinyonScript-400.woff2", weight: "400", style: "normal" }],
+});
+
 export const metadata = {
   title: "Roberto & Cristina · 15 · 05 · 2027",
   description:
@@ -41,13 +48,11 @@ export default function RootLayout({ children }) {
   return (
     <html
       lang="es"
-      className={`${playfair.variable} ${montserrat.variable} h-full antialiased`}
+      className={`${playfair.variable} ${montserrat.variable} ${pinyon.variable} h-full antialiased`}
     >
-      <body
-        className="paper-texture min-h-full flex flex-col"
-        style={paperTextureStyle}
-      >
-        {children}
+      <body className="min-h-full flex flex-col">
+        {/* ThemeProvider mantiene el estado global Día/Noche y pinta el fondo */}
+        <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   );
