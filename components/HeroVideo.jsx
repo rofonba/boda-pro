@@ -1,10 +1,25 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+
+const INTRO_SESSION_KEY = "boda-intro-played";
 
 export default function HeroVideo({ isNight }) {
   const [videoEnded, setVideoEnded] = useState(false);
+  const [shouldPlayVideo, setShouldPlayVideo] = useState(false);
   const videoRef = useRef(null);
+
+  // Solo reproduce el vídeo la primera vez que el usuario carga la página en esta sesión
+  useEffect(() => {
+    const hasPlayedIntro = sessionStorage.getItem(INTRO_SESSION_KEY);
+    if (!hasPlayedIntro && !isNight) {
+      setShouldPlayVideo(true);
+      sessionStorage.setItem(INTRO_SESSION_KEY, "true");
+    } else {
+      // Si ya se reprodujo o estamos en noche, mostrar imagen directamente
+      setVideoEnded(true);
+    }
+  }, [isNight]);
 
   const handleVideoEnded = () => {
     setVideoEnded(true);
@@ -12,8 +27,8 @@ export default function HeroVideo({ isNight }) {
 
   return (
     <div className="relative mx-auto mb-12 aspect-[4/3] w-full max-w-lg overflow-hidden rounded-lg">
-      {/* Vídeo: intro cinematográfica (solo en modo día) */}
-      {!isNight && !videoEnded && (
+      {/* Vídeo: intro cinematográfica (solo primera vez en modo día) */}
+      {!isNight && shouldPlayVideo && !videoEnded && (
         <video
           ref={videoRef}
           src="/videos/video-casa-dia-entrada-boda-pro.mp4"
