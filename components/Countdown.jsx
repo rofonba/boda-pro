@@ -37,8 +37,6 @@ export default function Countdown() {
     return () => clearInterval(intervalo);
   }, []);
 
-  if (!mounted) return null;
-
   const items = [
     { label: "Días", value: time.dias },
     { label: "Horas", value: time.horas },
