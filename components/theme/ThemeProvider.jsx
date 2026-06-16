@@ -17,7 +17,6 @@ export const useTheme = () => useContext(ThemeContext);
 export default function ThemeProvider({ children }) {
   const [isNight, setIsNight] = useState(false);
   const [isPlayingTransition, setIsPlayingTransition] = useState(false);
-  const [nextThemeIsNight, setNextThemeIsNight] = useState(false);
 
   // Recordar la preferencia entre visitas.
   useEffect(() => {
@@ -25,6 +24,7 @@ export default function ThemeProvider({ children }) {
       if (localStorage.getItem("boda-tema") === "night") setIsNight(true);
     } catch {}
   }, []);
+
   useEffect(() => {
     try {
       localStorage.setItem("boda-tema", isNight ? "night" : "day");
@@ -33,21 +33,22 @@ export default function ThemeProvider({ children }) {
 
   const toggle = () => {
     setIsPlayingTransition(true);
-    setNextThemeIsNight((v) => !v);
   };
 
   const handleTransitionComplete = () => {
+    // Cambiar tema mientras el vídeo está en el último frame
     setIsNight((v) => !v);
-    setIsPlayingTransition(false);
+    // Desvanecerse el vídeo después de que el tema cambió
+    setTimeout(() => setIsPlayingTransition(false), 300);
   };
 
   return (
     <ThemeContext.Provider value={{ isNight, setIsNight, toggle, isPlayingTransition }}>
+      {/* Fondo dinámico de vídeo (-z-10, no bloquea interacción) */}
       <VideoTransitionOverlay
         videoSrc="/videos/video-transicion-casa-boda-pro.mp4"
         isPlaying={isPlayingTransition}
         onComplete={handleTransitionComplete}
-        title="Transformando el paisaje…"
       />
 
       <div

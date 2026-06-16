@@ -3,8 +3,6 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { getGuest } from "@/lib/guests";
-import { BODA } from "@/lib/event";
-import EnvelopeGate from "./EnvelopeGate";
 import Invitation from "./Invitation";
 
 export default function HomeClient() {
@@ -31,9 +29,5 @@ export default function HomeClient() {
     };
   }, [id]);
 
-  return (
-    <EnvelopeGate monograma={BODA.novios.monograma} nombres={guest?.nombres}>
-      <Invitation guest={guest} />
-    </EnvelopeGate>
-  );
+  return <Invitation guest={guest} />;
 }
