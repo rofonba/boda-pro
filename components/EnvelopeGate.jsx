@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import VideoTransitionOverlay from "./VideoTransitionOverlay";
 
 // Colores FIJOS del sobre: la "carta" se mantiene crema en día y noche
 // (una carta de papel crema sobre el fondo nocturno azul resulta elegante).
@@ -15,15 +16,16 @@ const TINTA_SUAVE = "#6d685d";
   Secuencia:
    1. Sobre cerrado, vertical, centrado, con el lacre (monograma) como botón.
    2. Al pulsar el lacre, la solapa superior gira en el eje X (transición 3D).
-   3. El sobre completo se desliza hacia arriba como un telón, revelando
-      la invitación que hay debajo (los `children`).
+   3. Dispara el vídeo de entrada (POV pasando por la mansión).
+   4. El vídeo completo, el sobre se desliza hacia arriba revelando la invitación.
 
   Velocidades pensadas para sentirse fluidas; ajustables abajo en TIEMPOS.
 */
 
 const TIEMPOS = {
   solapa: 950, // ms que tarda la solapa en abrirse
-  esperaAntesDeSubir: 700, // ms tras abrir antes de levantar el telón
+  esperaAntesDeVideo: 700, // ms tras abrir antes de iniciar video
+  video: 6500, // ms aproximado del vídeo (se completa naturalmente)
   subida: 1200, // ms que tarda el sobre en subir
 };
 
@@ -31,6 +33,7 @@ const CLAVE_SESION = "boda-sobre-abierto";
 
 export default function EnvelopeGate({ monograma = "R&C", nombres, children }) {
   const [abierto, setAbierto] = useState(false); // solapa abierta
+  const [videoPlaying, setVideoPlaying] = useState(false); // vídeo reproduciéndose
   const [subido, setSubido] = useState(false); // telón levantado
   const [fuera, setFuera] = useState(false); // desmontado del DOM
 
@@ -48,14 +51,31 @@ export default function EnvelopeGate({ monograma = "R&C", nombres, children }) {
       sessionStorage.setItem(CLAVE_SESION, "1");
     } catch {}
 
-    const t1 = TIEMPOS.solapa + TIEMPOS.esperaAntesDeSubir;
-    const t2 = t1 + TIEMPOS.subida;
-    setTimeout(() => setSubido(true), t1);
-    setTimeout(() => setFuera(true), t2);
+    // Iniciamos el vídeo después de que se abra la solapa
+    const tiempoVideo = TIEMPOS.solapa + TIEMPOS.esperaAntesDeVideo;
+    setTimeout(() => setVideoPlaying(true), tiempoVideo);
+
+    // Levantamos el telón después de que termine el vídeo
+    const tiempoSubida = tiempoVideo + TIEMPOS.video;
+    setTimeout(() => setSubido(true), tiempoSubida);
+    setTimeout(() => setFuera(true), tiempoSubida + TIEMPOS.subida);
+  }
+
+  function handleVideoComplete() {
+    // El vídeo terminó, puedes hacer algo aquí si lo necesitas
+    // (ya manejamos la subida con setTimeout)
   }
 
   return (
     <>
+      {/* Overlay de vídeo: entrada inmersiva */}
+      <VideoTransitionOverlay
+        videoSrc="/videos/video-casa-dia-entrada-boda-pro.mp4"
+        isPlaying={videoPlaying}
+        onComplete={handleVideoComplete}
+        title="Avanzando hacia la mansión…"
+      />
+
       {/* La invitación vive debajo del sobre y se revela al subir el telón */}
       {children}
 

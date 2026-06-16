@@ -27,15 +27,22 @@
   --font-script: var(--font-pinyon); /* caligráfica barroca */
 }
 
-/* Imagen de textura del fondo según el modo (Roberto las pone en public/images) */
+/* Imagen de textura del fondo según el modo (Roberto las pone en public/images)
+   Fallback: degradados sutiles que simulan papel/acuarela */
 :root,
 [data-theme="day"] {
-  --bg-paper: url("/images/bg-paper-day.jpg");
+  --bg-paper:
+    linear-gradient(135deg, rgba(245, 239, 225, 0.5) 0%, rgba(239, 232, 218, 0.5) 100%),
+    radial-gradient(ellipse at 20% 50%, rgba(255, 250, 240, 0.3) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(225, 210, 190, 0.2) 0%, transparent 50%);
 }
 
 /* ───────── MODO NOCHE: paleta invertida, fondo azul profundo ───────── */
 [data-theme="night"] {
-  --bg-paper: url("/images/bg-paper-night.jpg");
+  --bg-paper:
+    linear-gradient(135deg, rgba(13, 20, 48, 0.8) 0%, rgba(20, 29, 64, 0.8) 100%),
+    radial-gradient(ellipse at 20% 30%, rgba(50, 70, 150, 0.2) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(80, 100, 180, 0.15) 0%, transparent 50%);
 
   --color-marfil: #0d1430; /* fondo: azul noche profundo */
   --color-hueso: #141d40;

@@ -22,23 +22,26 @@ function MoonIcon() {
   );
 }
 
-export default function ThemeToggle() {
+export default function ThemeToggle({ isLoading = false }) {
   const { isNight, toggle } = useTheme();
 
   return (
     <button
       type="button"
       onClick={toggle}
+      disabled={isLoading}
       aria-label={isNight ? "Cambiar a modo día" : "Cambiar a modo noche"}
       title={isNight ? "Modo día" : "Modo noche"}
-      className="fixed right-5 top-5 z-[60] flex h-11 w-11 items-center justify-center rounded-full text-champagne backdrop-blur-sm transition-all duration-300 hover:scale-105"
+      className="fixed right-5 top-5 z-[60] flex h-11 w-11 items-center justify-center rounded-full text-champagne backdrop-blur-sm transition-all duration-300 hover:scale-105 disabled:opacity-60 disabled:cursor-not-allowed"
       style={{
         border: "1px solid rgba(200,170,110,0.45)",
         background: "rgba(255,255,255,0.06)",
         boxShadow: "0 2px 14px -6px rgba(0,0,0,0.35)",
       }}
     >
-      {isNight ? <SunIcon /> : <MoonIcon />}
+      <span className={isLoading ? "animate-spin" : ""}>
+        {isNight ? <SunIcon /> : <MoonIcon />}
+      </span>
     </button>
   );
 }

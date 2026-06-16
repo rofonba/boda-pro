@@ -3,6 +3,9 @@
 import { BODA } from "@/lib/event";
 import RsvpForm from "./RsvpForm";
 import GiftSection from "./GiftSection";
+import Countdown from "./Countdown";
+import LocationCard from "./LocationCard";
+import ParkingInfo from "./ParkingInfo";
 import { useTheme } from "./theme/ThemeProvider";
 
 /* Acuarela de la mansión: crossfade suave entre la versión de día y la de noche.
@@ -29,6 +32,17 @@ function HouseWatercolor({ isNight }) {
   );
 }
 
+/* Generador de saludo personalizado elegante */
+function generarSaludo(guest) {
+  if (!guest?.nombres) {
+    return "Tenemos el honor de invitarte a celebrar nuestro día más especial";
+  }
+
+  const verbo = guest.esPareja ? "Nos gustaría" : "Queremos";
+  const pronombre = guest.esPareja ? "que forméis" : "que formes";
+  return `${guest.nombres}, ${verbo} que ${pronombre} parte de nuestro día más especial`;
+}
+
 /* Pequeño separador con rombo dorado centrado */
 function Separador() {
   return (
@@ -40,45 +54,9 @@ function Separador() {
   );
 }
 
-function DetalleEvento({ data }) {
-  return (
-    <div className="flex flex-col items-center text-center">
-      <span className="text-[11px] tracking-luxe text-champagne uppercase">
-        {data.titulo}
-      </span>
-      <h3 className="mt-3 font-serif text-2xl text-carbon">{data.lugar}</h3>
-      {data.ciudad ? (
-        <p className="mt-1 text-sm text-grafito">{data.ciudad}</p>
-      ) : null}
-      {data.hora ? (
-        <p className="mt-1 font-serif text-sm italic text-grafito">{data.hora}</p>
-      ) : null}
-      {data.mapsUrl ? (
-        <a
-          href={data.mapsUrl}
-          target="_blank"
-          rel="noreferrer"
-          className="mt-4 text-[11px] tracking-luxe text-grafito uppercase underline decoration-champagne/50 underline-offset-4 transition-colors hover:text-carbon"
-        >
-          Ver mapa
-        </a>
-      ) : null}
-    </div>
-  );
-}
-
 export default function Invitation({ guest }) {
   const { isNight } = useTheme();
-
-  // Saludo personalizado según el invitado (o genérico si no hay id válido).
-  let saludo;
-  if (guest?.nombres) {
-    saludo = guest.esPareja
-      ? `${guest.nombres}, queremos que forméis parte de nuestro día`
-      : `${guest.nombres}, queremos que formes parte de nuestro día`;
-  } else {
-    saludo = "Queremos que formes parte de nuestro día";
-  }
+  const saludo = generarSaludo(guest);
 
   return (
     <main className="mx-auto w-full max-w-2xl px-6 pb-24">
@@ -110,16 +88,26 @@ export default function Invitation({ guest }) {
         </p>
       </section>
 
+      {/* ── CUENTA ATRÁS ── */}
+      <Separador />
+      <Countdown />
+      <Separador />
+
       {/* ── DETALLES DEL EVENTO ── */}
-      <section className="py-16">
+      <section className="py-20">
         <h2 className="text-center text-[11px] tracking-luxe text-grafito uppercase">
           La celebración
         </h2>
-        <div className="mt-12 grid gap-14 sm:grid-cols-2 sm:gap-8">
-          <DetalleEvento data={BODA.ceremonia} />
-          <DetalleEvento data={BODA.convite} />
+        <div className="mt-12 grid gap-8 sm:grid-cols-2">
+          <LocationCard data={BODA.ceremonia} />
+          <LocationCard data={BODA.convite} />
         </div>
       </section>
+
+      <Separador />
+
+      {/* ── INFORMACIÓN DE ESTACIONAMIENTO (Iglesia) ── */}
+      <ParkingInfo />
 
       <Separador />
 

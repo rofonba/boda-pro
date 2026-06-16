@@ -2,18 +2,22 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import ThemeToggle from "./ThemeToggle";
+import VideoTransitionOverlay from "../VideoTransitionOverlay";
 
 // Estado global del tema (Día / Noche) compartido por toda la app.
 const ThemeContext = createContext({
   isNight: false,
   setIsNight: () => {},
   toggle: () => {},
+  isPlayingTransition: false,
 });
 
 export const useTheme = () => useContext(ThemeContext);
 
 export default function ThemeProvider({ children }) {
   const [isNight, setIsNight] = useState(false);
+  const [isPlayingTransition, setIsPlayingTransition] = useState(false);
+  const [nextThemeIsNight, setNextThemeIsNight] = useState(false);
 
   // Recordar la preferencia entre visitas.
   useEffect(() => {
@@ -27,10 +31,25 @@ export default function ThemeProvider({ children }) {
     } catch {}
   }, [isNight]);
 
-  const toggle = () => setIsNight((v) => !v);
+  const toggle = () => {
+    setIsPlayingTransition(true);
+    setNextThemeIsNight((v) => !v);
+  };
+
+  const handleTransitionComplete = () => {
+    setIsNight((v) => !v);
+    setIsPlayingTransition(false);
+  };
 
   return (
-    <ThemeContext.Provider value={{ isNight, setIsNight, toggle }}>
+    <ThemeContext.Provider value={{ isNight, setIsNight, toggle, isPlayingTransition }}>
+      <VideoTransitionOverlay
+        videoSrc="/videos/video-transicion-casa-boda-pro.mp4"
+        isPlaying={isPlayingTransition}
+        onComplete={handleTransitionComplete}
+        title="Transformando el paisaje…"
+      />
+
       <div
         data-theme={isNight ? "night" : "day"}
         className="bg-paper relative flex min-h-screen flex-1 flex-col transition-colors duration-700"
@@ -44,7 +63,7 @@ export default function ThemeProvider({ children }) {
           }`}
         />
 
-        <ThemeToggle />
+        <ThemeToggle isLoading={isPlayingTransition} />
 
         {/* Contenido por encima del fondo y las estrellas */}
         <div className="relative z-10 flex flex-1 flex-col">{children}</div>
