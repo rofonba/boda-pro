@@ -29,7 +29,11 @@ const PARKINGS_IGLESIA = [
 
 function ParkingCard({ parking }) {
   return (
-    <div className="flex flex-col gap-2 rounded-lg border border-linea bg-marfil/40 p-4 backdrop-blur-sm transition-all hover:border-champagne/50 hover:shadow-md">
+    <div className="flex flex-col gap-2 rounded-lg border border-linea bg-marfil/40 p-4 backdrop-blur-sm transition-all duration-500 hover:border-champagne/50 hover:shadow-md"
+      style={{
+        borderColor: "var(--color-linea)",
+        backgroundColor: "rgba(255, 255, 255, 0.08)",
+      }}>
       {/* Nombre y distancia a pie */}
       <div className="flex items-start justify-between gap-2">
         <h4 className="font-serif text-sm font-medium text-carbon">

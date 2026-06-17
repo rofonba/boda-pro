@@ -8,7 +8,14 @@ export default function LocationCard({ data }) {
   };
 
   return (
-    <div className="flex flex-col items-center rounded-lg border border-linea bg-marfil/50 px-6 py-8 backdrop-blur-sm transition-all hover:border-champagne/50 hover:shadow-lg">
+    <div className="flex flex-col items-center rounded-lg border border-linea bg-marfil/50 px-6 py-8 backdrop-blur-sm transition-all duration-500 hover:border-champagne/50 hover:shadow-lg"
+      style={{
+        borderColor: "var(--color-linea)",
+        backgroundColor: "rgba(255, 255, 255, 0.08)",
+        transitionProperty: "all",
+        transitionDuration: "0.5s",
+        transitionTimingFunction: "ease-in-out",
+      }}>
       {/* Etiqueta superior */}
       <span className="text-[11px] tracking-luxe text-champagne uppercase">
         {data.titulo}

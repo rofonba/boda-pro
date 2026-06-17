@@ -7,6 +7,7 @@ import Countdown from "./Countdown";
 import LocationCard from "./LocationCard";
 import ParkingInfo from "./ParkingInfo";
 import HeroVideo from "./HeroVideo";
+import Timeline from "./Timeline";
 import { useTheme } from "./theme/ThemeProvider";
 
 /* Generador de saludo personalizado elegante */
@@ -36,10 +37,13 @@ export default function Invitation({ guest }) {
   const saludo = generarSaludo(guest);
 
   return (
-    <main className="mx-auto w-full max-w-2xl px-6 pb-24">
-      {/* ── PORTADA ── */}
-      <section className="flex min-h-[92vh] flex-col items-center justify-center pt-16 text-center">
-        {/* Vídeo hero: intro cinematográfica + imagen estática */}
+    <main className="mx-auto w-full max-w-4xl px-3 sm:px-6 pb-24">
+      {/* Timeline lateral (scroll-spy) */}
+      <Timeline />
+
+      {/* ── PORTADA (HERO ZOOM-IN) ── */}
+      <section className="flex min-h-[100vh] flex-col items-center justify-center pt-8 sm:pt-12 text-center" data-timeline-section>
+        {/* Vídeo hero: intro cinematográfica + imagen estática (ZOOM-IN CERCANO) */}
         <HeroVideo isNight={isNight} />
 
         <span className="text-[11px] tracking-luxe text-grafito uppercase">
@@ -71,7 +75,7 @@ export default function Invitation({ guest }) {
       <Separador />
 
       {/* ── DETALLES DEL EVENTO ── */}
-      <section className="py-20">
+      <section className="py-20" data-timeline-section>
         <h2 className="text-center text-[11px] tracking-luxe text-grafito uppercase">
           La celebración
         </h2>
@@ -89,14 +93,16 @@ export default function Invitation({ guest }) {
       <Separador />
 
       {/* ── CONFIRMACIÓN ── */}
-      <section id="confirmacion" className="py-16">
+      <section id="confirmacion" className="py-16" data-timeline-section>
         <RsvpForm guest={guest} />
       </section>
 
       <Separador />
 
       {/* ── REGALO ── */}
-      <GiftSection />
+      <section data-timeline-section>
+        <GiftSection />
+      </section>
 
       <footer className="mt-20 text-center">
         <div className="font-serif text-2xl text-carbon">

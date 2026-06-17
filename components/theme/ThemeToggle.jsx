@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useTheme } from "./ThemeProvider";
 
 /* Iconos finos con acabado dorado (stroke = currentColor del champagne) */
@@ -24,18 +25,28 @@ function MoonIcon() {
 
 export default function ThemeToggle() {
   const { isNight, toggle } = useTheme();
+  const [isAnimating, setIsAnimating] = useState(false);
+
+  const handleClick = () => {
+    setIsAnimating(true);
+    toggle();
+    // Reset animación después de que complete
+    setTimeout(() => setIsAnimating(false), 600);
+  };
 
   return (
     <button
       type="button"
-      onClick={toggle}
+      onClick={handleClick}
       aria-label={isNight ? "Cambiar a modo día" : "Cambiar a modo noche"}
       title={isNight ? "Modo día" : "Modo noche"}
-      className="fixed right-5 top-5 z-[60] flex h-11 w-11 items-center justify-center rounded-full text-champagne backdrop-blur-sm transition-all duration-300 hover:scale-105"
+      className="fixed right-5 top-5 z-[60] flex h-11 w-11 items-center justify-center rounded-full text-champagne backdrop-blur-sm transition-all duration-300 hover:scale-105 active:scale-95"
       style={{
         border: "1px solid rgba(200,170,110,0.45)",
         background: "rgba(255,255,255,0.06)",
         boxShadow: "0 2px 14px -6px rgba(0,0,0,0.35)",
+        transform: isAnimating ? "rotate(180deg) scale(0.8)" : "rotate(0deg)",
+        transition: "transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)",
       }}
     >
       {isNight ? <SunIcon /> : <MoonIcon />}
