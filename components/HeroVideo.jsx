@@ -26,7 +26,7 @@ export default function HeroVideo({ isNight }) {
   };
 
   return (
-    <div className="relative mx-auto mb-8 sm:mb-12 aspect-[3/4] sm:aspect-[4/3] w-full max-w-md sm:max-w-2xl overflow-hidden rounded-xl shadow-2xl">
+    <div className="relative mx-auto mb-12 aspect-[3/4] sm:aspect-[16/10] w-full max-w-sm sm:max-w-3xl overflow-hidden rounded-2xl shadow-2xl">
       {/* Vídeo: intro cinematográfica (solo primera vez en modo día) */}
       {!isNight && shouldPlayVideo && !videoEnded && (
         <video
