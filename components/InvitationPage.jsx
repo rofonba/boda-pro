@@ -3,7 +3,7 @@
 import { BODA } from "@/lib/event";
 import HeroVideo from "./HeroVideo";
 import GuestGreeting from "./GuestGreeting";
-import LocationCard from "./LocationCard";
+import LocationCardWithId from "./LocationCardWithId";
 import ParkingInfo from "./ParkingInfo";
 import RsvpFormComplete from "./RsvpFormComplete";
 import GiftSection from "./GiftSection";
@@ -21,7 +21,7 @@ function Separator() {
   );
 }
 
-export default function InvitationPage({ guestId }) {
+export default function InvitationPage() {
   const { isNight } = useTheme();
 
   return (
@@ -75,8 +75,8 @@ export default function InvitationPage({ guestId }) {
           La celebración
         </h2>
         <div className="mt-12 grid gap-8 sm:grid-cols-2">
-          <LocationCard data={BODA.ceremonia} />
-          <LocationCard data={BODA.convite} />
+          <LocationCardWithId data={BODA.ceremonia} />
+          <LocationCardWithId data={BODA.convite} />
         </div>
       </section>
 
@@ -92,7 +92,7 @@ export default function InvitationPage({ guestId }) {
       {/* ─────────────────────────────────────────── */}
       {/* SECCIÓN 6: RSVP - Formulario completo */}
       {/* ─────────────────────────────────────────── */}
-      <RsvpFormComplete guestId={guestId} />
+      <RsvpFormComplete />
 
       <Separator />
 

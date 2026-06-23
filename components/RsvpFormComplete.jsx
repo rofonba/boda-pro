@@ -1,8 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { useGuest } from "./GuestProvider";
+import { saveRsvpToFirestore } from "@/lib/firebase";
 
-export default function RsvpFormComplete({ guestId }) {
+export default function RsvpFormComplete() {
+  const { guestId, guest } = useGuest();
   const [formData, setFormData] = useState({
     asistencia: null,
     bus: null,
@@ -12,6 +15,7 @@ export default function RsvpFormComplete({ guestId }) {
 
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({
@@ -20,24 +24,44 @@ export default function RsvpFormComplete({ guestId }) {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setIsSubmitting(true);
 
     // Validación
     if (formData.asistencia === null) {
       setError("Por favor, confirma tu asistencia.");
+      setIsSubmitting(false);
       return;
     }
 
-    // Aquí iría la lógica para guardar en Firestore o una API
-    console.log("RSVP Enviado:", {
-      guestId,
-      ...formData,
-      timestamp: new Date().toISOString(),
-    });
+    try {
+      // Preparar datos para Firestore
+      const rsvpData = {
+        id_invitado: guestId || "generico",
+        nombre_invitado: guest?.nombres || "Invitado",
+        asistencia: formData.asistencia,
+        bus: formData.bus || null,
+        alergias: formData.alergias || "",
+        canciones: formData.canciones || "",
+        timestamp: new Date().toISOString(),
+        fechaEnvio: new Date(),
+      };
 
-    setSubmitted(true);
+      // Guardar en Firestore
+      await saveRsvpToFirestore(rsvpData);
+
+      console.log("RSVP guardado correctamente:", rsvpData);
+      setSubmitted(true);
+    } catch (err) {
+      console.error("Error al guardar RSVP:", err);
+      setError(
+        "Hubo un error al guardar tu confirmación. Por favor, intenta de nuevo."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (submitted) {
@@ -176,9 +200,10 @@ export default function RsvpFormComplete({ guestId }) {
           <div className="flex gap-4 pt-8">
             <button
               type="submit"
-              className="flex-1 rounded-lg bg-champagne/20 px-6 py-4 font-serif text-lg text-champagne transition-all duration-300 hover:bg-champagne/30 hover:shadow-lg active:scale-95 border border-champagne"
+              disabled={isSubmitting}
+              className="flex-1 rounded-lg bg-champagne/20 px-6 py-4 font-serif text-lg text-champagne transition-all duration-300 hover:bg-champagne/30 hover:shadow-lg active:scale-95 border border-champagne disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Confirmar asistencia
+              {isSubmitting ? "Enviando..." : "Confirmar asistencia"}
             </button>
           </div>
 

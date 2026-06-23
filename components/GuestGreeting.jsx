@@ -1,39 +1,22 @@
 "use client";
 
-// Base de invitados (puedes reemplazar con Firestore)
-const GUESTS_DB = {
-  "juan-maria": {
-    nombres: "Juan & María",
-    esPareja: true,
-  },
-  "ana": {
-    nombres: "Ana",
-    esPareja: false,
-  },
-  "pedro-lucia": {
-    nombres: "Pedro & Lucía",
-    esPareja: true,
-  },
-  "carlos": {
-    nombres: "Carlos",
-    esPareja: false,
-  },
-  // Añade más invitados aquí
-};
+import { useGuest } from "./GuestProvider";
+import { getGuestGreeting } from "@/data/guests";
 
-export default function GuestGreeting({ guestId }) {
-  const guest = guestId ? GUESTS_DB[guestId] : null;
+export default function GuestGreeting() {
+  const { guestId, guest, isLoading } = useGuest();
 
-  let saludo = "";
-  if (guest) {
-    if (guest.esPareja) {
-      saludo = `Hola ${guest.nombres}, nos hace mucha ilusión que forméis parte de nuestro día especial.`;
-    } else {
-      saludo = `Hola ${guest.nombres}, nos hace mucha ilusión que formes parte de nuestro día especial.`;
-    }
-  } else {
-    saludo = "Bienvenidos a nuestra boda. Nos hace mucha ilusión que forméis parte de este día tan especial.";
+  if (isLoading) {
+    return (
+      <section className="py-16 text-center">
+        <div className="animate-pulse">
+          <div className="mx-auto h-6 max-w-2xl rounded bg-linea/30" />
+        </div>
+      </section>
+    );
   }
+
+  const saludo = getGuestGreeting(guestId);
 
   return (
     <section className="py-16 text-center">

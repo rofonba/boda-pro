@@ -1,11 +1,12 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import GuestProvider from "./GuestProvider";
 import InvitationPage from "./InvitationPage";
 
 export default function HomeClient() {
-  const searchParams = useSearchParams();
-  const guestId = searchParams.get("id");
-
-  return <InvitationPage guestId={guestId} />;
+  return (
+    <GuestProvider>
+      <InvitationPage />
+    </GuestProvider>
+  );
 }
