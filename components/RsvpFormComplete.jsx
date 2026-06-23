@@ -36,10 +36,30 @@ export default function RsvpFormComplete() {
       return;
     }
 
+    // Validar que el invitado existe en Google Sheets
+    if (!guestId) {
+      setError("No se pudo identificar tu invitación. Por favor, verifica el enlace que recibiste.");
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
+      // Validar contra Google Sheets
+      const validateResponse = await fetch("/api/guests");
+      if (!validateResponse.ok) {
+        throw new Error("No se pudo validar la invitación");
+      }
+
+      const { data: guests } = await validateResponse.json();
+      if (!guests[guestId]) {
+        setError("Tu invitación no se encuentra en nuestros registros. Por favor, contacta con los novios.");
+        setIsSubmitting(false);
+        return;
+      }
+
       // Preparar datos para Firestore
       const rsvpData = {
-        id_invitado: guestId || "generico",
+        id_invitado: guestId,
         nombre_invitado: guest?.nombres || "Invitado",
         asistencia: formData.asistencia,
         bus: formData.bus || null,

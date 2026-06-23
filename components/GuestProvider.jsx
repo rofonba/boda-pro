@@ -2,7 +2,6 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { getGuestById } from "@/data/guests";
 
 // Contexto global para datos del invitado
 const GuestContext = createContext({
@@ -26,19 +25,41 @@ export default function GuestProvider({ children }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Capturar ID de la URL
     const id = searchParams.get("id");
     setGuestId(id);
 
-    // Buscar datos del invitado
-    if (id) {
-      const guestData = getGuestById(id);
-      setGuest(guestData);
-    } else {
-      setGuest(null);
-    }
+    const fetchGuest = async () => {
+      if (!id) {
+        setGuest(null);
+        setIsLoading(false);
+        return;
+      }
 
-    setIsLoading(false);
+      try {
+        // Obtener lista de invitados desde la API
+        const response = await fetch("/api/guests");
+        if (!response.ok) {
+          throw new Error("No se pudo obtener lista de invitados");
+        }
+
+        const { data: guests } = await response.json();
+        const guestData = guests[id.toLowerCase()];
+
+        if (guestData) {
+          setGuest(guestData);
+        } else {
+          setGuest(null);
+          console.warn(`Invitado no encontrado: ${id}`);
+        }
+      } catch (error) {
+        console.error("Error cargando datos del invitado:", error);
+        setGuest(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchGuest();
   }, [searchParams]);
 
   const value = {

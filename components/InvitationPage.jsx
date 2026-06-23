@@ -56,7 +56,7 @@ export default function InvitationPage() {
       {/* ─────────────────────────────────────────── */}
       {/* SECCIÓN 2: Bienvenida personalizada */}
       {/* ─────────────────────────────────────────── */}
-      <GuestGreeting guestId={guestId} />
+      <GuestGreeting />
 
       <Separator />
 

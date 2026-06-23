@@ -1,10 +1,9 @@
 "use client";
 
 import { useGuest } from "./GuestProvider";
-import { getGuestGreeting } from "@/data/guests";
 
 export default function GuestGreeting() {
-  const { guestId, guest, isLoading } = useGuest();
+  const { guest, isLoading } = useGuest();
 
   if (isLoading) {
     return (
@@ -16,7 +15,17 @@ export default function GuestGreeting() {
     );
   }
 
-  const saludo = getGuestGreeting(guestId);
+  // Generar saludo basado en los datos del guest
+  let saludo = "Bienvenidos a nuestra boda. Nos hace mucha ilusión que forméis parte de este día tan especial.";
+
+  if (guest) {
+    const nombre = guest.nombres || "Invitado";
+    if (guest.esPareja) {
+      saludo = `Hola ${nombre}, nos hace mucha ilusión que forméis parte de nuestro día especial.`;
+    } else {
+      saludo = `Hola ${nombre}, nos hace mucha ilusión que formes parte de nuestro día especial.`;
+    }
+  }
 
   return (
     <section className="py-16 text-center">
