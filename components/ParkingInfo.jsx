@@ -1,5 +1,64 @@
 "use client";
 
+// Timeline de eventos del día
+const TIMELINE_EVENTOS = [
+  {
+    id: "ceremonia",
+    hora: "12:00h",
+    titulo: "Ceremonia",
+    icono: "🕐",
+    detalles: [
+      { label: "Duración estimada:", valor: "45 minutos" },
+    ],
+    notas: "Por favor, llega con 15 minutos de anticipación",
+    tieneLinea: true,
+  },
+  {
+    id: "desplazamiento",
+    hora: "~12:45h",
+    titulo: "Desplazamiento",
+    icono: "🚗",
+    detalles: [
+      { label: "Tiempo:", valor: "15-30 minutos (según tráfico)" },
+    ],
+    notas: "Tiempo aproximado hasta la celebración",
+    tieneLinea: true,
+  },
+  {
+    id: "coctel",
+    hora: "13:00h",
+    titulo: "Cóctel de Bienvenida",
+    icono: "🥂",
+    detalles: [
+      { label: "Ubicación:", valor: "Jardines de la Celebración" },
+    ],
+    notas: "Disfruta de bebidas y camarones mientras nos reencontramos",
+    tieneLinea: true,
+  },
+  {
+    id: "almuerzo",
+    hora: "15:00h",
+    titulo: "Almuerzo de Celebración",
+    icono: "🍽️",
+    detalles: [
+      { label: "Menú:", valor: "Primer y segundo plato especialmente diseñado" },
+    ],
+    notas: "Brindis y celebración de nuestro gran día",
+    tieneLinea: true,
+  },
+  {
+    id: "fiestas",
+    hora: "00:00h",
+    titulo: "Fin de Fiesta",
+    icono: "✨",
+    detalles: [
+      { label: "Despedida:", valor: "Último baile y sorpresas finales" },
+    ],
+    notas: "Servicio de autobús disponible para el regreso",
+    tieneLinea: false, // Último evento, sin línea
+  },
+];
+
 const PARKINGS_IGLESIA = [
   {
     nombre: "Parking Catedral",
@@ -54,58 +113,56 @@ export default function ParkingInfo() {
   return (
     <section className="py-20">
       {/* ─────────────────────────────────────────── */}
-      {/* TIMELINE: CEREMONIA Y DESPLAZAMIENTO */}
+      {/* TIMELINE: DÍA COMPLETO */}
       {/* ─────────────────────────────────────────── */}
       <div className="mb-16">
         <h2 className="text-center text-[11px] tracking-luxe text-champagne uppercase mb-10">
-          Timing del Evento
+          Cronograma del Día
         </h2>
 
         {/* Timeline Visual */}
         <div className="mx-auto max-w-2xl">
-          {/* Hora de Ceremonia */}
-          <div className="mb-12 flex gap-6">
-            {/* Círculo izquierdo */}
-            <div className="flex flex-col items-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-champagne bg-marfil">
-                <span className="text-lg">🕐</span>
+          {TIMELINE_EVENTOS.map((evento, index) => (
+            <div key={evento.id} className="mb-12 flex gap-6 last:mb-0">
+              {/* Columna izquierda: icono y línea */}
+              <div className="flex flex-col items-center">
+                {/* Círculo con icono */}
+                <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-champagne bg-marfil">
+                  <span className="text-lg">{evento.icono}</span>
+                </div>
+
+                {/* Línea conectora (si no es el último) */}
+                {evento.tieneLinea && (
+                  <div className="mt-3 h-20 w-px bg-gradient-to-b from-champagne to-champagne/30" />
+                )}
               </div>
-              <div className="mt-3 h-16 w-px bg-gradient-to-b from-champagne to-champagne/30" />
-            </div>
 
-            {/* Contenido */}
-            <div className="flex-1 pt-1">
-              <h3 className="font-serif text-lg text-carbon">Ceremonia</h3>
-              <p className="mt-2 text-sm font-semibold text-champagne">12:00h</p>
-              <p className="mt-2 text-sm text-grafito">
-                Duración estimada: <span className="font-semibold">45 minutos</span>
-              </p>
-              <p className="mt-2 text-xs italic text-grafito/70">
-                Por favor, llega con 15 minutos de anticipación
-              </p>
-            </div>
-          </div>
+              {/* Columna derecha: contenido */}
+              <div className="flex-1 pt-1 pb-4">
+                <h3 className="font-serif text-lg text-carbon">
+                  {evento.titulo}
+                </h3>
+                <p className="mt-2 text-sm font-semibold text-champagne">
+                  {evento.hora}
+                </p>
 
-          {/* Desplazamiento */}
-          <div className="flex gap-6">
-            {/* Círculo izquierdo */}
-            <div className="flex flex-col items-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-champagne/60 bg-marfil">
-                <span className="text-lg">🚗</span>
+                {/* Detalles */}
+                {evento.detalles.map((detalle, i) => (
+                  <p key={i} className="mt-2 text-sm text-grafito">
+                    {detalle.label}{" "}
+                    <span className="font-semibold">{detalle.valor}</span>
+                  </p>
+                ))}
+
+                {/* Notas */}
+                {evento.notas && (
+                  <p className="mt-2 text-xs italic text-grafito/70">
+                    {evento.notas}
+                  </p>
+                )}
               </div>
             </div>
-
-            {/* Contenido */}
-            <div className="flex-1 pt-1">
-              <h3 className="font-serif text-lg text-carbon">Desplazamiento</h3>
-              <p className="mt-2 text-sm text-grafito">
-                <span className="font-semibold text-champagne">15-30 minutos</span> (dependiendo del tráfico)
-              </p>
-              <p className="mt-3 text-xs italic text-grafito/70">
-                Tiempo aproximado desde la ceremonia hasta la celebración
-              </p>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
 
