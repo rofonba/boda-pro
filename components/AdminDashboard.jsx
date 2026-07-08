@@ -14,11 +14,15 @@ export default function AdminDashboard({ password }) {
 
   useEffect(() => {
     fetchStats();
-  }, []);
+    // Refresh automático cada 30 segundos
+    const interval = setInterval(fetchStats, 30000);
+    return () => clearInterval(interval);
+  }, [password]);
 
   const fetchStats = async () => {
     try {
       setLoading(true);
+      console.log("[Admin Dashboard] Cargando estadísticas...");
 
       // Obtener estadísticas
       const statsResponse = await fetch(
@@ -26,10 +30,12 @@ export default function AdminDashboard({ password }) {
       );
 
       if (!statsResponse.ok) {
-        throw new Error("No autorizado");
+        console.error("[Admin Dashboard] Error en stats API:", statsResponse.status);
+        throw new Error("No autorizado - " + statsResponse.status);
       }
 
       const statsData = await statsResponse.json();
+      console.log("[Admin Dashboard] Estadísticas cargadas:", statsData);
       setStats(statsData);
 
       // Obtener lista de invitados
@@ -39,11 +45,15 @@ export default function AdminDashboard({ password }) {
 
       if (guestsResponse.ok) {
         const guestsData = await guestsResponse.json();
+        console.log("[Admin Dashboard] Invitados cargados:", guestsData.count);
         setGuests(guestsData.guests || []);
+      } else {
+        console.warn("[Admin Dashboard] No se pudo obtener lista de invitados:", guestsResponse.status);
       }
 
       setError("");
     } catch (err) {
+      console.error("[Admin Dashboard] Error:", err);
       setError("Error al cargar datos: " + err.message);
       setStats(null);
       setGuests([]);
@@ -123,54 +133,81 @@ export default function AdminDashboard({ password }) {
         <p className="mt-2 text-grafito">Roberto & Cristina · Boda 2027</p>
       </div>
 
-      {/* ESTADÍSTICAS */}
-      <section className="mb-12 grid gap-6 sm:grid-cols-2">
-        {/* Total Confirmados */}
-        <div className="rounded-lg border border-linea bg-marfil/50 p-6">
-          <p className="text-sm uppercase text-champagne">Confirmados</p>
-          <p className="mt-2 text-4xl font-bold text-carbon">
-            {stats?.stats.confirmados || 0}
-          </p>
-          <p className="mt-1 text-xs text-grafito">
-            de {stats?.stats.total || 0} invitados
-          </p>
+      {/* ESTADÍSTICAS - MÉTRICAS PRINCIPALES */}
+      <section className="mb-12">
+        <h2 className="text-center font-serif text-2xl text-carbon mb-6">Métricas de Invitados</h2>
+
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5 mb-8">
+          {/* Total Invitados */}
+          <div className="rounded-lg border border-linea bg-marfil/50 p-6">
+            <p className="text-xs uppercase text-champagne font-semibold">Total</p>
+            <p className="mt-3 text-3xl font-bold text-carbon">
+              {stats?.stats.total || 0}
+            </p>
+            <p className="mt-2 text-[10px] text-grafito">invitados</p>
+          </div>
+
+          {/* Confirmados */}
+          <div className="rounded-lg border-2 border-champagne bg-champagne/10 p-6">
+            <p className="text-xs uppercase text-champagne font-semibold">Confirmados</p>
+            <p className="mt-3 text-3xl font-bold text-carbon">
+              {stats?.stats.confirmados || 0}
+            </p>
+            <p className="mt-2 text-[10px] text-grafito">
+              {((stats?.stats.confirmados || 0) / (stats?.stats.total || 1) * 100).toFixed(0)}%
+            </p>
+          </div>
+
+          {/* Rechazados */}
+          <div className="rounded-lg border border-linea bg-marfil/50 p-6">
+            <p className="text-xs uppercase text-grafito font-semibold">Rechazados</p>
+            <p className="mt-3 text-3xl font-bold text-carbon">
+              {stats?.stats.rechazados || 0}
+            </p>
+            <p className="mt-2 text-[10px] text-grafito">
+              {((stats?.stats.rechazados || 0) / (stats?.stats.total || 1) * 100).toFixed(0)}%
+            </p>
+          </div>
+
+          {/* Pendientes */}
+          <div className="rounded-lg border border-linea bg-marfil/50 p-6">
+            <p className="text-xs uppercase text-carbon font-semibold">Pendientes</p>
+            <p className="mt-3 text-3xl font-bold text-carbon">
+              {stats?.stats.sinConfirmar || 0}
+            </p>
+            <p className="mt-2 text-[10px] text-grafito">
+              {((stats?.stats.sinConfirmar || 0) / (stats?.stats.total || 1) * 100).toFixed(0)}%
+            </p>
+          </div>
+
+          {/* Con Autobús */}
+          <div className="rounded-lg border border-linea bg-marfil/50 p-6">
+            <p className="text-xs uppercase text-champagne font-semibold">🚌 Autobús</p>
+            <p className="mt-3 text-3xl font-bold text-carbon">
+              {stats?.stats.conBus || 0}
+            </p>
+            <p className="mt-2 text-[10px] text-grafito">
+              {((stats?.stats.conBus || 0) / (stats?.stats.confirmados || 1) * 100).toFixed(0)}% confirmados
+            </p>
+          </div>
         </div>
 
-        {/* Rechazados */}
-        <div className="rounded-lg border border-linea bg-marfil/50 p-6">
-          <p className="text-sm uppercase text-grafito">No pueden asistir</p>
-          <p className="mt-2 text-4xl font-bold text-carbon">
-            {stats?.stats.rechazados || 0}
-          </p>
-          <p className="mt-1 text-xs text-grafito">
-            {stats?.stats.sinConfirmar || 0} sin confirmar
-          </p>
-        </div>
-
-        {/* Con Bus */}
-        <div className="rounded-lg border border-linea bg-marfil/50 p-6">
-          <p className="text-sm uppercase text-champagne">Con autobús</p>
-          <p className="mt-2 text-4xl font-bold text-carbon">
-            {stats?.stats.conBus || 0}
-          </p>
-          <p className="mt-1 text-xs text-grafito">
-            {(
-              ((stats?.stats.conBus || 0) / (stats?.stats.total || 1)) *
-              100
-            ).toFixed(0)}
-            % de confirmados
-          </p>
-        </div>
-
-        {/* Total Invitados */}
-        <div className="rounded-lg border border-linea bg-marfil/50 p-6">
-          <p className="text-sm uppercase text-champagne">Total invitados</p>
-          <p className="mt-2 text-4xl font-bold text-carbon">
-            {stats?.stats.total || 0}
-          </p>
-          <p className="mt-1 text-xs text-grafito">
-            Confirmación: {(((stats?.stats.confirmados || 0) / (stats?.stats.total || 1)) * 100).toFixed(0)}%
-          </p>
+        {/* Barra de progreso */}
+        <div className="rounded-lg bg-marfil/50 p-4">
+          <div className="flex justify-between text-xs text-grafito mb-2">
+            <span>Progreso de Confirmación</span>
+            <span className="font-semibold">
+              {((stats?.stats.confirmados || 0) / (stats?.stats.total || 1) * 100).toFixed(1)}%
+            </span>
+          </div>
+          <div className="w-full h-2 bg-marfil rounded-full overflow-hidden">
+            <div
+              className="h-full bg-champagne transition-all duration-500"
+              style={{
+                width: `${((stats?.stats.confirmados || 0) / (stats?.stats.total || 1) * 100).toFixed(1)}%`,
+              }}
+            />
+          </div>
         </div>
       </section>
 

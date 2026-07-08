@@ -15,6 +15,9 @@ export default function AdminPage() {
     setIsLoading(true);
 
     try {
+      console.log("[Admin Login] Iniciando validación de contraseña...");
+      console.log("[Admin Login] Contraseña: " + (password ? password.length + " caracteres" : "vacía"));
+
       // Enviar contraseña al servidor para validación
       const response = await fetch("/api/admin/verify-password", {
         method: "POST",
@@ -22,27 +25,33 @@ export default function AdminPage() {
         body: JSON.stringify({ password }),
       });
 
+      console.log("[Admin Login] Respuesta HTTP:", response.status, response.statusText);
+
       const data = await response.json();
+      console.log("[Admin Login] Respuesta JSON:", data);
 
       if (data.authenticated) {
+        console.log("[Admin Login] ✓ Autenticación exitosa - Acceso al dashboard");
         setIsAuthenticated(true);
-        setPassword("");
       } else {
-        setError(data.error || "Contraseña incorrecta");
+        console.error("[Admin Login] ✗ Autenticación fallida:", data.error);
+        setError(data.error || "Credenciales inválidas");
         setPassword("");
       }
     } catch (err) {
-      console.error("[Admin Login] Error:", err);
+      console.error("[Admin Login] ERROR de conexión:", err);
       setError("Error al verificar la contraseña. Intenta de nuevo.");
     } finally {
       setIsLoading(false);
     }
   };
 
+  // Si está autenticado, mostrar dashboard
   if (isAuthenticated) {
     return <AdminDashboard password={password} />;
   }
 
+  // Si no, mostrar formulario de login
   return (
     <main className="flex min-h-screen items-center justify-center bg-marfil px-6">
       <div className="w-full max-w-sm rounded-lg border border-linea bg-white p-8 shadow-sm">
