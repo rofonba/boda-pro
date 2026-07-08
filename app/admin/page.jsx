@@ -7,17 +7,35 @@ export default function AdminPage() {
   const [password, setPassword] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
+    setError("");
+    setIsLoading(true);
 
-    // Validar contraseña
-    if (password === process.env.NEXT_PUBLIC_ADMIN_PASSWORD) {
-      setIsAuthenticated(true);
-      setError("");
-    } else {
-      setError("Contraseña incorrecta");
-      setPassword("");
+    try {
+      // Enviar contraseña al servidor para validación
+      const response = await fetch("/api/admin/verify-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
+      });
+
+      const data = await response.json();
+
+      if (data.authenticated) {
+        setIsAuthenticated(true);
+        setPassword("");
+      } else {
+        setError(data.error || "Contraseña incorrecta");
+        setPassword("");
+      }
+    } catch (err) {
+      console.error("[Admin Login] Error:", err);
+      setError("Error al verificar la contraseña. Intenta de nuevo.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -49,7 +67,8 @@ export default function AdminPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Ingresa la contraseña"
-              className="mt-2 w-full rounded-lg border border-linea bg-marfil/30 px-4 py-3 text-carbon placeholder-grafito/50 transition-colors focus:border-champagne focus:outline-none focus:ring-1 focus:ring-champagne/30"
+              disabled={isLoading}
+              className="mt-2 w-full rounded-lg border border-linea bg-marfil/30 px-4 py-3 text-carbon placeholder-grafito/50 transition-colors focus:border-champagne focus:outline-none focus:ring-1 focus:ring-champagne/30 disabled:opacity-50"
             />
           </div>
 
@@ -61,9 +80,10 @@ export default function AdminPage() {
 
           <button
             type="submit"
-            className="w-full rounded-lg bg-champagne/30 px-4 py-3 font-serif text-champagne transition-all hover:bg-champagne/50"
+            disabled={isLoading}
+            className="w-full rounded-lg bg-champagne/30 px-4 py-3 font-serif text-champagne transition-all hover:bg-champagne/50 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Acceder
+            {isLoading ? "Verificando..." : "Acceder"}
           </button>
         </form>
 
