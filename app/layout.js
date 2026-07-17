@@ -1,4 +1,5 @@
 import localFont from "next/font/local";
+import Script from "next/script";
 import "./globals.css";
 import ThemeProvider from "@/components/theme/ThemeProvider";
 
@@ -50,6 +51,34 @@ export default function RootLayout({ children }) {
       lang="es"
       className={`${playfair.variable} ${montserrat.variable} ${pinyon.variable} h-full antialiased`}
     >
+      <head>
+        {/* Script que previene flash de tema (parpadeo mode noche/día) */}
+        {/* Se ejecuta ANTES de que React renderice nada */}
+        <Script
+          id="theme-script"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  // Leer preferencia guardada en localStorage (coincide con ThemeProvider)
+                  const savedTheme = localStorage.getItem('boda-tema');
+
+                  // Si no hay preferencia guardada, usar preferencia del sistema
+                  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                  const theme = savedTheme || (prefersDark ? 'night' : 'day');
+
+                  // Aplicar tema INMEDIATAMENTE, antes de que el navegador renderice
+                  document.documentElement.setAttribute('data-theme', theme);
+                } catch (e) {
+                  // Fallback silencioso: no romper si hay error
+                  document.documentElement.setAttribute('data-theme', 'day');
+                }
+              })();
+            `,
+          }}
+        />
+      </head>
       <body className="min-h-full flex flex-col">
         {/* ThemeProvider mantiene el estado global Día/Noche y pinta el fondo */}
         <ThemeProvider>{children}</ThemeProvider>
