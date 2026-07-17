@@ -1,6 +1,5 @@
 // API Route para obtener estadísticas de RSVPs
-import { db } from "@/lib/firebase";
-import { collection, getDocs } from "firebase/firestore";
+import { getAllDocuments } from "@/lib/firebase";
 
 export async function GET(request) {
   const timestamp = new Date().toISOString();
@@ -35,29 +34,8 @@ export async function GET(request) {
 
     // 2. Obtener todos los RSVPs de Firestore
     console.log(`[ADMIN STATS] Conectando a Firestore...`);
-    const rsvpsCollection = collection(db, "rsvps");
-    const snapshot = await getDocs(rsvpsCollection);
+    const rsvps = await getAllDocuments("rsvps");
     console.log(`[ADMIN STATS] ✓ Conectado a Firestore`);
-
-    // 3. Procesar documentos
-    console.log(`[ADMIN STATS] Leyendo documentos de Firestore...`);
-    const rsvps = [];
-    let processedCount = 0;
-
-    snapshot.forEach((doc) => {
-      try {
-        const data = doc.data();
-        rsvps.push({
-          id: doc.id,
-          ...data,
-        });
-        processedCount++;
-      } catch (docError) {
-        console.warn(`[ADMIN STATS] ⚠ Error procesando documento ${doc.id}:`, docError.message);
-      }
-    });
-
-    console.log(`[ADMIN STATS] ✓ Procesados ${processedCount} documentos de Firestore`);
     console.log(`[ADMIN STATS] Total de RSVPs: ${rsvps.length}`);
 
     // 4. Calcular estadísticas con validaciones robustas
