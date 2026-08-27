@@ -3,7 +3,7 @@
 import { BODA } from "@/lib/event";
 import HeroVideo from "./HeroVideo";
 import GuestGreeting from "./GuestGreeting";
-import LocationCardWithId from "./LocationCardWithId";
+import LocationCard from "./LocationCard";
 import ParkingInfo from "./ParkingInfo";
 import RsvpFormComplete from "./RsvpFormComplete";
 import GiftSection from "./GiftSection";
@@ -75,8 +75,8 @@ export default function InvitationPage() {
           La celebración
         </h2>
         <div className="mt-12 grid gap-8 sm:grid-cols-2">
-          <LocationCardWithId data={BODA.ceremonia} />
-          <LocationCardWithId data={BODA.convite} />
+          <LocationCard data={BODA.ceremonia} />
+          <LocationCard data={BODA.convite} />
         </div>
       </section>
 

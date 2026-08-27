@@ -2,36 +2,41 @@
 
 import { useGuest } from "./GuestProvider";
 
+/**
+ * Saludo de bienvenida.
+ *
+ * El invitado llega resuelto desde el servidor, así que aquí no hay estado de
+ * carga: el nombre ya está en el HTML de la primera respuesta.
+ */
 export default function GuestGreeting() {
-  const { guest, isLoading } = useGuest();
-
-  if (isLoading) {
-    return (
-      <section className="py-16 text-center">
-        <div className="animate-pulse">
-          <div className="mx-auto h-6 max-w-2xl rounded bg-linea/30" />
-        </div>
-      </section>
-    );
-  }
-
-  // Generar saludo basado en los datos del guest
-  let saludo = "Bienvenidos a nuestra boda. Nos hace mucha ilusión que forméis parte de este día tan especial.";
-
-  if (guest) {
-    const nombre = guest.nombres || "Invitado";
-    if (guest.esPareja) {
-      saludo = `Hola ${nombre}, nos hace mucha ilusión que forméis parte de nuestro día especial.`;
-    } else {
-      saludo = `Hola ${nombre}, nos hace mucha ilusión que formes parte de nuestro día especial.`;
-    }
-  }
+  const { invitado, invitacionNoEncontrada } = useGuest();
 
   return (
     <section className="py-16 text-center">
-      <p className="mx-auto max-w-2xl font-serif text-lg italic leading-relaxed text-carbon">
-        {saludo}
-      </p>
+      {invitado ? (
+        <>
+          <h2 className="font-script text-5xl text-carbon sm:text-6xl">
+            ¡Hola, {invitado.nombre}!
+          </h2>
+          <p className="mx-auto mt-6 max-w-2xl font-serif text-lg italic leading-relaxed text-carbon">
+            Nos hace muchísima ilusión que formes parte de este día. Hemos
+            preparado esta invitación solo para ti.
+          </p>
+        </>
+      ) : (
+        <>
+          <p className="mx-auto max-w-2xl font-serif text-lg italic leading-relaxed text-carbon">
+            Bienvenidos a nuestra boda. Nos hace mucha ilusión que forméis parte
+            de este día tan especial.
+          </p>
+          {invitacionNoEncontrada && (
+            <p className="mx-auto mt-6 max-w-xl text-sm text-grafito">
+              No hemos localizado tu invitación con ese enlace. Revisa el enlace
+              que te enviamos o escríbenos y te lo reenviamos encantados.
+            </p>
+          )}
+        </>
+      )}
     </section>
   );
 }

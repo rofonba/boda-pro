@@ -1,59 +1,65 @@
-"use client";
+// Tarjeta de un lugar de la celebración.
+//
+// El nombre del lugar es un enlace real (<a>), no un botón con window.open:
+// así funciona el toque en móvil, el clic con rueda, "abrir en pestaña nueva"
+// y la app de Google Maps, y no necesita JavaScript. Por eso el componente no
+// lleva "use client".
+
+/** Icono de pin de mapa. */
+function IconoMapa() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      className="h-4 w-4"
+    >
+      <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+      <circle cx="12" cy="10" r="3" />
+    </svg>
+  );
+}
 
 export default function LocationCard({ data }) {
-  const handleOpenMap = () => {
-    if (data.mapsUrl) {
-      window.open(data.mapsUrl, "_blank", "noopener,noreferrer");
-    }
-  };
+  const { titulo, lugar, ciudad, hora, mapsUrl } = data;
 
   return (
-    <div className="flex flex-col items-center rounded-lg border border-linea bg-marfil/50 px-6 py-8 backdrop-blur-sm transition-all duration-500 hover:border-champagne/50 hover:shadow-lg"
-      style={{
-        borderColor: "var(--color-linea)",
-        backgroundColor: "rgba(255, 255, 255, 0.08)",
-        transitionProperty: "all",
-        transitionDuration: "0.5s",
-        transitionTimingFunction: "ease-in-out",
-      }}>
-      {/* Etiqueta superior */}
-      <span className="text-[11px] tracking-luxe text-champagne uppercase">
-        {data.titulo}
-      </span>
+    <div className="flex flex-col items-center rounded-lg border border-linea bg-crema/10 px-6 py-8 backdrop-blur-sm transition-all duration-500 hover:border-champagne/50 hover:shadow-lg">
+      <span className="text-[11px] tracking-luxe text-champagne uppercase">{titulo}</span>
 
-      {/* Lugar principal */}
       <h3 className="mt-4 text-center font-serif text-2xl text-carbon">
-        {data.lugar}
+        {mapsUrl ? (
+          <a
+            href={mapsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            title={`Ver ${lugar} en Google Maps`}
+            className="underline decoration-champagne/40 decoration-1 underline-offset-4 transition-colors hover:text-champagne hover:decoration-champagne"
+          >
+            {lugar}
+          </a>
+        ) : (
+          lugar
+        )}
       </h3>
 
-      {/* Ciudad */}
-      {data.ciudad && (
-        <p className="mt-2 text-sm text-grafito">{data.ciudad}</p>
-      )}
+      {ciudad && <p className="mt-2 text-sm text-grafito">{ciudad}</p>}
+      {hora && <p className="mt-2 font-serif text-sm italic text-grafito">{hora}</p>}
 
-      {/* Hora (si aplica) */}
-      {data.hora && (
-        <p className="mt-2 font-serif text-sm italic text-grafito">{data.hora}</p>
-      )}
-
-      {/* Botón de Google Maps */}
-      {data.mapsUrl && (
-        <button
-          type="button"
-          onClick={handleOpenMap}
+      {mapsUrl && (
+        <a
+          href={mapsUrl}
+          target="_blank"
+          rel="noopener noreferrer"
           className="mt-6 inline-flex items-center gap-2 rounded-full border border-champagne bg-champagne/5 px-4 py-2.5 text-[11px] tracking-luxe text-champagne uppercase transition-all hover:bg-champagne/15 hover:shadow-md"
         >
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            className="h-4 w-4"
-          >
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m-2 15l-5-5.41 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-          </svg>
-          Abrir en Mapas
-        </button>
+          <IconoMapa />
+          Cómo llegar
+        </a>
       )}
     </div>
   );

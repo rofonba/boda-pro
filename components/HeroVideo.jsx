@@ -1,63 +1,63 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useEffect, useState } from "react";
 
-const INTRO_SESSION_KEY = "boda-intro-played";
+const CLAVE_INTRO = "boda-intro-reproducida";
 
+/**
+ * Cabecera del hero: la casa en acuarela, con un vídeo de intro la primera vez.
+ *
+ * Las dos imágenes (día y noche) se pintan siempre y es el CSS quien decide
+ * cuál se ve, a partir de data-theme del <html>. Por eso la casa correcta
+ * aparece en el primer fotograma, sin esperar a que React hidrate y sin
+ * parpadeo. El vídeo se superpone después, solo si procede.
+ *
+ * @param {{ isNight: boolean|null }} props isNight es null hasta que se conoce
+ *   el tema; mientras lo sea, no se reproduce nada.
+ */
 export default function HeroVideo({ isNight }) {
-  const [videoEnded, setVideoEnded] = useState(false);
-  const [shouldPlayVideo, setShouldPlayVideo] = useState(false);
-  const videoRef = useRef(null);
+  const [reproducirIntro, setReproducirIntro] = useState(false);
 
-  // Solo reproduce el vídeo la primera vez que el usuario carga la página en esta sesión
   useEffect(() => {
-    const hasPlayedIntro = sessionStorage.getItem(INTRO_SESSION_KEY);
-    if (!hasPlayedIntro && !isNight) {
-      setShouldPlayVideo(true);
-      sessionStorage.setItem(INTRO_SESSION_KEY, "true");
-    } else {
-      // Si ya se reprodujo o estamos en noche, mostrar imagen directamente
-      setVideoEnded(true);
+    // isNight === null → el tema aún no se conoce; esperamos.
+    if (isNight !== false) return;
+
+    try {
+      if (sessionStorage.getItem(CLAVE_INTRO)) return;
+      sessionStorage.setItem(CLAVE_INTRO, "1");
+    } catch {
+      return; // Sin sessionStorage, mejor no reproducir en cada navegación.
     }
+    setReproducirIntro(true);
   }, [isNight]);
 
-  const handleVideoEnded = () => {
-    setVideoEnded(true);
-  };
-
   return (
-    <div className="relative mx-auto mb-12 aspect-[3/4] sm:aspect-[16/10] w-full max-w-sm sm:max-w-3xl overflow-hidden rounded-2xl shadow-2xl">
-      {/* Vídeo: intro cinematográfica (solo primera vez en modo día) */}
-      {!isNight && shouldPlayVideo && !videoEnded && (
-        <video
-          ref={videoRef}
-          src="/videos/video-casa-dia-entrada-boda-pro.mp4"
-          autoPlay
-          muted
-          playsInline
-          onEnded={handleVideoEnded}
-          className="h-full w-full object-cover transition-opacity duration-1000"
-        />
-      )}
-
-      {/* Crossfade a imagen estática cuando vídeo termina */}
+    <div className="relative mx-auto mb-12 aspect-[3/4] w-full max-w-sm overflow-hidden rounded-2xl shadow-2xl sm:aspect-[16/10] sm:max-w-3xl">
       <img
         src="/images/house-day.png"
         alt="Ilustración en acuarela de la mansión a la luz del día"
-        className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-1000 ease-in-out ${
-          isNight ? "opacity-0" : videoEnded ? "opacity-100" : "opacity-0"
-        }`}
+        className="hero-casa hero-casa--dia"
       />
-
-      {/* Imagen noche: aparece directamente en modo noche */}
       <img
         src="/images/house-night.png"
         alt=""
         aria-hidden
-        className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-1000 ease-in-out ${
-          isNight ? "opacity-100" : "opacity-0"
-        }`}
+        className="hero-casa hero-casa--noche"
       />
+
+      {/* Vídeo de intro: se superpone a la imagen y, al acabar, se desmonta
+          dejándola a la vista. No hay fundido desde un hueco en blanco. */}
+      {reproducirIntro && (
+        <video
+          src="/videos/video-casa-dia-entrada-boda-pro.mp4"
+          autoPlay
+          muted
+          playsInline
+          onEnded={() => setReproducirIntro(false)}
+          onError={() => setReproducirIntro(false)}
+          className="absolute inset-0 z-10 h-full w-full object-cover"
+        />
+      )}
     </div>
   );
 }

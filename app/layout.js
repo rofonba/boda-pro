@@ -1,5 +1,4 @@
 import localFont from "next/font/local";
-import Script from "next/script";
 import "./globals.css";
 import ThemeProvider from "@/components/theme/ThemeProvider";
 
@@ -45,42 +44,45 @@ export const metadata = {
     "Nos casamos. Tenemos el placer de invitaros a celebrar nuestro día.",
 };
 
+// ── Anti-parpadeo del modo noche ────────────────────────────────────────────
+// Script SÍNCRONO e inline en el <head>. El navegador lo ejecuta mientras
+// parsea el HTML, ANTES de pintar el primer píxel, así que el tema correcto ya
+// está aplicado en el primer fotograma y no hay destello del tema contrario.
+//
+// Tiene que ser un <script> normal y no <Script> de next/script: las estrategias
+// de next/script (incluida beforeInteractive) no bloquean el pintado, así que
+// llegarían tarde y el parpadeo seguiría.
+//
+// A partir de aquí el tema vive en el atributo data-theme del <html> y todos los
+// colores salen de las variables CSS de globals.css. React no participa en
+// pintar el tema, que es justo lo que elimina el parpadeo.
+const SCRIPT_TEMA = `
+(function () {
+  try {
+    var t = localStorage.getItem("boda-tema");
+    if (t !== "day" && t !== "night") {
+      t = window.matchMedia("(prefers-color-scheme: dark)").matches ? "night" : "day";
+    }
+    document.documentElement.dataset.theme = t;
+  } catch (e) {
+    document.documentElement.dataset.theme = "day";
+  }
+})();
+`;
+
 export default function RootLayout({ children }) {
   return (
+    // suppressHydrationWarning: el script de arriba modifica data-theme antes de
+    // que React hidrate, y sin esto React avisaría de la diferencia.
     <html
       lang="es"
+      suppressHydrationWarning
       className={`${playfair.variable} ${montserrat.variable} ${pinyon.variable} h-full antialiased`}
     >
       <head>
-        {/* Script que previene flash de tema (parpadeo mode noche/día) */}
-        {/* Se ejecuta ANTES de que React renderice nada */}
-        <Script
-          id="theme-script"
-          strategy="beforeInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                try {
-                  // Leer preferencia guardada en localStorage (coincide con ThemeProvider)
-                  const savedTheme = localStorage.getItem('boda-tema');
-
-                  // Si no hay preferencia guardada, usar preferencia del sistema
-                  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                  const theme = savedTheme || (prefersDark ? 'night' : 'day');
-
-                  // Aplicar tema INMEDIATAMENTE, antes de que el navegador renderice
-                  document.documentElement.setAttribute('data-theme', theme);
-                } catch (e) {
-                  // Fallback silencioso: no romper si hay error
-                  document.documentElement.setAttribute('data-theme', 'day');
-                }
-              })();
-            `,
-          }}
-        />
+        <script dangerouslySetInnerHTML={{ __html: SCRIPT_TEMA }} />
       </head>
       <body className="min-h-full flex flex-col">
-        {/* ThemeProvider mantiene el estado global Día/Noche y pinta el fondo */}
         <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>

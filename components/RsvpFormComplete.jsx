@@ -2,109 +2,114 @@
 
 import { useState } from "react";
 import { useGuest } from "./GuestProvider";
-import { saveRsvpToFirestore } from "@/lib/firebase";
+
+const CLASES_CAMPO =
+  "mt-3 w-full rounded-lg border border-linea bg-crema px-4 py-3 text-carbon " +
+  "placeholder-grafito/50 transition-all duration-300 focus:border-champagne " +
+  "focus:outline-none focus:ring-2 focus:ring-champagne/20";
+
+/** Par de botones Sí / No, en lugar de radios sueltos: más claro en móvil. */
+function Eleccion({ etiqueta, valor, onChange, opciones }) {
+  return (
+    <fieldset>
+      <legend className="font-serif text-lg text-carbon">{etiqueta}</legend>
+      <div className="mt-4 flex gap-3">
+        {opciones.map((op) => {
+          const activo = valor === op.valor;
+          return (
+            <button
+              key={String(op.valor)}
+              type="button"
+              onClick={() => onChange(op.valor)}
+              aria-pressed={activo}
+              className={
+                "flex-1 rounded-lg border px-4 py-3 transition-all duration-300 " +
+                (activo
+                  ? "border-champagne bg-champagne/20 text-champagne"
+                  : "border-linea text-grafito hover:border-champagne/50")
+              }
+            >
+              {op.texto}
+            </button>
+          );
+        })}
+      </div>
+    </fieldset>
+  );
+}
 
 export default function RsvpFormComplete() {
-  const { guestId, guest } = useGuest();
-  const [formData, setFormData] = useState({
-    asistencia: null,
-    bus: null,
-    alergias: "",
-    canciones: "",
-  });
+  const { invitado, sinEnlace, guardarRespuesta } = useGuest();
 
-  const [submitted, setSubmitted] = useState(false);
+  // El formulario arranca con lo que el invitado ya hubiera contestado, así
+  // puede volver a la web y editar su respuesta sin empezar de cero.
+  const [asistencia, setAsistencia] = useState(invitado?.asistencia ?? "Pendiente");
+  const [autobus, setAutobus] = useState(invitado?.autobus ?? null);
+  const [alergia, setAlergia] = useState(invitado?.alergia ?? "");
+  const [cancion, setCancion] = useState(invitado?.cancion ?? "");
+
+  const [guardando, setGuardando] = useState(false);
+  const [guardado, setGuardado] = useState(false);
   const [error, setError] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleChange = (field, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
+  // Sin invitación identificada no hay a quién guardar la respuesta.
+  if (!invitado) {
+    return (
+      <section id="rsvp" className="py-20 text-center">
+        <h2 className="font-serif text-3xl text-carbon">Confirmación de asistencia</h2>
+        <p className="mx-auto mt-6 max-w-xl text-grafito">
+          {sinEnlace
+            ? "Para confirmar tu asistencia, entra desde el enlace personal que te enviamos."
+            : "No hemos podido identificar tu invitación. Escríbenos y te reenviamos tu enlace."}
+        </p>
+      </section>
+    );
+  }
 
-  const handleSubmit = async (e) => {
+  const enviar = async (e) => {
     e.preventDefault();
     setError("");
-    setIsSubmitting(true);
 
-    // Validación
-    if (formData.asistencia === null) {
-      setError("Por favor, confirma tu asistencia.");
-      setIsSubmitting(false);
+    if (asistencia === "Pendiente") {
+      setError("Dinos si podrás acompañarnos.");
       return;
     }
 
-    // Validar que el invitado existe en Google Sheets
-    if (!guestId) {
-      setError("No se pudo identificar tu invitación. Por favor, verifica el enlace que recibiste.");
-      setIsSubmitting(false);
-      return;
-    }
-
+    setGuardando(true);
     try {
-      // Validar contra Google Sheets
-      const validateResponse = await fetch("/api/guests");
-      if (!validateResponse.ok) {
-        throw new Error("No se pudo validar la invitación");
-      }
-
-      const { data: guests } = await validateResponse.json();
-      if (!guests[guestId]) {
-        setError("Tu invitación no se encuentra en nuestros registros. Por favor, contacta con los novios.");
-        setIsSubmitting(false);
-        return;
-      }
-
-      // Preparar datos para Firestore
-      const rsvpData = {
-        id_invitado: guestId,
-        nombre_invitado: guest?.nombres || "Invitado",
-        asistencia: formData.asistencia,
-        bus: formData.bus || null,
-        alergias: formData.alergias || "",
-        canciones: formData.canciones || "",
-        timestamp: new Date().toISOString(),
-        fechaEnvio: new Date(),
-      };
-
-      // Guardar en Firestore
-      await saveRsvpToFirestore(rsvpData);
-
-      console.log("RSVP guardado correctamente:", rsvpData);
-      setSubmitted(true);
+      await guardarRespuesta({
+        asistencia,
+        // Si no asiste, el autobús no aplica.
+        autobus: asistencia === "Sí" ? autobus === true : false,
+        alergia,
+        cancion,
+      });
+      setGuardado(true);
     } catch (err) {
-      console.error("Error al guardar RSVP:", err);
-      setError(
-        "Hubo un error al guardar tu confirmación. Por favor, intenta de nuevo."
-      );
+      setError(err.message);
     } finally {
-      setIsSubmitting(false);
+      setGuardando(false);
     }
   };
 
-  if (submitted) {
+  if (guardado) {
     return (
-      <section className="py-20 text-center">
-        <div className="mx-auto max-w-2xl rounded-lg border border-champagne/50 bg-marfil/30 px-6 py-12 backdrop-blur-sm">
-          <h3 className="font-serif text-2xl text-carbon">¡Gracias por confirmar!</h3>
+      <section id="rsvp" className="py-20 text-center">
+        <div className="mx-auto max-w-2xl rounded-lg border border-champagne/50 bg-crema/40 px-6 py-12">
+          <h3 className="font-serif text-2xl text-carbon">
+            {asistencia === "Sí" ? "¡Gracias por confirmar!" : "Gracias por avisarnos"}
+          </h3>
           <p className="mt-4 text-grafito">
-            Hemos recibido tu confirmación. Te esperamos el 15 de mayo de 2027.
+            {asistencia === "Sí"
+              ? "Te esperamos el 15 de mayo de 2027."
+              : "Sentimos que no puedas venir. Te echaremos de menos."}
           </p>
           <button
-            onClick={() => {
-              setSubmitted(false);
-              setFormData({
-                asistencia: null,
-                bus: null,
-                alergias: "",
-                canciones: "",
-              });
-            }}
+            type="button"
+            onClick={() => setGuardado(false)}
             className="mt-6 text-champagne underline hover:text-carbon"
           >
-            Editar respuesta
+            Editar mi respuesta
           </button>
         </div>
       </section>
@@ -114,121 +119,82 @@ export default function RsvpFormComplete() {
   return (
     <section id="rsvp" className="py-20">
       <div className="mx-auto max-w-2xl">
-        <h2 className="text-center font-serif text-3xl text-carbon">Confirmación de Asistencia</h2>
+        <h2 className="text-center font-serif text-3xl text-carbon">
+          Confirmación de asistencia
+        </h2>
 
-        <form onSubmit={handleSubmit} className="mt-12 space-y-8">
-          {/* Error message */}
+        <form onSubmit={enviar} className="mt-12 space-y-10">
           {error && (
-            <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
+            <p
+              role="alert"
+              className="rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700"
+            >
               {error}
-            </div>
+            </p>
           )}
 
-          {/* ASISTENCIA */}
-          <fieldset className="space-y-4">
-            <legend className="font-serif text-lg text-carbon">
-              ¿Asistirás a la boda?
-            </legend>
-            <div className="flex gap-4">
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="radio"
-                  name="asistencia"
-                  value="si"
-                  checked={formData.asistencia === "si"}
-                  onChange={(e) => handleChange("asistencia", e.target.value)}
-                  className="h-5 w-5 cursor-pointer"
-                />
-                <span className="text-carbon">Sí, ¡por supuesto!</span>
-              </label>
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="radio"
-                  name="asistencia"
-                  value="no"
-                  checked={formData.asistencia === "no"}
-                  onChange={(e) => handleChange("asistencia", e.target.value)}
-                  className="h-5 w-5 cursor-pointer"
-                />
-                <span className="text-carbon">No puedo asistir</span>
-              </label>
-            </div>
-          </fieldset>
+          <Eleccion
+            etiqueta="¿Nos acompañarás?"
+            valor={asistencia}
+            onChange={setAsistencia}
+            opciones={[
+              { valor: "Sí", texto: "Sí, allí estaré" },
+              { valor: "No", texto: "No podré ir" },
+            ]}
+          />
 
-          {/* BUS */}
-          <fieldset className="space-y-4">
-            <legend className="font-serif text-lg text-carbon">
-              ¿Necesitas servicio de autobús?
-            </legend>
-            <div className="flex gap-4">
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="radio"
-                  name="bus"
-                  value="si"
-                  checked={formData.bus === "si"}
-                  onChange={(e) => handleChange("bus", e.target.value)}
-                  className="h-5 w-5 cursor-pointer"
-                />
-                <span className="text-carbon">Sí</span>
-              </label>
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="radio"
-                  name="bus"
-                  value="no"
-                  checked={formData.bus === "no"}
-                  onChange={(e) => handleChange("bus", e.target.value)}
-                  className="h-5 w-5 cursor-pointer"
-                />
-                <span className="text-carbon">No</span>
-              </label>
-            </div>
-          </fieldset>
+          {asistencia === "Sí" && (
+            <Eleccion
+              etiqueta="¿Necesitas plaza en el autobús?"
+              valor={autobus}
+              onChange={setAutobus}
+              opciones={[
+                { valor: true, texto: "Sí, resérvame" },
+                { valor: false, texto: "No, gracias" },
+              ]}
+            />
+          )}
 
-          {/* ALERGIAS */}
           <div>
-            <label htmlFor="alergias" className="block font-serif text-lg text-carbon">
-              Alergias o restricciones dietéticas
+            <label htmlFor="alergia" className="block font-serif text-lg text-carbon">
+              Alergias o intolerancias
             </label>
             <textarea
-              id="alergias"
-              value={formData.alergias}
-              onChange={(e) => handleChange("alergias", e.target.value)}
-              placeholder="Cuéntanos si tienes alguna alergia o restricción"
-              className="mt-3 w-full rounded-lg border border-linea bg-white px-4 py-3 text-carbon placeholder-grafito/50 transition-all duration-300 focus:border-champagne focus:outline-none focus:ring-2 focus:ring-champagne/20"
-              rows="3"
+              id="alergia"
+              rows={3}
+              maxLength={500}
+              value={alergia}
+              onChange={(e) => setAlergia(e.target.value)}
+              placeholder="Cuéntanos si hay algo que debamos tener en cuenta"
+              className={CLASES_CAMPO}
             />
           </div>
 
-          {/* CANCIONES */}
           <div>
-            <label htmlFor="canciones" className="block font-serif text-lg text-carbon">
-              Canciones imprescindibles
+            <label htmlFor="cancion" className="block font-serif text-lg text-carbon">
+              Una canción que no puede faltar
             </label>
             <textarea
-              id="canciones"
-              value={formData.canciones}
-              onChange={(e) => handleChange("canciones", e.target.value)}
-              placeholder="¿Hay alguna canción que no puede faltar en la boda?"
-              className="mt-3 w-full rounded-lg border border-linea bg-white px-4 py-3 text-carbon placeholder-grafito/50 transition-all duration-300 focus:border-champagne focus:outline-none focus:ring-2 focus:ring-champagne/20"
-              rows="3"
+              id="cancion"
+              rows={2}
+              maxLength={500}
+              value={cancion}
+              onChange={(e) => setCancion(e.target.value)}
+              placeholder="La que te haría salir a la pista"
+              className={CLASES_CAMPO}
             />
           </div>
 
-          {/* SUBMIT BUTTON */}
-          <div className="flex gap-4 pt-8">
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="flex-1 rounded-lg bg-champagne/20 px-6 py-4 font-serif text-lg text-champagne transition-all duration-300 hover:bg-champagne/30 hover:shadow-lg active:scale-95 border border-champagne disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isSubmitting ? "Enviando..." : "Confirmar asistencia"}
-            </button>
-          </div>
+          <button
+            type="submit"
+            disabled={guardando}
+            className="w-full rounded-lg border border-champagne bg-champagne/20 px-6 py-4 font-serif text-lg text-champagne transition-all duration-300 hover:bg-champagne/30 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {guardando ? "Guardando…" : "Enviar respuesta"}
+          </button>
 
           <p className="text-center text-xs text-grafito">
-            Tus datos se guardarán de forma segura. Podrás editar tu respuesta en cualquier momento.
+            Podrás cambiar tu respuesta cuando quieras desde este mismo enlace.
           </p>
         </form>
       </div>

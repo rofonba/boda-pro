@@ -2,194 +2,144 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { signOut } from "firebase/auth";
-import { getAuthClient } from "@/lib/firebase";
+import { getAuthClient } from "@/lib/firebaseClient";
 import { subscribeGuests } from "@/lib/guests";
+import ResumenBoda from "@/components/dashboard/ResumenBoda";
 
-/* nº de adultos de una invitación: el principal + acompañante (si viene).
-   Los niños se cuentan aparte en `ninos`. */
-const adultosDe = (g) => 1 + (g.acompanante ? 1 : 0);
-
-/* Nombre a mostrar del invitado principal */
-const principalDe = (g) => g.nombreCompleto || g.nombres || "";
-
-function Tarjeta({ valor, etiqueta }) {
-  return (
-    <div className="border border-linea bg-crema px-6 py-7 text-center">
-      <div className="font-serif text-4xl text-carbon">{valor}</div>
-      <div className="mt-2 text-[11px] tracking-luxe text-grafito uppercase">
-        {etiqueta}
-      </div>
-    </div>
-  );
-}
-
-function Estado({ g }) {
-  if (g.confirmado === true && g.asiste === true)
-    return <span className="text-emerald-700">Asiste</span>;
-  if (g.confirmado === true && g.asiste === false)
-    return <span className="text-red-700">No asiste</span>;
-  return <span className="text-grafito">Pendiente</span>;
-}
-
-/* Escapa un valor para CSV (comillas, separador, saltos de línea) */
-function csvEscape(v) {
-  const s = String(v ?? "");
-  return /[";\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
-}
-
+/**
+ * Panel privado con sesión — /backstage
+ *
+ * Muestra el mismo resumen que /dashboard (mismo componente, mismo cálculo),
+ * pero actualizándose en tiempo real y con la tabla completa de invitados y la
+ * exportación a CSV.
+ */
 export default function Dashboard({ user }) {
-  const [guests, setGuests] = useState([]);
+  const [invitados, setInvitados] = useState(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const unsub = subscribeGuests(
-      (lista) => setGuests(lista),
-      (err) => {
-        console.error(err);
-        setError(
-          "No se pudieron cargar los invitados. Revisa las reglas de Firestore."
-        );
-      }
-    );
-    return () => unsub();
+    return subscribeGuests(setInvitados, (e) => setError(e.message));
   }, []);
 
-  const stats = useMemo(() => {
-    const asisten = guests.filter((g) => g.confirmado && g.asiste);
-    return {
-      total: guests.length,
-      respondidos: guests.filter((g) => g.confirmado).length,
-      pendientes: guests.filter((g) => !g.confirmado).length,
-      adultos: asisten.reduce((acc, g) => acc + adultosDe(g), 0),
-      ninos: asisten.reduce((acc, g) => acc + (Number(g.ninos) || 0), 0),
-      autobus: asisten
-        .filter((g) => g.autobus)
-        .reduce((acc, g) => acc + adultosDe(g) + (Number(g.ninos) || 0), 0),
-    };
-  }, [guests]);
+  const csv = useMemo(() => {
+    if (!invitados) return "";
 
-  // Descarga un .csv (compatible con Excel) con los invitados que han respondido.
-  function exportarCSV() {
-    const confirmados = guests.filter((g) => g.confirmado === true);
+    const escapar = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+    const cabecera = ["Nº", "Nombre", "Enlace", "Asistencia", "Autobús", "Alergia", "Canción"];
 
-    const columnas = [
-      "Invitado Principal",
-      "Asistencia",
-      "Acompañante",
-      "Autobús",
-      "Niños",
-      "Alergias",
-    ];
-
-    const filas = confirmados.map((g) => [
-      principalDe(g),
-      g.asiste ? "Sí" : "No",
-      g.acompanante ? g.nombreAcompanante || "Sí" : "No",
-      g.asiste && g.autobus ? "Sí" : "No",
-      g.asiste ? Number(g.ninos) || 0 : 0,
-      g.asiste ? g.alergias || "" : "",
+    const filas = invitados.map((g) => [
+      g.numero ?? "",
+      g.nombre,
+      `/?id=${g.id}`,
+      g.asistencia,
+      g.autobus ? "Sí" : "No",
+      g.alergia,
+      g.cancion,
     ]);
 
-    // BOM (﻿) + separador ';' → Excel en español lo abre en columnas.
-    const lineas = [columnas, ...filas].map((fila) =>
-      fila.map(csvEscape).join(";")
-    );
-    const csv = "﻿" + lineas.join("\r\n");
+    return [cabecera, ...filas].map((f) => f.map(escapar).join(",")).join("\n");
+  }, [invitados]);
 
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const descargarCsv = () => {
+    // BOM al principio para que Excel abra los acentos correctamente.
+    const blob = new Blob([`﻿${csv}`], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "confirmaciones-boda-RyC.csv";
-    document.body.appendChild(a);
+    a.download = "invitados-boda.csv";
     a.click();
-    document.body.removeChild(a);
     URL.revokeObjectURL(url);
-  }
+  };
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-6 py-12">
-      {/* Cabecera */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
+    <main className="mx-auto w-full max-w-5xl px-6 py-16">
+      <header className="flex flex-wrap items-baseline justify-between gap-4">
         <div>
-          <h1 className="font-serif text-3xl text-carbon">Confirmaciones</h1>
-          <p className="mt-1 text-xs text-grafito">{user?.email}</p>
+          <h1 className="font-serif text-3xl text-carbon">Backstage</h1>
+          {user?.email && <p className="mt-1 text-xs text-grafito">{user.email}</p>}
         </div>
-        <div className="flex items-center gap-6">
-          <button
-            onClick={exportarCSV}
-            className="bg-carbon px-6 py-3 text-[11px] tracking-luxe text-marfil uppercase transition-opacity hover:opacity-90"
-          >
-            Exportar CSV
-          </button>
-          <button
-            onClick={() => signOut(getAuthClient())}
-            className="text-[11px] tracking-luxe text-grafito uppercase underline decoration-champagne/50 underline-offset-4 hover:text-carbon"
-          >
-            Salir
-          </button>
-        </div>
-      </div>
+        <button
+          type="button"
+          onClick={() => signOut(getAuthClient())}
+          className="text-sm text-grafito underline hover:text-carbon"
+        >
+          Cerrar sesión
+        </button>
+      </header>
 
-      {error && <p className="mt-6 text-sm text-red-700">{error}</p>}
+      {error && (
+        <p
+          role="alert"
+          className="mt-8 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700"
+        >
+          No se pudo leer la lista de invitados: {error}
+        </p>
+      )}
 
-      {/* Contadores en tiempo real */}
-      <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3">
-        <Tarjeta valor={stats.adultos} etiqueta="Adultos confirmados" />
-        <Tarjeta valor={stats.ninos} etiqueta="Niños (-13 años)" />
-        <Tarjeta valor={stats.autobus} etiqueta="Personas en autobús" />
-        <Tarjeta valor={stats.respondidos} etiqueta="Han respondido" />
-        <Tarjeta valor={stats.pendientes} etiqueta="Pendientes" />
-        <Tarjeta valor={stats.total} etiqueta="Invitaciones" />
-      </div>
+      {invitados === null && !error ? (
+        <p className="mt-16 text-center font-serif italic text-grafito">Cargando…</p>
+      ) : (
+        invitados && (
+          <>
+            <div className="mt-16">
+              <ResumenBoda invitados={invitados} />
+            </div>
 
-      {/* Tabla */}
-      <div className="mt-12 overflow-x-auto border border-linea bg-crema">
-        <table className="w-full min-w-[820px] text-left text-sm">
-          <thead>
-            <tr className="border-b border-linea text-[10px] tracking-luxe text-grafito uppercase">
-              <th className="px-4 py-4 font-medium">Invitado principal</th>
-              <th className="px-4 py-4 font-medium">Estado</th>
-              <th className="px-4 py-4 font-medium">Acompañante</th>
-              <th className="px-4 py-4 text-center font-medium">Autobús</th>
-              <th className="px-4 py-4 text-center font-medium">Niños</th>
-              <th className="px-4 py-4 font-medium">Alergias</th>
-            </tr>
-          </thead>
-          <tbody>
-            {guests.length === 0 && (
-              <tr>
-                <td colSpan={6} className="px-4 py-10 text-center text-grafito">
-                  Aún no hay invitados en Firestore.
-                </td>
-              </tr>
-            )}
-            {guests.map((g) => (
-              <tr
-                key={g.id}
-                className="border-b border-linea/60 last:border-0 text-carbon"
-              >
-                <td className="px-4 py-4 font-serif">{principalDe(g)}</td>
-                <td className="px-4 py-4">
-                  <Estado g={g} />
-                </td>
-                <td className="px-4 py-4 text-grafito">
-                  {g.confirmado && g.asiste && g.acompanante
-                    ? g.nombreAcompanante || "Sí"
-                    : "—"}
-                </td>
-                <td className="px-4 py-4 text-center">
-                  {g.confirmado && g.asiste && g.autobus ? "Sí" : "—"}
-                </td>
-                <td className="px-4 py-4 text-center">
-                  {g.confirmado && g.asiste ? Number(g.ninos) || 0 : "—"}
-                </td>
-                <td className="px-4 py-4 text-grafito">{g.alergias || "—"}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
+            <section className="mt-16">
+              <div className="flex flex-wrap items-baseline justify-between gap-4">
+                <h2 className="text-[11px] tracking-luxe text-grafito uppercase">
+                  Invitados ({invitados.length})
+                </h2>
+                <button
+                  type="button"
+                  onClick={descargarCsv}
+                  className="rounded-full border border-champagne px-4 py-2 text-[11px] tracking-luxe text-champagne uppercase transition-colors hover:bg-champagne/15"
+                >
+                  Descargar CSV
+                </button>
+              </div>
+
+              <div className="mt-6 overflow-x-auto">
+                <table className="w-full min-w-[44rem] text-left text-sm">
+                  <thead className="border-b border-linea text-[11px] tracking-luxe text-grafito uppercase">
+                    <tr>
+                      <th className="py-3 pr-4">Nº</th>
+                      <th className="py-3 pr-4">Nombre</th>
+                      <th className="py-3 pr-4">Enlace</th>
+                      <th className="py-3 pr-4">Asistencia</th>
+                      <th className="py-3 pr-4">Autobús</th>
+                      <th className="py-3 pr-4">Alergia</th>
+                      <th className="py-3">Canción</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-linea">
+                    {invitados.map((g) => (
+                      <tr key={g.id}>
+                        <td className="py-3 pr-4 text-grafito">{g.numero ?? "—"}</td>
+                        <td className="py-3 pr-4 text-carbon">{g.nombre}</td>
+                        <td className="py-3 pr-4">
+                          <a
+                            href={`/?id=${g.id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-champagne underline"
+                          >
+                            /?id={g.id}
+                          </a>
+                        </td>
+                        <td className="py-3 pr-4 text-carbon">{g.asistencia}</td>
+                        <td className="py-3 pr-4 text-grafito">{g.autobus ? "Sí" : "—"}</td>
+                        <td className="py-3 pr-4 text-grafito">{g.alergia || "—"}</td>
+                        <td className="py-3 text-grafito">{g.cancion || "—"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </>
+        )
+      )}
+    </main>
   );
 }

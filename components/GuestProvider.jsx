@@ -1,76 +1,68 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { createContext, useCallback, useContext, useMemo, useState } from "react";
 
-// Contexto global para datos del invitado
-const GuestContext = createContext({
-  guestId: null,
-  guest: null,
-  isLoading: true,
-});
+/**
+ * Contexto del invitado.
+ *
+ * No hace ninguna petición al montarse: el invitado llega ya resuelto desde el
+ * servidor (ver app/page.js), así que el saludo se pinta en el primer render.
+ * La única llamada a red que ocurre es el PATCH al guardar la respuesta.
+ */
+const GuestContext = createContext(null);
 
-export const useGuest = () => {
-  const context = useContext(GuestContext);
-  if (!context) {
-    throw new Error("useGuest debe ser usado dentro de GuestProvider");
+export function useGuest() {
+  const contexto = useContext(GuestContext);
+  if (!contexto) {
+    throw new Error("useGuest debe usarse dentro de <GuestProvider>");
   }
-  return context;
-};
+  return contexto;
+}
 
-export default function GuestProvider({ children }) {
-  const searchParams = useSearchParams();
-  const [guestId, setGuestId] = useState(null);
-  const [guest, setGuest] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+export default function GuestProvider({ children, invitadoInicial = null, slug = null }) {
+  const [invitado, setInvitado] = useState(invitadoInicial);
 
-  useEffect(() => {
-    const id = searchParams.get("id");
-    setGuestId(id);
-
-    const fetchGuest = async () => {
-      if (!id) {
-        setGuest(null);
-        setIsLoading(false);
-        return;
+  /**
+   * Guarda la respuesta del invitado.
+   * Solo envía los cuatro campos que le pertenecen; el nombre y el número los
+   * protege la API, que no los admite.
+   *
+   * @param {{asistencia?: string, autobus?: boolean, alergia?: string, cancion?: string}} respuesta
+   */
+  const guardarRespuesta = useCallback(
+    async (respuesta) => {
+      if (!invitado) {
+        throw new Error("No hay invitación que actualizar.");
       }
 
-      try {
-        // Obtener lista de invitados desde la API
-        const response = await fetch("/api/guests");
-        if (!response.ok) {
-          throw new Error("No se pudo obtener lista de invitados");
-        }
+      const res = await fetch(`/api/guests?id=${encodeURIComponent(invitado.id)}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(respuesta),
+      });
 
-        const { data: guests } = await response.json();
-        const guestData = guests[id.toLowerCase()];
-
-        if (guestData) {
-          setGuest(guestData);
-        } else {
-          setGuest(null);
-          console.warn(`Invitado no encontrado: ${id}`);
-        }
-      } catch (error) {
-        console.error("Error cargando datos del invitado:", error);
-        setGuest(null);
-      } finally {
-        setIsLoading(false);
+      const datos = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(datos.error ?? "No se pudo guardar la respuesta.");
       }
-    };
 
-    fetchGuest();
-  }, [searchParams]);
-
-  const value = {
-    guestId,
-    guest,
-    isLoading,
-  };
-
-  return (
-    <GuestContext.Provider value={value}>
-      {children}
-    </GuestContext.Provider>
+      setInvitado(datos.invitado);
+      return datos.invitado;
+    },
+    [invitado]
   );
+
+  const valor = useMemo(
+    () => ({
+      invitado,
+      // Se pidió invitación concreta pero el slug no existe en la lista.
+      invitacionNoEncontrada: Boolean(slug) && invitado === null,
+      // Se entró a la web sin enlace personalizado.
+      sinEnlace: !slug,
+      guardarRespuesta,
+    }),
+    [invitado, slug, guardarRespuesta]
+  );
+
+  return <GuestContext.Provider value={valor}>{children}</GuestContext.Provider>;
 }

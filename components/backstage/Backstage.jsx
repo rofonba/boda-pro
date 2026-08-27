@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
-import { getAuthClient } from "@/lib/firebase";
+import { getAuthClient } from "@/lib/firebaseClient";
 import LoginForm from "./LoginForm";
 import Dashboard from "./Dashboard";
 

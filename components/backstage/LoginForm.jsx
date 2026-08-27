@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { getAuthClient } from "@/lib/firebase";
+import { getAuthClient } from "@/lib/firebaseClient";
 import { BODA } from "@/lib/event";
 
 export default function LoginForm() {

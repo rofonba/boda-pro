@@ -1,208 +1,146 @@
 /**
- * API Route: GET /api/guests
+ * API de invitados — pública, sin autenticación.
  *
- * ACCESO PÚBLICO (sin autenticación requerida)
- * ────────────────────────────────────────────────────────────
- * Esta API es de SOLO LECTURA y está abierta al público.
- * Lee directamente de Firestore (colección: invitados)
+ *   GET   /api/guests?id=virginia-agudo   → datos del invitado (saludo personalizado)
+ *   PATCH /api/guests?id=virginia-agudo   → guarda su respuesta
  *
- * CASOS DE USO:
- * 1. GET /api/guests → Devuelve lista completa de invitados
- * 2. GET /api/guests?id=juan-perez → Devuelve invitado específico
- * 3. Formulario de invitados - búsqueda pública
- * 4. GuestProvider - cargar datos del invitado en URL
+ * El `id` es el slug del nombre y es también el ID del documento en Firestore,
+ * así que la lectura es un acceso directo por clave: sin consultas ni filtros.
  *
- * NOTA: Los datos de Firestore contienen:
- *   - nombre (string)
- *   - numero (string)
- *   - asistencia (string: Pendiente, Sí, No)
- *   - autobus (boolean)
- *   - alergia (string)
- *   - cancion (string)
- * ────────────────────────────────────────────────────────────
+ * En PATCH solo se escriben los cuatro campos que el invitado controla. El
+ * `nombre` y el `numero` no se pueden modificar desde aquí por diseño: no están
+ * en la lista blanca, así que aunque llegasen en el cuerpo de la petición se
+ * descartan.
  */
 
-import admin from "firebase-admin";
-import fs from "fs";
-import path from "path";
+import { ASISTENCIA_VALIDA, COLECCION_INVITADOS } from "@/lib/constantes";
+import { getDb } from "@/lib/firebase";
+import { normalizarInvitado, obtenerInvitado } from "@/lib/invitados";
 
-let db = null;
+/** Tope de caracteres en los campos de texto libre (endpoint público). */
+const MAX_TEXTO = 500;
 
-/**
- * Inicializar Firebase Admin SDK
- */
-function initializeFirebase() {
-  if (admin.apps.length > 0) {
-    return admin.app();
-  }
+/** Datos del invitado nunca se cachean: la respuesta debe verse al instante. */
+const SIN_CACHE = { "Cache-Control": "no-store" };
 
-  // Intentar cargar credenciales del archivo local
-  try {
-    const keyPath = path.join(process.cwd(), "serviceAccountKey.json");
-    if (fs.existsSync(keyPath)) {
-      const credentials = JSON.parse(fs.readFileSync(keyPath, "utf8"));
-      admin.initializeApp({
-        credential: admin.credential.cert(credentials),
-        projectId: credentials.project_id,
-      });
-      console.log("[API Guests] ✓ Firebase inicializado desde serviceAccountKey.json");
-      return admin.app();
-    }
-  } catch (fileError) {
-    console.warn("[API Guests] ⚠ serviceAccountKey.json no disponible");
-  }
+const json = (cuerpo, estado = 200) =>
+  Response.json(cuerpo, { status: estado, headers: SIN_CACHE });
 
-  // Fallback: intentar variable de entorno
-  try {
-    const credentialsJson = process.env.FIREBASE_ADMIN_SDK;
-    if (credentialsJson) {
-      const credentials = JSON.parse(credentialsJson);
-      admin.initializeApp({
-        credential: admin.credential.cert(credentials),
-        projectId: credentials.project_id,
-      });
-      console.log("[API Guests] ✓ Firebase inicializado desde FIREBASE_ADMIN_SDK");
-      return admin.app();
-    }
-  } catch (envError) {
-    console.error("[API Guests] ✗ Error con FIREBASE_ADMIN_SDK:", envError.message);
-  }
-
-  throw new Error("No se pudo inicializar Firebase - credenciales no encontradas");
-}
-
-/**
- * Obtener Firestore
- */
-function getFirestore() {
-  if (!db) {
-    const app = initializeFirebase();
-    db = admin.firestore(app);
-  }
-  return db;
-}
-
-/**
- * Convertir nombre a slug (Juan Pérez → juan-perez)
- * Debe coincidir con la lógica en migrar.js
- */
-function slugify(text) {
-  return text
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .trim()
-    .replace(/\s+/g, "-")
-    .replace(/[^\w-]/g, "")
-    .replace(/-+/g, "-");
-}
+// ─────────────────────────────────────────────────────────────────────────────
+//  GET — leer un invitado por su slug
+// ─────────────────────────────────────────────────────────────────────────────
 
 export async function GET(request) {
-  const timestamp = new Date().toISOString();
-  const { searchParams } = new URL(request.url);
-  const requestedId = searchParams.get("id");
+  const id = new URL(request.url).searchParams.get("id")?.trim();
 
-  console.log("\n" + "=".repeat(80));
-  console.log(`[API GUESTS] ${timestamp} - Solicitud de lista de invitados`);
-  console.log("=".repeat(80));
-  console.log(`[API GUESTS] Acceso: PÚBLICO (sin autenticación)`);
-  console.log(`[API GUESTS] Método: ${request.method}`);
-  console.log(`[API GUESTS] Fuente: Firestore (colección: invitados)`);
-
-  if (requestedId) {
-    console.log(`[DEBUG] Buscando invitado con ID: ${requestedId}`);
+  if (!id) {
+    return json({ error: "Falta el parámetro 'id'." }, 400);
   }
 
   try {
-    const firestore = getFirestore();
-    const collection = firestore.collection("invitados");
+    const invitado = await obtenerInvitado(id);
 
-    let guests = {};
-    let guestCount = 0;
-
-    if (requestedId) {
-      // BÚSQUEDA ESPECÍFICA: un invitado por ID
-      console.log(`[API GUESTS] Buscando documento: ${requestedId}`);
-
-      const doc = await collection.doc(requestedId).get();
-
-      if (doc.exists) {
-        const data = doc.data();
-        guests[requestedId] = {
-          id: requestedId,
-          ...data,
-        };
-        guestCount = 1;
-        console.log(`[DEBUG] ✓ Invitado encontrado: "${data.nombre}"`);
-      } else {
-        console.log(`[DEBUG] ✗ Invitado NO encontrado con ID: "${requestedId}"`);
-        // Retornar lista vacía si el invitado no existe
-        guests = {};
-        guestCount = 0;
-      }
-    } else {
-      // LISTA COMPLETA: todos los invitados
-      console.log(`[API GUESTS] Obteniendo todos los invitados...`);
-
-      const snapshot = await collection.get();
-      snapshot.forEach((doc) => {
-        guests[doc.id] = {
-          id: doc.id,
-          ...doc.data(),
-        };
-      });
-      guestCount = Object.keys(guests).length;
-      console.log(`[API GUESTS] ✓ ${guestCount} invitados obtenidos de Firestore`);
+    if (!invitado) {
+      return json({ error: "Invitación no encontrada." }, 404);
     }
 
-    console.log(`[API GUESTS]`);
-    console.log(`[API GUESTS] ══════════════════════════════════════════════════════`);
-    console.log(`[API GUESTS] RESULTADO`);
-    console.log(`[API GUESTS] ══════════════════════════════════════════════════════`);
-    console.log(`[API GUESTS] ✓ Total de invitados: ${guestCount}`);
-    console.log(`[API GUESTS]`);
-
-    if (guestCount > 0) {
-      console.log(`[API GUESTS] Primeros 5 invitados:`);
-      Object.keys(guests)
-        .slice(0, 5)
-        .forEach((id, idx) => {
-          const guest = guests[id];
-          console.log(`[API GUESTS]   ${idx + 1}. ID: "${id}" → Nombre: "${guest.nombre}"`);
-        });
-
-      if (guestCount > 5) {
-        console.log(`[API GUESTS]   ... y ${guestCount - 5} más`);
-      }
-    }
-
-    console.log(`[API GUESTS] ══════════════════════════════════════════════════════`);
-    console.log(`[API GUESTS]\n`);
-
-    return Response.json(
-      {
-        success: true,
-        data: guests,
-        count: guestCount,
-      },
-      { status: 200 }
-    );
+    return json({ invitado });
   } catch (error) {
-    console.error(`[API GUESTS] ✗ ERROR:`);
-    console.error(`[API GUESTS] Tipo:`, error.constructor.name);
-    console.error(`[API GUESTS] Mensaje:`, error.message);
-    console.error(`[API GUESTS] Stack:`, error.stack);
-    console.log("=".repeat(80) + "\n");
-
-    return Response.json(
-      {
-        success: false,
-        error: "No se pudo obtener los datos de invitados: " + error.message,
-      },
-      { status: 500 }
-    );
+    console.error("[api/guests] GET falló:", error);
+    return json({ error: "No se pudo leer la invitación." }, 500);
   }
 }
 
-// ISR: revalidar cada 5 minutos
-export const revalidate = 300;
+// ─────────────────────────────────────────────────────────────────────────────
+//  PATCH — guardar la respuesta del invitado
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Construye el objeto de actualización a partir del cuerpo de la petición.
+ * Solo deja pasar los cuatro campos permitidos, ya validados y saneados.
+ *
+ * @returns {{ campos: object } | { error: string }}
+ */
+function validar(cuerpo) {
+  if (typeof cuerpo !== "object" || cuerpo === null) {
+    return { error: "El cuerpo de la petición debe ser un objeto JSON." };
+  }
+
+  const campos = {};
+
+  if ("asistencia" in cuerpo) {
+    // Aceptamos "Si" sin tilde por comodidad y lo normalizamos.
+    const valor = cuerpo.asistencia === "Si" ? "Sí" : cuerpo.asistencia;
+    if (!ASISTENCIA_VALIDA.includes(valor)) {
+      return { error: `'asistencia' debe ser uno de: ${ASISTENCIA_VALIDA.join(", ")}.` };
+    }
+    campos.asistencia = valor;
+  }
+
+  if ("autobus" in cuerpo) {
+    if (typeof cuerpo.autobus !== "boolean") {
+      return { error: "'autobus' debe ser true o false." };
+    }
+    campos.autobus = cuerpo.autobus;
+  }
+
+  for (const clave of ["alergia", "cancion"]) {
+    if (clave in cuerpo) {
+      const valor = cuerpo[clave] ?? "";
+      if (typeof valor !== "string") {
+        return { error: `'${clave}' debe ser texto.` };
+      }
+      if (valor.length > MAX_TEXTO) {
+        return { error: `'${clave}' no puede pasar de ${MAX_TEXTO} caracteres.` };
+      }
+      campos[clave] = valor.trim();
+    }
+  }
+
+  if (Object.keys(campos).length === 0) {
+    return { error: "No hay nada que actualizar." };
+  }
+
+  return { campos };
+}
+
+export async function PATCH(request) {
+  const id = new URL(request.url).searchParams.get("id")?.trim();
+
+  if (!id) {
+    return json({ error: "Falta el parámetro 'id'." }, 400);
+  }
+
+  let cuerpo;
+  try {
+    cuerpo = await request.json();
+  } catch {
+    return json({ error: "JSON inválido." }, 400);
+  }
+
+  const resultado = validar(cuerpo);
+  if (resultado.error) {
+    return json({ error: resultado.error }, 400);
+  }
+
+  try {
+    const ref = getDb().collection(COLECCION_INVITADOS).doc(id);
+
+    // update() falla si el documento no existe, que es justo lo que queremos:
+    // así una URL inventada no puede crear invitados nuevos.
+    await ref.update({
+      ...resultado.campos,
+      respondidoEn: new Date().toISOString(),
+    });
+
+    const doc = await ref.get();
+    return json({ invitado: normalizarInvitado(doc) });
+  } catch (error) {
+    // Código 5 = NOT_FOUND en gRPC/Firestore.
+    if (error.code === 5) {
+      return json({ error: "Invitación no encontrada." }, 404);
+    }
+    console.error("[api/guests] PATCH falló:", error);
+    return json({ error: "No se pudo guardar la respuesta." }, 500);
+  }
+}

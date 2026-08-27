@@ -82,8 +82,36 @@ body {
   transition: background-image 0.7s ease-in-out, background-color 0.7s ease-in-out;
 }
 
+/* ───────── Visibilidad según el tema, gobernada por CSS ─────────
+   Estas reglas son la razón de que no haya parpadeo: el script del <head> pone
+   data-theme en el <html> antes del primer pintado, así que lo que se ve ya es
+   correcto en el fotograma inicial. React no interviene en pintar el tema. */
+[data-theme="night"] .solo-de-dia,
+[data-theme="day"] .solo-de-noche {
+  display: none;
+}
+
+/* Las dos casas del hero se apilan y el tema decide cuál se ve. */
+.hero-casa {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  object-fit: contain;
+  transition: opacity 1s ease-in-out;
+}
+.hero-casa--noche,
+[data-theme="night"] .hero-casa--dia {
+  opacity: 0;
+}
+[data-theme="night"] .hero-casa--noche {
+  opacity: 1;
+}
+
 /* Campo de estrellas sutil para el MODO NOCHE (destellos dorados/plateados) */
 .starfield {
+  opacity: 0;
+  transition: opacity 0.7s ease-in-out;
   background-image:
     radial-gradient(1px 1px at 20% 30%, rgba(216, 189, 134, 0.9), transparent),
     radial-gradient(1px 1px at 70% 60%, rgba(255, 255, 255, 0.7), transparent),
@@ -95,6 +123,12 @@ body {
     radial-gradient(1px 1px at 33% 52%, rgba(255, 255, 255, 0.5), transparent);
   background-repeat: repeat;
   background-size: 340px 340px;
+}
+
+/* Las estrellas solo existen de noche, y su animación también: así de día no
+   se gasta CPU animando algo invisible. */
+[data-theme="night"] .starfield {
+  opacity: 1;
   animation: twinkle 6s ease-in-out infinite alternate;
 }
 @keyframes twinkle {

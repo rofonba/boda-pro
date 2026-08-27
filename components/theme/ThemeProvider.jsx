@@ -1,72 +1,88 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import ThemeToggle from "./ThemeToggle";
 import VideoTransitionOverlay from "../VideoTransitionOverlay";
 
-// Estado global del tema (Día / Noche) compartido por toda la app.
-const ThemeContext = createContext({
-  isNight: false,
-  setIsNight: () => {},
-  toggle: () => {},
-  isPlayingTransition: false,
-});
+const CLAVE_TEMA = "boda-tema";
 
-export const useTheme = () => useContext(ThemeContext);
+/**
+ * Estado global del tema Día / Noche.
+ *
+ * Reparto de responsabilidades, y es la clave de que no haya parpadeo:
+ *
+ *  • Quién PINTA el tema: el CSS, a partir del atributo data-theme del <html>.
+ *    Ese atributo lo pone un script síncrono del <head> (ver app/layout.js)
+ *    antes del primer pintado.
+ *
+ *  • Quién CAMBIA el tema: este provider, al pulsar el interruptor.
+ *
+ * React nunca decide los colores del primer render, así que no puede haber
+ * destello del tema contrario ni desajuste de hidratación.
+ *
+ * `isNight` empieza como null ("todavía no lo sé") y se resuelve al montar,
+ * leyéndolo del DOM. Los componentes que dependen de él (el vídeo de intro)
+ * esperan a que deje de ser null en lugar de asumir modo día.
+ */
+const ThemeContext = createContext(null);
+
+export function useTheme() {
+  const contexto = useContext(ThemeContext);
+  if (!contexto) {
+    throw new Error("useTheme debe usarse dentro de <ThemeProvider>");
+  }
+  return contexto;
+}
 
 export default function ThemeProvider({ children }) {
-  const [isNight, setIsNight] = useState(false);
-  const [isPlayingTransition, setIsPlayingTransition] = useState(false);
+  const [isNight, setIsNight] = useState(null);
+  const [enTransicion, setEnTransicion] = useState(false);
 
-  // Recordar la preferencia entre visitas.
+  // Al montar, leemos el tema que el script del <head> ya dejó aplicado.
   useEffect(() => {
-    try {
-      if (localStorage.getItem("boda-tema") === "night") setIsNight(true);
-    } catch {}
+    setIsNight(document.documentElement.dataset.theme === "night");
   }, []);
 
-  useEffect(() => {
+  const aplicar = useCallback((noche) => {
+    document.documentElement.dataset.theme = noche ? "night" : "day";
     try {
-      localStorage.setItem("boda-tema", isNight ? "night" : "day");
-    } catch {}
-  }, [isNight]);
+      localStorage.setItem(CLAVE_TEMA, noche ? "night" : "day");
+    } catch {
+      // Navegación privada o almacenamiento bloqueado: el tema funciona igual
+      // durante la visita, simplemente no se recuerda para la próxima.
+    }
+    setIsNight(noche);
+  }, []);
 
-  const toggle = () => {
-    setIsPlayingTransition(true);
-  };
+  // El interruptor lanza el vídeo de transición; el tema cambia al terminar.
+  const toggle = useCallback(() => setEnTransicion(true), []);
 
-  const handleTransitionComplete = () => {
-    // Cambiar tema mientras el vídeo está en el último frame
-    setIsNight((v) => !v);
-    // Desvanecerse el vídeo después de que el tema cambió
-    setTimeout(() => setIsPlayingTransition(false), 300);
-  };
+  const alTerminarTransicion = useCallback(() => {
+    aplicar(!isNight);
+    // Pequeña espera para que el vídeo se desvanezca ya sobre el tema nuevo.
+    setTimeout(() => setEnTransicion(false), 300);
+  }, [aplicar, isNight]);
+
+  const valor = useMemo(
+    () => ({ isNight, temaListo: isNight !== null, toggle, enTransicion }),
+    [isNight, toggle, enTransicion]
+  );
 
   return (
-    <ThemeContext.Provider value={{ isNight, setIsNight, toggle, isPlayingTransition }}>
-      {/* Fondo dinámico de vídeo (-z-10, no bloquea interacción) */}
+    <ThemeContext.Provider value={valor}>
       <VideoTransitionOverlay
         videoSrc="/videos/video-transicion-casa-boda-pro.mp4"
-        isPlaying={isPlayingTransition}
-        onComplete={handleTransitionComplete}
+        isPlaying={enTransicion}
+        onComplete={alTerminarTransicion}
       />
 
-      <div
-        data-theme={isNight ? "night" : "day"}
-        className="bg-paper relative flex min-h-screen flex-1 flex-col transition-colors duration-700"
-        style={{ backgroundColor: "var(--color-marfil)" }}
-      >
-        {/* Destellos / estrellas: solo de noche, se desvanecen suavemente */}
-        <div
-          aria-hidden
-          className={`starfield pointer-events-none absolute inset-0 transition-opacity duration-700 ${
-            isNight ? "opacity-100" : "opacity-0"
-          }`}
-        />
+      <div className="bg-paper relative flex min-h-screen flex-1 flex-col">
+        {/* Estrellas del modo noche. Su visibilidad la controla el CSS mediante
+            data-theme, no React, para que no parpadeen al cargar. */}
+        <div aria-hidden className="starfield pointer-events-none absolute inset-0" />
 
-        <ThemeToggle isLoading={isPlayingTransition} />
+        <ThemeToggle />
 
-        {/* Contenido por encima del fondo y las estrellas */}
         <div className="relative z-10 flex flex-1 flex-col">{children}</div>
       </div>
     </ThemeContext.Provider>
