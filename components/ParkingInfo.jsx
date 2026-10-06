@@ -1,5 +1,7 @@
 "use client";
 
+import { urlMapas } from "@/lib/event";
+
 // Timeline de eventos del día
 const TIMELINE_EVENTOS = [
   {
@@ -105,6 +107,15 @@ function ParkingCard({ parking }) {
       {parking.notas && (
         <p className="text-xs italic text-grafito/70">{parking.notas}</p>
       )}
+      <a
+        href={urlMapas({ nombre: parking.nombre, ciudad: "Valencia" })}
+        target="_blank"
+        rel="noopener noreferrer"
+        title={`Ver ${parking.nombre} en Google Maps`}
+        className="mt-1 self-start text-[10px] tracking-luxe text-champagne/80 uppercase underline decoration-champagne/30 underline-offset-4 transition-colors hover:text-champagne hover:decoration-champagne"
+      >
+        Ver ubicación ↗
+      </a>
     </div>
   );
 }

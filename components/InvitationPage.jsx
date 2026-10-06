@@ -10,6 +10,26 @@ import GiftSection from "./GiftSection";
 import Countdown from "./Countdown";
 import { useTheme } from "./theme/ThemeProvider";
 
+// Monograma R&C fijo en la parte superior, a juego con el botón de tema.
+// Al pulsarlo vuelve al principio de la invitación.
+function Monograma() {
+  const [inicialA, inicialB] = BODA.novios.monograma.split("&");
+
+  return (
+    <div className="pointer-events-none fixed inset-x-0 top-4 z-50 flex justify-center">
+      <a
+        href="#"
+        aria-label={`${BODA.novios.nombres} · volver al inicio`}
+        className="pointer-events-auto flex h-14 items-baseline justify-center gap-0.5 rounded-full border border-champagne/45 bg-white/[0.06] px-5 pt-2 font-script text-3xl leading-none text-carbon shadow-[0_2px_14px_-6px_rgba(0,0,0,0.35)] backdrop-blur-sm transition-transform hover:scale-105"
+      >
+        <span>{inicialA}</span>
+        <span className="text-xl text-champagne">&amp;</span>
+        <span>{inicialB}</span>
+      </a>
+    </div>
+  );
+}
+
 // Separador elegante
 function Separator() {
   return (
@@ -26,6 +46,8 @@ export default function InvitationPage() {
 
   return (
     <main className="mx-auto w-full max-w-4xl px-3 sm:px-6 pb-24">
+      <Monograma />
+
       {/* ─────────────────────────────────────────── */}
       {/* SECCIÓN 1: HERO - Mansión + Presentación */}
       {/* ─────────────────────────────────────────── */}
@@ -74,6 +96,18 @@ export default function InvitationPage() {
         <h2 className="text-center text-[11px] tracking-luxe text-grafito uppercase">
           La celebración
         </h2>
+
+        {/* Fecha destacada */}
+        <div className="mt-8 flex flex-col items-center text-center">
+          <span className="text-[11px] tracking-luxe text-champagne uppercase">
+            {BODA.fecha.dia}
+          </span>
+          <p className="mt-3 font-serif text-3xl italic text-carbon sm:text-4xl">
+            {BODA.fecha.destacado}
+          </p>
+          <span className="mt-4 h-px w-24 bg-champagne/50" />
+        </div>
+
         <div className="mt-12 grid gap-8 sm:grid-cols-2">
           <LocationCard data={BODA.ceremonia} />
           <LocationCard data={BODA.convite} />
@@ -105,7 +139,7 @@ export default function InvitationPage() {
       {/* FOOTER */}
       {/* ─────────────────────────────────────────── */}
       <footer className="mt-20 text-center">
-        <div className="font-serif text-2xl text-carbon">{BODA.novios.monograma}</div>
+        <div className="font-script text-4xl text-carbon">{BODA.novios.monograma}</div>
         <p className="mt-3 text-[11px] tracking-luxe text-grafito uppercase">
           {BODA.fecha.largo}
         </p>
