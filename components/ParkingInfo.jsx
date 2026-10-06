@@ -1,6 +1,7 @@
 "use client";
 
 import { urlMapas } from "@/lib/event";
+import SectionTitle from "./SectionTitle";
 
 // Timeline de eventos del día
 const TIMELINE_EVENTOS = [
@@ -12,7 +13,7 @@ const TIMELINE_EVENTOS = [
     detalles: [
       { label: "Duración estimada:", valor: "45 minutos" },
     ],
-    notas: "Por favor, llega con 15 minutos de anticipación",
+    notas: "La misa empieza a las 12:00h: te recomendamos estar allí a las 11:45h",
     tieneLinea: true,
   },
   {
@@ -34,13 +35,13 @@ const TIMELINE_EVENTOS = [
     detalles: [
       { label: "Ubicación:", valor: "Jardines de la Celebración" },
     ],
-    notas: "Disfruta de bebidas y camarones mientras nos reencontramos",
+    notas: "Disfruta de bebidas y entrantes mientras nos reencontramos",
     tieneLinea: true,
   },
   {
     id: "almuerzo",
     hora: "15:00h",
-    titulo: "Almuerzo de Celebración",
+    titulo: "Banquete de Celebración",
     icono: "🍽️",
     detalles: [
       { label: "Menú:", valor: "Primer y segundo plato especialmente diseñado" },
@@ -127,9 +128,9 @@ export default function ParkingInfo() {
       {/* TIMELINE: DÍA COMPLETO */}
       {/* ─────────────────────────────────────────── */}
       <div className="mb-16">
-        <h2 className="text-center text-[11px] tracking-luxe text-champagne uppercase mb-10">
-          Cronograma del Día
-        </h2>
+        <div className="mb-12">
+          <SectionTitle antetitulo="Nuestro día" titulo="Cronograma del día" />
+        </div>
 
         {/* Timeline Visual */}
         <div className="mx-auto max-w-2xl">

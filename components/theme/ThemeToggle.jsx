@@ -39,7 +39,7 @@ function IconoLuna() {
 }
 
 export default function ThemeToggle() {
-  const { toggle, enTransicion } = useTheme();
+  const { toggle } = useTheme();
   const [girando, setGirando] = useState(false);
 
   const alPulsar = () => {
@@ -52,13 +52,12 @@ export default function ThemeToggle() {
     <button
       type="button"
       onClick={alPulsar}
-      disabled={enTransicion}
       // La etiqueta no depende del tema a propósito: si dependiera, el servidor
       // y el navegador podrían renderizar textos distintos y React avisaría de
       // un desajuste de hidratación.
       aria-label="Cambiar entre modo día y modo noche"
       title="Cambiar entre modo día y modo noche"
-      className="fixed right-5 top-5 z-[60] flex h-11 w-11 items-center justify-center rounded-full border border-champagne/45 bg-white/[0.06] text-champagne shadow-[0_2px_14px_-6px_rgba(0,0,0,0.35)] backdrop-blur-sm transition-transform duration-[600ms] ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:scale-105 active:scale-95 disabled:opacity-60"
+      className="fixed right-5 top-5 z-[60] flex h-11 w-11 items-center justify-center rounded-full border border-champagne/45 bg-white/[0.06] text-champagne shadow-[0_2px_14px_-6px_rgba(0,0,0,0.35)] backdrop-blur-sm transition-transform duration-[600ms] ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:scale-105 active:scale-95"
       style={{ transform: girando ? "rotate(180deg) scale(0.8)" : undefined }}
     >
       {/* Se pintan los dos iconos y el CSS muestra el que toca según

@@ -79,7 +79,16 @@ body {
   background-position: center;
   background-attachment: fixed;
   background-repeat: no-repeat;
-  transition: background-image 0.7s ease-in-out, background-color 0.7s ease-in-out;
+}
+
+/* ───────── Cambio de tema día ⇄ noche ─────────
+   El tema cambia de golpe y el navegador funde la captura anterior con la
+   nueva (View Transitions). Al ser un único fundido de toda la página, fondo,
+   textos y casa cambian a la vez, sin transiciones CSS desacompasadas. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.45s;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* ───────── Visibilidad según el tema, gobernada por CSS ─────────
@@ -98,7 +107,6 @@ body {
   height: 100%;
   width: 100%;
   object-fit: contain;
-  transition: opacity 1s ease-in-out;
 }
 .hero-casa--noche,
 [data-theme="night"] .hero-casa--dia {
@@ -111,7 +119,6 @@ body {
 /* Campo de estrellas sutil para el MODO NOCHE (destellos dorados/plateados) */
 .starfield {
   opacity: 0;
-  transition: opacity 0.7s ease-in-out;
   background-image:
     radial-gradient(1px 1px at 20% 30%, rgba(216, 189, 134, 0.9), transparent),
     radial-gradient(1px 1px at 70% 60%, rgba(255, 255, 255, 0.7), transparent),

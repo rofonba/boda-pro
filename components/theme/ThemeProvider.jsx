@@ -2,7 +2,6 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import ThemeToggle from "./ThemeToggle";
-import VideoTransitionOverlay from "../VideoTransitionOverlay";
 
 const CLAVE_TEMA = "boda-tema";
 
@@ -15,7 +14,9 @@ const CLAVE_TEMA = "boda-tema";
  *    Ese atributo lo pone un script síncrono del <head> (ver app/layout.js)
  *    antes del primer pintado.
  *
- *  • Quién CAMBIA el tema: este provider, al pulsar el interruptor.
+ *  • Quién CAMBIA el tema: este provider, al pulsar el interruptor. El cambio
+ *    es inmediato; si el navegador soporta View Transitions, la página entera
+ *    funde de un tema al otro en un solo paso (fondo, textos y casa a la vez).
  *
  * React nunca decide los colores del primer render, así que no puede haber
  * destello del tema contrario ni desajuste de hidratación.
@@ -36,7 +37,6 @@ export function useTheme() {
 
 export default function ThemeProvider({ children }) {
   const [isNight, setIsNight] = useState(null);
-  const [enTransicion, setEnTransicion] = useState(false);
 
   // Al montar, leemos el tema que el script del <head> ya dejó aplicado.
   useEffect(() => {
@@ -54,28 +54,25 @@ export default function ThemeProvider({ children }) {
     setIsNight(noche);
   }, []);
 
-  // El interruptor lanza el vídeo de transición; el tema cambia al terminar.
-  const toggle = useCallback(() => setEnTransicion(true), []);
+  const toggle = useCallback(() => {
+    // Se lee del DOM y no del estado para no depender de un render pendiente.
+    const noche = document.documentElement.dataset.theme !== "night";
+    const reducirMovimiento = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  const alTerminarTransicion = useCallback(() => {
-    aplicar(!isNight);
-    // Pequeña espera para que el vídeo se desvanezca ya sobre el tema nuevo.
-    setTimeout(() => setEnTransicion(false), 300);
-  }, [aplicar, isNight]);
+    if (!document.startViewTransition || reducirMovimiento) {
+      aplicar(noche);
+      return;
+    }
+    document.startViewTransition(() => aplicar(noche));
+  }, [aplicar]);
 
   const valor = useMemo(
-    () => ({ isNight, temaListo: isNight !== null, toggle, enTransicion }),
-    [isNight, toggle, enTransicion]
+    () => ({ isNight, temaListo: isNight !== null, toggle }),
+    [isNight, toggle]
   );
 
   return (
     <ThemeContext.Provider value={valor}>
-      <VideoTransitionOverlay
-        videoSrc="/videos/video-transicion-casa-boda-pro.mp4"
-        isPlaying={enTransicion}
-        onComplete={alTerminarTransicion}
-      />
-
       <div className="bg-paper relative flex min-h-screen flex-1 flex-col">
         {/* Estrellas del modo noche. Su visibilidad la controla el CSS mediante
             data-theme, no React, para que no parpadeen al cargar. */}

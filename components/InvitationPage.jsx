@@ -8,6 +8,11 @@ import ParkingInfo from "./ParkingInfo";
 import RsvpFormComplete from "./RsvpFormComplete";
 import GiftSection from "./GiftSection";
 import Countdown from "./Countdown";
+import DressCode from "./DressCode";
+import Faq from "./Faq";
+import AddToCalendar from "./AddToCalendar";
+import HowToGetThere from "./HowToGetThere";
+import WhatsAppContact from "./WhatsAppContact";
 import { useTheme } from "./theme/ThemeProvider";
 
 // Monograma R&C fijo en la parte superior, a juego con el botón de tema.
@@ -61,7 +66,11 @@ export default function InvitationPage() {
             {BODA.fecha.dia} · {BODA.fecha.largo}
           </span>
 
-          <h1 className="mt-6 font-script text-7xl leading-[0.9] text-carbon sm:text-8xl">
+          <div className="mt-5">
+            <AddToCalendar />
+          </div>
+
+          <h1 className="mt-8 font-script text-7xl leading-[0.9] text-carbon sm:text-8xl">
             {BODA.novios.nombres.split("&")[0].trim()}
           </h1>
           <span className="my-2 font-script text-4xl text-champagne sm:text-5xl">
@@ -117,6 +126,12 @@ export default function InvitationPage() {
       <Separator />
 
       {/* ─────────────────────────────────────────── */}
+      {/* SECCIÓN 4b: Cómo llegar - Mapa ilustrado */}
+      {/* ─────────────────────────────────────────── */}
+      <HowToGetThere />
+      <Separator />
+
+      {/* ─────────────────────────────────────────── */}
       {/* SECCIÓN 5: Logística - Parkings */}
       {/* ─────────────────────────────────────────── */}
       <ParkingInfo />
@@ -124,16 +139,37 @@ export default function InvitationPage() {
       <Separator />
 
       {/* ─────────────────────────────────────────── */}
-      {/* SECCIÓN 6: RSVP - Formulario completo */}
+      {/* SECCIÓN 6: Código de vestimenta */}
+      {/* ─────────────────────────────────────────── */}
+      <DressCode />
+
+      <Separator />
+
+      {/* ─────────────────────────────────────────── */}
+      {/* SECCIÓN 7: RSVP - Formulario completo */}
       {/* ─────────────────────────────────────────── */}
       <RsvpFormComplete />
 
       <Separator />
 
       {/* ─────────────────────────────────────────── */}
-      {/* SECCIÓN 7: Regalo - Detalles bancarios */}
+      {/* SECCIÓN 8: Regalo - Detalles bancarios */}
       {/* ─────────────────────────────────────────── */}
       <GiftSection />
+
+      <Separator />
+
+      {/* ─────────────────────────────────────────── */}
+      {/* SECCIÓN 9: Contacto por WhatsApp */}
+      {/* ─────────────────────────────────────────── */}
+      <WhatsAppContact />
+
+      <Separator />
+
+      {/* ─────────────────────────────────────────── */}
+      {/* SECCIÓN 10: Preguntas frecuentes */}
+      {/* ─────────────────────────────────────────── */}
+      <Faq />
 
       {/* ─────────────────────────────────────────── */}
       {/* FOOTER */}
