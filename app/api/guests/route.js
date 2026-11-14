@@ -1,16 +1,27 @@
 /**
- * API de invitados — pública, sin autenticación.
+ * API de invitaciones — pública, sin autenticación.
  *
- *   GET   /api/guests?id=virginia-agudo   → datos del invitado (saludo personalizado)
- *   PATCH /api/guests?id=virginia-agudo   → guarda su respuesta
+ *   GET   /api/guests?id=beatriz-y-xavi   → datos de la invitación (saludo personalizado)
+ *   PATCH /api/guests?id=beatriz-y-xavi   → guarda la respuesta del grupo
  *
- * El `id` es el slug del nombre y es también el ID del documento en Firestore,
+ * El `id` es el slug del grupo y es también el ID del documento en Firestore,
  * así que la lectura es un acceso directo por clave: sin consultas ni filtros.
  *
- * En PATCH solo se escriben los cuatro campos que el invitado controla. El
- * `nombre` y el `numero` no se pueden modificar desde aquí por diseño: no están
- * en la lista blanca, así que aunque llegasen en el cuerpo de la petición se
- * descartan.
+ * Cuerpo del PATCH (todo obligatorio):
+ *
+ *   {
+ *     "miembros": [                       ← uno por persona, EN EL MISMO ORDEN
+ *       { "asistencia": "Sí", "alergia": "" },
+ *       { "asistencia": "No", "alergia": "" }
+ *     ],
+ *     "autobus": true,
+ *     "cancion": "..."
+ *   }
+ *
+ * Los nombres de los miembros y el número de la invitación no se pueden
+ * modificar desde aquí por diseño: la API los toma del documento guardado y
+ * descarta lo que llegue en el cuerpo. Tampoco se puede cambiar el número de
+ * miembros: el array debe tener exactamente la longitud del documento.
  */
 
 import { ASISTENCIA_VALIDA, COLECCION_INVITADOS } from "@/lib/constantes";
@@ -27,7 +38,7 @@ const json = (cuerpo, estado = 200) =>
   Response.json(cuerpo, { status: estado, headers: SIN_CACHE });
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  GET — leer un invitado por su slug
+//  GET — leer una invitación por su slug
 // ─────────────────────────────────────────────────────────────────────────────
 
 export async function GET(request) {
@@ -52,56 +63,81 @@ export async function GET(request) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  PATCH — guardar la respuesta del invitado
+//  PATCH — guardar la respuesta del grupo
 // ─────────────────────────────────────────────────────────────────────────────
 
+/** Texto libre saneado, o un error si no es texto o es demasiado largo. */
+function validarTexto(valor, clave) {
+  if (valor === undefined || valor === null) return { valor: "" };
+  if (typeof valor !== "string") return { error: `'${clave}' debe ser texto.` };
+  if (valor.length > MAX_TEXTO) {
+    return { error: `'${clave}' no puede pasar de ${MAX_TEXTO} caracteres.` };
+  }
+  return { valor: valor.trim() };
+}
+
 /**
- * Construye el objeto de actualización a partir del cuerpo de la petición.
- * Solo deja pasar los cuatro campos permitidos, ya validados y saneados.
+ * Construye el objeto de actualización a partir del cuerpo de la petición y
+ * de los miembros ya guardados (de los que se toman los nombres).
  *
+ * @param {unknown} cuerpo
+ * @param {Array<{nombre: string}>} miembrosGuardados
  * @returns {{ campos: object } | { error: string }}
  */
-function validar(cuerpo) {
+function validar(cuerpo, miembrosGuardados) {
   if (typeof cuerpo !== "object" || cuerpo === null) {
     return { error: "El cuerpo de la petición debe ser un objeto JSON." };
   }
 
-  const campos = {};
+  if (!Array.isArray(cuerpo.miembros) || cuerpo.miembros.length !== miembrosGuardados.length) {
+    return {
+      error: `'miembros' debe ser una lista de ${miembrosGuardados.length} elementos, en el mismo orden que la invitación.`,
+    };
+  }
 
-  if ("asistencia" in cuerpo) {
+  const miembros = [];
+  for (let i = 0; i < miembrosGuardados.length; i += 1) {
+    const m = cuerpo.miembros[i];
+    if (typeof m !== "object" || m === null) {
+      return { error: `'miembros[${i}]' debe ser un objeto.` };
+    }
+
     // Aceptamos "Si" sin tilde por comodidad y lo normalizamos.
-    const valor = cuerpo.asistencia === "Si" ? "Sí" : cuerpo.asistencia;
-    if (!ASISTENCIA_VALIDA.includes(valor)) {
-      return { error: `'asistencia' debe ser uno de: ${ASISTENCIA_VALIDA.join(", ")}.` };
+    const asistencia = m.asistencia === "Si" ? "Sí" : m.asistencia;
+    if (!ASISTENCIA_VALIDA.includes(asistencia)) {
+      return {
+        error: `'miembros[${i}].asistencia' debe ser uno de: ${ASISTENCIA_VALIDA.join(", ")}.`,
+      };
     }
-    campos.asistencia = valor;
+
+    const alergia = validarTexto(m.alergia, `miembros[${i}].alergia`);
+    if (alergia.error) return { error: alergia.error };
+
+    miembros.push({
+      nombre: miembrosGuardados[i].nombre, // del documento, nunca del cuerpo
+      asistencia,
+      // Quien no viene no come: su alergia no aplica.
+      alergia: asistencia === "Sí" ? alergia.valor : "",
+    });
   }
 
-  if ("autobus" in cuerpo) {
-    if (typeof cuerpo.autobus !== "boolean") {
-      return { error: "'autobus' debe ser true o false." };
-    }
-    campos.autobus = cuerpo.autobus;
+  if (typeof cuerpo.autobus !== "boolean") {
+    return { error: "'autobus' debe ser true o false." };
   }
 
-  for (const clave of ["alergia", "cancion"]) {
-    if (clave in cuerpo) {
-      const valor = cuerpo[clave] ?? "";
-      if (typeof valor !== "string") {
-        return { error: `'${clave}' debe ser texto.` };
-      }
-      if (valor.length > MAX_TEXTO) {
-        return { error: `'${clave}' no puede pasar de ${MAX_TEXTO} caracteres.` };
-      }
-      campos[clave] = valor.trim();
-    }
-  }
+  const cancion = validarTexto(cuerpo.cancion, "cancion");
+  if (cancion.error) return { error: cancion.error };
 
-  if (Object.keys(campos).length === 0) {
-    return { error: "No hay nada que actualizar." };
-  }
+  const alguienViene = miembros.some((m) => m.asistencia === "Sí");
 
-  return { campos };
+  return {
+    campos: {
+      miembros,
+      // Si no viene nadie, el autobús no aplica.
+      autobus: alguienViene && cuerpo.autobus,
+      cancion: cancion.valor,
+    },
+  };
 }
 
 export async function PATCH(request) {
@@ -118,16 +154,22 @@ export async function PATCH(request) {
     return json({ error: "JSON inválido." }, 400);
   }
 
-  const resultado = validar(cuerpo);
-  if (resultado.error) {
-    return json({ error: resultado.error }, 400);
-  }
-
   try {
     const ref = getDb().collection(COLECCION_INVITADOS).doc(id);
 
-    // update() falla si el documento no existe, que es justo lo que queremos:
-    // así una URL inventada no puede crear invitados nuevos.
+    // Se lee primero: los nombres salen del documento y la longitud de
+    // `miembros` se valida contra él. Si no existe, una URL inventada no puede
+    // crear invitaciones nuevas.
+    const previo = await ref.get();
+    if (!previo.exists) {
+      return json({ error: "Invitación no encontrada." }, 404);
+    }
+
+    const resultado = validar(cuerpo, normalizarInvitado(previo).miembros);
+    if (resultado.error) {
+      return json({ error: resultado.error }, 400);
+    }
+
     await ref.update({
       ...resultado.campos,
       respondidoEn: new Date().toISOString(),
@@ -136,10 +178,6 @@ export async function PATCH(request) {
     const doc = await ref.get();
     return json({ invitado: normalizarInvitado(doc) });
   } catch (error) {
-    // Código 5 = NOT_FOUND en gRPC/Firestore.
-    if (error.code === 5) {
-      return json({ error: "Invitación no encontrada." }, 404);
-    }
     console.error("[api/guests] PATCH falló:", error);
     return json({ error: "No se pudo guardar la respuesta." }, 500);
   }

@@ -23,11 +23,11 @@ export default function GuestProvider({ children, invitadoInicial = null, slug =
   const [invitado, setInvitado] = useState(invitadoInicial);
 
   /**
-   * Guarda la respuesta del invitado.
-   * Solo envía los cuatro campos que le pertenecen; el nombre y el número los
+   * Guarda la respuesta del grupo.
+   * Solo envía los campos que le pertenecen; los nombres y el número los
    * protege la API, que no los admite.
    *
-   * @param {{asistencia?: string, autobus?: boolean, alergia?: string, cancion?: string}} respuesta
+   * @param {{miembros: Array<{asistencia: string, alergia: string}>, autobus: boolean, cancion: string}} respuesta
    */
   const guardarRespuesta = useCallback(
     async (respuesta) => {

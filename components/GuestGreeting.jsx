@@ -19,8 +19,9 @@ export default function GuestGreeting() {
             ¡Hola, {invitado.nombre}!
           </h2>
           <p className="mx-auto mt-6 max-w-2xl font-serif text-lg italic leading-relaxed text-carbon">
-            Nos hace muchísima ilusión que formes parte de este día. Hemos
-            preparado esta invitación solo para ti.
+            {invitado.miembros.length > 1
+              ? "Nos hace muchísima ilusión que forméis parte de este día. Hemos preparado esta invitación solo para vosotros."
+              : "Nos hace muchísima ilusión que formes parte de este día. Hemos preparado esta invitación solo para ti."}
           </p>
         </>
       ) : (

@@ -2,14 +2,20 @@ rules_version = '2';
 
 // Reglas de seguridad para la colección de invitados.
 //
+// Cada documento es una INVITACIÓN (grupo/familia) con un array `miembros`.
+// El esquema completo está en lib/invitacion.js.
+//
 // Modelo de acceso:
 //  - GET  (un documento por su id): PÚBLICO. El invitado entra por su enlace
 //    (?id=...) y necesita leer SU documento para ver la invitación personalizada.
 //  - LIST (consultar/listar la colección entera): SOLO ADMIN autenticado.
 //    Así nadie sin login puede descargarse la lista completa de invitados.
 //  - UPDATE: PÚBLICO pero limitado a los campos del RSVP del propio documento
-//    (no pueden alterar nombres, esPareja, etc.). Deben conocer el id.
-//  - CREATE / DELETE: SOLO ADMIN autenticado (script de importación, panel).
+//    (no pueden alterar el nombre ni el número de la invitación, ni añadir o
+//    quitar miembros). Deben conocer el id.
+//    Nota: la web guarda a través de /api/guests con el Admin SDK, que no pasa
+//    por estas reglas; esta regla cubre un acceso directo con el SDK web.
+//  - CREATE / DELETE: SOLO ADMIN autenticado (migrar.js usa el Admin SDK).
 //
 // Súbelas con:  firebase deploy --only firestore:rules --project TU_PROJECT_ID
 service cloud.firestore {
@@ -17,25 +23,22 @@ service cloud.firestore {
 
     match /invitados/{invitadoId} {
 
-      // Leer UN invitado concreto (get): público — necesario para el enlace.
+      // Leer UNA invitación concreta (get): público — necesario para el enlace.
       allow get: if true;
 
       // Listar / consultar TODA la colección: solo administradores.
       allow list: if request.auth != null;
 
-      // RSVP público: solo se permiten los campos del formulario, nada más.
-      // (No pueden tocar nombres, esPareja, id…)
+      // RSVP público: solo los campos del formulario, y el mismo nº de miembros.
       allow update: if
         request.resource.data.diff(resource.data).affectedKeys()
-          .hasOnly([
-            'confirmado', 'nombreCompleto', 'asiste',
-            'acompanante', 'nombreAcompanante',
-            'autobus', 'ninos', 'alergias', 'respondidoEn'
-          ])
-        && request.resource.data.ninos is int
-        && request.resource.data.ninos >= 0;
+          .hasOnly(['miembros', 'autobus', 'cancion', 'respondidoEn'])
+        && request.resource.data.miembros is list
+        && request.resource.data.miembros.size() == resource.data.miembros.size()
+        && request.resource.data.autobus is bool
+        && request.resource.data.cancion is string;
 
-      // Crear / borrar invitados: solo administradores autenticados.
+      // Crear / borrar invitaciones: solo administradores autenticados.
       allow create, delete: if request.auth != null;
     }
   }
