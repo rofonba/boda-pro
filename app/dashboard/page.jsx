@@ -1,10 +1,11 @@
 // Cuadro de mando de la boda — /dashboard
 //
 // Sin contraseña ni login: se entra y se ve. Es un Server Component, así que
-// lee Firestore directamente en el servidor y manda el HTML ya montado; no hay
-// petición extra desde el navegador ni estado de "cargando".
+// lee Firestore directamente en el servidor y le pasa la lista completa al
+// cuadro de mando (cliente), que busca y filtra en memoria: no hay petición
+// extra desde el navegador ni estado de "cargando".
 
-import ResumenBoda from "@/components/dashboard/ResumenBoda";
+import CuadroDeMando from "@/components/dashboard/CuadroDeMando";
 import { listarInvitados } from "@/lib/invitados";
 
 // Siempre datos frescos: el resumen debe reflejar la última respuesta recibida.
@@ -29,11 +30,13 @@ export default async function DashboardPage() {
       </header>
 
       <div className="mt-16">
-        <ResumenBoda invitados={invitados} />
+        <CuadroDeMando invitados={invitados} />
       </div>
 
       <footer className="mt-20 text-center text-xs text-grafito">
-        {invitados.length} invitados en la lista · recarga para actualizar
+        {invitados.length} invitaciones ·{" "}
+        {invitados.reduce((n, g) => n + g.miembros.length, 0)} personas · recarga para
+        actualizar
       </footer>
     </main>
   );

@@ -4,7 +4,13 @@ import { useEffect, useMemo, useState } from "react";
 import { signOut } from "firebase/auth";
 import { getAuthClient } from "@/lib/firebaseClient";
 import { subscribeGuests } from "@/lib/guests";
-import ResumenBoda from "@/components/dashboard/ResumenBoda";
+import CuadroDeMando from "@/components/dashboard/CuadroDeMando";
+
+/** "Beatriz: Sí · Xavi: No" (o solo "Sí" si la invitación es de una persona). */
+const resumirMiembros = (inv, campo, vacio = "—") =>
+  inv.miembros.length === 1
+    ? inv.miembros[0][campo] || vacio
+    : inv.miembros.map((m) => `${m.nombre}: ${m[campo] || vacio}`).join(" · ");
 
 /**
  * Panel privado con sesión — /backstage
@@ -25,17 +31,22 @@ export default function Dashboard({ user }) {
     if (!invitados) return "";
 
     const escapar = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
-    const cabecera = ["Nº", "Nombre", "Enlace", "Asistencia", "Autobús", "Alergia", "Canción"];
+    const cabecera = ["Nº", "Nombre", "Invitación", "Enlace", "Asistencia", "Autobús", "Alergia", "Canción"];
 
-    const filas = invitados.map((g) => [
-      g.numero ?? "",
-      g.nombre,
-      `/?id=${g.id}`,
-      g.asistencia,
-      g.autobus ? "Sí" : "No",
-      g.alergia,
-      g.cancion,
-    ]);
+    // Una fila por PERSONA (lo que necesita el catering), con el enlace y los
+    // campos globales (autobús, canción) repetidos en cada miembro del grupo.
+    const filas = invitados.flatMap((g) =>
+      g.miembros.map((m) => [
+        g.numero ?? "",
+        m.nombre,
+        g.nombre,
+        `/?id=${g.id}`,
+        m.asistencia,
+        m.asistencia === "Sí" && g.autobus ? "Sí" : "No",
+        m.alergia,
+        g.cancion,
+      ])
+    );
 
     return [cabecera, ...filas].map((f) => f.map(escapar).join(",")).join("\n");
   }, [invitados]);
@@ -82,13 +93,14 @@ export default function Dashboard({ user }) {
         invitados && (
           <>
             <div className="mt-16">
-              <ResumenBoda invitados={invitados} />
+              <CuadroDeMando invitados={invitados} />
             </div>
 
             <section className="mt-16">
               <div className="flex flex-wrap items-baseline justify-between gap-4">
                 <h2 className="text-[11px] tracking-luxe text-grafito uppercase">
-                  Invitados ({invitados.length})
+                  Invitaciones ({invitados.length}) ·{" "}
+                  {invitados.reduce((n, g) => n + g.miembros.length, 0)} personas
                 </h2>
                 <button
                   type="button"
@@ -104,7 +116,7 @@ export default function Dashboard({ user }) {
                   <thead className="border-b border-linea text-[11px] tracking-luxe text-grafito uppercase">
                     <tr>
                       <th className="py-3 pr-4">Nº</th>
-                      <th className="py-3 pr-4">Nombre</th>
+                      <th className="py-3 pr-4">Invitación</th>
                       <th className="py-3 pr-4">Enlace</th>
                       <th className="py-3 pr-4">Asistencia</th>
                       <th className="py-3 pr-4">Autobús</th>
@@ -127,9 +139,9 @@ export default function Dashboard({ user }) {
                             /?id={g.id}
                           </a>
                         </td>
-                        <td className="py-3 pr-4 text-carbon">{g.asistencia}</td>
+                        <td className="py-3 pr-4 text-carbon">{resumirMiembros(g, "asistencia")}</td>
                         <td className="py-3 pr-4 text-grafito">{g.autobus ? "Sí" : "—"}</td>
-                        <td className="py-3 pr-4 text-grafito">{g.alergia || "—"}</td>
+                        <td className="py-3 pr-4 text-grafito">{resumirMiembros(g, "alergia")}</td>
                         <td className="py-3 text-grafito">{g.cancion || "—"}</td>
                       </tr>
                     ))}
