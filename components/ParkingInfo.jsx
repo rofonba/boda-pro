@@ -1,46 +1,37 @@
 "use client";
 
-import { urlMapas } from "@/lib/event";
+import { BODA, urlMapas } from "@/lib/event";
 import SectionTitle from "./SectionTitle";
 
-// Timeline de eventos del día
+// Cronograma del día. Las horas de ceremonia y llegada a la finca salen de
+// lib/event.js para que coincidan siempre con la cabecera y el calendario.
 const TIMELINE_EVENTOS = [
   {
     id: "ceremonia",
-    hora: "12:00h",
+    hora: BODA.ceremonia.hora, // 12:00h
     titulo: "Ceremonia",
-    icono: "🕐",
+    icono: "💍",
     detalles: [
+      { label: "Lugar:", valor: BODA.ceremonia.lugar },
       { label: "Duración estimada:", valor: "45 minutos" },
     ],
     notas: "La misa empieza a las 12:00h: te recomendamos estar allí a las 11:45h",
     tieneLinea: true,
   },
   {
-    id: "desplazamiento",
-    hora: "~12:45h",
-    titulo: "Desplazamiento",
-    icono: "🚗",
-    detalles: [
-      { label: "Tiempo:", valor: "15-30 minutos (según tráfico)" },
-    ],
-    notas: "Tiempo aproximado hasta la celebración",
-    tieneLinea: true,
-  },
-  {
     id: "coctel",
-    hora: "13:00h",
+    hora: BODA.convite.hora, // 14:00h
     titulo: "Cóctel de Bienvenida",
     icono: "🥂",
     detalles: [
-      { label: "Ubicación:", valor: "Jardines de la Celebración" },
+      { label: "Lugar:", valor: BODA.convite.lugar },
     ],
     notas: "Disfruta de bebidas y entrantes mientras nos reencontramos",
     tieneLinea: true,
   },
   {
-    id: "almuerzo",
-    hora: "15:00h",
+    id: "banquete",
+    hora: "15:30h",
     titulo: "Banquete de Celebración",
     icono: "🍽️",
     detalles: [
@@ -50,14 +41,14 @@ const TIMELINE_EVENTOS = [
     tieneLinea: true,
   },
   {
-    id: "fiestas",
-    hora: "00:00h",
-    titulo: "Fin de Fiesta",
-    icono: "✨",
+    id: "fiesta",
+    hora: "18:00h",
+    titulo: "Fiesta y Barra Libre",
+    icono: "🎶",
     detalles: [
-      { label: "Despedida:", valor: "Último baile y sorpresas finales" },
+      { label: "Hasta:", valor: "00:00h" },
     ],
-    notas: "Servicio de autobús disponible para el regreso",
+    notas: "Último baile, sorpresas finales y autobús de regreso al terminar",
     tieneLinea: false, // Último evento, sin línea
   },
 ];
