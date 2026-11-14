@@ -88,10 +88,13 @@ export default function InvitationPage() {
 
       {/* ─────────────────────────────────────────── */}
       {/* SECCIÓN 1d: Ilustración de la finca (y vídeo de intro) */}
+      {/* OCULTA: para volver a mostrarla, descomenta el bloque de abajo. */}
       {/* ─────────────────────────────────────────── */}
+      {/*
       <div className="mt-4">
         <HeroVideo isNight={isNight} />
       </div>
+      */}
 
       <Separator />
 

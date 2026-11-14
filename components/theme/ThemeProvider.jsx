@@ -74,9 +74,14 @@ export default function ThemeProvider({ children }) {
   return (
     <ThemeContext.Provider value={valor}>
       <div className="bg-paper relative flex min-h-screen flex-1 flex-col">
-        {/* Estrellas del modo noche. Su visibilidad la controla el CSS mediante
-            data-theme, no React, para que no parpadeen al cargar. */}
-        <div aria-hidden className="starfield pointer-events-none absolute inset-0" />
+        {/* Estrellas del modo noche: tres capas que parpadean a distinto ritmo.
+            Su visibilidad la controla el CSS mediante data-theme, no React,
+            para que no parpadeen al cargar (ver .starfield en globals.css). */}
+        <div aria-hidden className="starfield pointer-events-none absolute inset-0">
+          <span className="starfield-capa starfield-capa--1" />
+          <span className="starfield-capa starfield-capa--2" />
+          <span className="starfield-capa starfield-capa--3" />
+        </div>
 
         <ThemeToggle />
 

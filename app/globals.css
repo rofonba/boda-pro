@@ -120,34 +120,76 @@ body {
   opacity: 1;
 }
 
-/* Campo de estrellas sutil para el MODO NOCHE (destellos dorados/plateados) */
+/* ───────── Campo de estrellas del MODO NOCHE ─────────
+   Tres capas superpuestas sobre el fondo (que no se toca), cada una con sus
+   estrellas en radial-gradient, su tamaño de patrón y su ritmo de parpadeo.
+   Al no ir sincronizadas, el cielo titila de forma irregular y natural. */
 .starfield {
   opacity: 0;
+  overflow: hidden;
+}
+.starfield-capa {
+  position: absolute;
+  inset: 0;
+  background-repeat: repeat;
+}
+
+/* Capa 1: estrellas pequeñas y numerosas, doradas y blancas */
+.starfield-capa--1 {
+  background-size: 340px 340px;
   background-image:
     radial-gradient(1px 1px at 20% 30%, rgba(216, 189, 134, 0.9), transparent),
     radial-gradient(1px 1px at 70% 60%, rgba(255, 255, 255, 0.7), transparent),
-    radial-gradient(1.5px 1.5px at 40% 80%, rgba(216, 189, 134, 0.85), transparent),
     radial-gradient(1px 1px at 85% 25%, rgba(255, 255, 255, 0.6), transparent),
     radial-gradient(1px 1px at 55% 12%, rgba(216, 189, 134, 0.7), transparent),
     radial-gradient(1px 1px at 12% 70%, rgba(255, 255, 255, 0.6), transparent),
-    radial-gradient(1.5px 1.5px at 90% 82%, rgba(216, 189, 134, 0.8), transparent),
     radial-gradient(1px 1px at 33% 52%, rgba(255, 255, 255, 0.5), transparent);
-  background-repeat: repeat;
-  background-size: 340px 340px;
+}
+/* Capa 2: algo mayores y más escasas */
+.starfield-capa--2 {
+  background-size: 520px 520px;
+  background-image:
+    radial-gradient(1.5px 1.5px at 40% 80%, rgba(216, 189, 134, 0.85), transparent),
+    radial-gradient(1.5px 1.5px at 90% 82%, rgba(216, 189, 134, 0.8), transparent),
+    radial-gradient(1.5px 1.5px at 15% 15%, rgba(255, 255, 255, 0.75), transparent),
+    radial-gradient(1.5px 1.5px at 65% 40%, rgba(255, 255, 255, 0.65), transparent);
+}
+/* Capa 3: unas pocas estrellas brillantes con halo */
+.starfield-capa--3 {
+  background-size: 760px 760px;
+  background-image:
+    radial-gradient(2px 2px at 25% 45%, rgba(255, 255, 255, 0.95), transparent),
+    radial-gradient(2px 2px at 78% 18%, rgba(231, 212, 169, 0.95), transparent),
+    radial-gradient(6px 6px at 25% 45%, rgba(255, 255, 255, 0.12), transparent),
+    radial-gradient(6px 6px at 78% 18%, rgba(231, 212, 169, 0.12), transparent),
+    radial-gradient(2px 2px at 50% 88%, rgba(255, 255, 255, 0.85), transparent);
 }
 
 /* Las estrellas solo existen de noche, y su animación también: así de día no
    se gasta CPU animando algo invisible. */
 [data-theme="night"] .starfield {
   opacity: 1;
-  animation: twinkle 6s ease-in-out infinite alternate;
+}
+[data-theme="night"] .starfield-capa--1 {
+  animation: twinkle 5s ease-in-out infinite alternate;
+}
+[data-theme="night"] .starfield-capa--2 {
+  animation: twinkle 7s ease-in-out -2s infinite alternate;
+}
+[data-theme="night"] .starfield-capa--3 {
+  animation: twinkle 9s ease-in-out -5s infinite alternate;
 }
 @keyframes twinkle {
   from {
-    opacity: 0.45;
+    opacity: 0.35;
   }
   to {
-    opacity: 0.95;
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .starfield-capa {
+    animation: none !important;
   }
 }
 

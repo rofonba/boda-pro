@@ -94,25 +94,33 @@ function Persona({ persona, children }) {
   );
 }
 
-/** Sección desplegable con un contador en el título. */
-function Desplegable({ titulo, cantidad, vacio, abierto = false, children }) {
+/** Barra de pestañas horizontal; en móvil se desplaza en horizontal. */
+function Pestanas({ pestanas, activa, onCambiar }) {
   return (
-    <details open={abierto} className="group">
-      <summary className="flex cursor-pointer list-none items-baseline justify-between gap-4 border-b border-linea py-3 [&::-webkit-details-marker]:hidden">
-        <h2 className="text-[11px] tracking-luxe text-grafito uppercase">
-          {titulo}
-          <span className="ml-2 text-champagne">({cantidad})</span>
-        </h2>
-        <span aria-hidden className="text-champagne transition-transform duration-300 group-open:rotate-45">
-          +
-        </span>
-      </summary>
-      {cantidad === 0 ? (
-        <p className="py-4 text-sm italic text-grafito">{vacio}</p>
-      ) : (
-        <ul className="divide-y divide-linea">{children}</ul>
-      )}
-    </details>
+    <div role="tablist" className="-mx-6 flex gap-1 overflow-x-auto border-b border-linea px-6">
+      {pestanas.map(({ clave, titulo, cantidad }) => {
+        const esActiva = clave === activa;
+        return (
+          <button
+            key={clave}
+            type="button"
+            role="tab"
+            aria-selected={esActiva}
+            onClick={() => onCambiar(clave)}
+            className={`-mb-px shrink-0 border-b-2 px-4 py-3 text-[11px] tracking-luxe uppercase transition-colors ${
+              esActiva
+                ? "border-champagne text-carbon"
+                : "border-transparent text-grafito hover:text-carbon"
+            }`}
+          >
+            {titulo}
+            <span className={`ml-2 ${esActiva ? "text-champagne" : "text-grafito/70"}`}>
+              {cantidad}
+            </span>
+          </button>
+        );
+      })}
+    </div>
   );
 }
 
@@ -170,6 +178,7 @@ function TarjetaInvitacion({ invitacion }) {
 
 export default function CuadroDeMando({ invitados }) {
   const [busqueda, setBusqueda] = useState("");
+  const [tabActiva, setTabActiva] = useState("pendientes");
 
   const resumen = useMemo(() => calcularResumen(invitados), [invitados]);
   const personas = useMemo(() => desenrollar(invitados), [invitados]);
@@ -227,83 +236,95 @@ export default function CuadroDeMando({ invitados }) {
         )}
       </section>
 
-      {/* ── Listados con nombres ── */}
-      <div className="mt-16 space-y-8">
-        <Desplegable
-          titulo="Pendientes · sin respuesta"
-          cantidad={pendientes.length}
-          vacio="Todo el mundo ha contestado."
-          abierto
-        >
-          {pendientes.map((p) => (
-            <Persona key={p.clave} persona={p}>
-              <a
-                href={`/?id=${p.grupo.id}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-1 inline-block text-xs text-champagne underline"
-              >
-                /?id={p.grupo.id}
-              </a>
-            </Persona>
-          ))}
-        </Desplegable>
+      {/* ── Listados con nombres, por pestañas ── */}
+      {(() => {
+        const enlace = (p) => (
+          <a
+            href={`/?id=${p.grupo.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-1 inline-block text-xs text-champagne underline"
+          >
+            /?id={p.grupo.id}
+          </a>
+        );
 
-        <Desplegable
-          titulo="Confirmados"
-          cantidad={confirmados.length}
-          vacio="Todavía nadie ha confirmado."
-        >
-          {confirmados.map((p) => (
-            <Persona key={p.clave} persona={p} />
-          ))}
-        </Desplegable>
+        const pestanas = [
+          {
+            clave: "pendientes",
+            titulo: "Pendientes",
+            elementos: pendientes,
+            vacio: "Todo el mundo ha contestado.",
+            fila: (p) => <Persona key={p.clave} persona={p}>{enlace(p)}</Persona>,
+          },
+          {
+            clave: "confirmados",
+            titulo: "Confirmados",
+            elementos: confirmados,
+            vacio: "Todavía nadie ha confirmado.",
+            fila: (p) => <Persona key={p.clave} persona={p} />,
+          },
+          {
+            clave: "rechazados",
+            titulo: "Rechazados",
+            elementos: rechazados,
+            vacio: "Nadie ha dicho que no.",
+            fila: (p) => <Persona key={p.clave} persona={p} />,
+          },
+          {
+            clave: "autobus",
+            titulo: "Autobús",
+            elementos: autobus,
+            vacio: "Nadie ha pedido plaza en el autobús.",
+            fila: (p) => <Persona key={p.clave} persona={p} />,
+          },
+          {
+            clave: "alergias",
+            titulo: "Alergias",
+            elementos: alergias,
+            vacio: "Ningún asistente ha indicado alergias.",
+            fila: (p) => (
+              <Persona key={p.clave} persona={p}>
+                <p className="mt-1 text-sm text-grafito">{p.alergia}</p>
+              </Persona>
+            ),
+          },
+          {
+            clave: "canciones",
+            titulo: "Canciones",
+            elementos: canciones,
+            vacio: "Todavía no hay peticiones musicales.",
+            fila: (inv) => (
+              <li key={inv.id} className="py-3">
+                <p className="text-carbon">{inv.cancion}</p>
+                <p className="mt-0.5 text-xs tracking-wide text-grafito">{inv.nombre}</p>
+              </li>
+            ),
+          },
+        ];
+        const actual = pestanas.find((t) => t.clave === tabActiva) ?? pestanas[0];
 
-        <Desplegable
-          titulo="Rechazados"
-          cantidad={rechazados.length}
-          vacio="Nadie ha dicho que no."
-        >
-          {rechazados.map((p) => (
-            <Persona key={p.clave} persona={p} />
-          ))}
-        </Desplegable>
-
-        <Desplegable
-          titulo="Autobús · plazas reservadas"
-          cantidad={autobus.length}
-          vacio="Nadie ha pedido plaza en el autobús."
-        >
-          {autobus.map((p) => (
-            <Persona key={p.clave} persona={p} />
-          ))}
-        </Desplegable>
-
-        <Desplegable
-          titulo="Alergias e intolerancias"
-          cantidad={alergias.length}
-          vacio="Ningún asistente ha indicado alergias."
-        >
-          {alergias.map((p) => (
-            <Persona key={p.clave} persona={p}>
-              <p className="mt-1 text-sm text-grafito">{p.alergia}</p>
-            </Persona>
-          ))}
-        </Desplegable>
-
-        <Desplegable
-          titulo="Canciones"
-          cantidad={canciones.length}
-          vacio="Todavía no hay peticiones musicales."
-        >
-          {canciones.map((inv) => (
-            <li key={inv.id} className="py-3">
-              <p className="text-carbon">{inv.cancion}</p>
-              <p className="mt-0.5 text-xs tracking-wide text-grafito">{inv.nombre}</p>
-            </li>
-          ))}
-        </Desplegable>
-      </div>
+        return (
+          <section className="mt-16">
+            <Pestanas
+              pestanas={pestanas.map(({ clave, titulo, elementos }) => ({
+                clave,
+                titulo,
+                cantidad: elementos.length,
+              }))}
+              activa={actual.clave}
+              onCambiar={setTabActiva}
+            />
+            {actual.elementos.length === 0 ? (
+              <p className="py-6 text-sm italic text-grafito">{actual.vacio}</p>
+            ) : (
+              <ul role="tabpanel" className="divide-y divide-linea">
+                {actual.elementos.map(actual.fila)}
+              </ul>
+            )}
+          </section>
+        );
+      })()}
     </>
   );
 }
