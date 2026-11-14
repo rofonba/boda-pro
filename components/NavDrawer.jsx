@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 
-// Destinos del menú. Los id están en InvitationPage.jsx (fecha, contacto) y en
-// las tarjetas de LocationCard (ceremonia, banquete).
+// Destinos del menú. Los id están en KeyInfo.jsx (fecha, ceremonia, banquete)
+// y en WhatsAppContact.jsx (contacto).
 const ENLACES = [
   { href: "#fecha", texto: "¿Cuándo es la boda?" },
   { href: "#ceremonia", texto: "¿Dónde es la boda? ¿Hora?" },

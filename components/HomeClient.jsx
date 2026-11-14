@@ -25,7 +25,7 @@ export default function HomeClient({ invitadoInicial, slug }) {
   const verTodo = () => {
     setModo("web");
     // La web completa empieza por la portada: se vuelve arriba del todo.
-    window.scrollTo({ top: 0, behavior: "instant" });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (

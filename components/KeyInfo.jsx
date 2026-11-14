@@ -24,9 +24,9 @@ function ComoLlegar({ href, lugar }) {
 }
 
 /** Pregunta en pequeño y respuesta en grande. */
-function Dato({ pregunta, children, accion }) {
+function Dato({ id, pregunta, children, accion }) {
   return (
-    <li className="flex flex-col items-center gap-3 text-center">
+    <li id={id} className="scroll-mt-24 flex flex-col items-center gap-3 text-center">
       <span className="text-xs tracking-luxe text-grafito uppercase">{pregunta}</span>
       <p className="font-serif text-xl leading-relaxed text-carbon sm:text-2xl">{children}</p>
       {accion && <div>{accion}</div>}
@@ -45,6 +45,7 @@ export default function KeyInfo() {
         </Dato>
 
         <Dato
+          id="ceremonia"
           pregunta="¿Cuándo y dónde es la ceremonia?"
           accion={<ComoLlegar href={ceremonia.mapsUrl} lugar={ceremonia.lugar} />}
         >
@@ -52,6 +53,7 @@ export default function KeyInfo() {
         </Dato>
 
         <Dato
+          id="banquete"
           pregunta="¿Cuándo y dónde es el banquete?"
           accion={<ComoLlegar href={convite.mapsUrl} lugar={convite.lugar} />}
         >

@@ -3,7 +3,6 @@
 import { BODA } from "@/lib/event";
 import HeroVideo from "./HeroVideo";
 import GuestGreeting from "./GuestGreeting";
-import LocationCard from "./LocationCard";
 import ParkingInfo from "./ParkingInfo";
 import RsvpFormComplete from "./RsvpFormComplete";
 import GiftSection from "./GiftSection";
@@ -59,10 +58,6 @@ export default function InvitationPage() {
       {/* SECCIÓN 1: HERO - Mansión + Presentación */}
       {/* ─────────────────────────────────────────── */}
       <section className="flex flex-col items-center justify-center pt-8 sm:pt-12 text-center">
-        {/* Ilustración de la finca (y vídeo de intro). OCULTA TEMPORALMENTE:
-            para volver a mostrarla, descomenta la línea de abajo. */}
-        {/* <HeroVideo isNight={isNight} /> */}
-
         {/* Presentación de los novios */}
         <div className="mt-12">
           <span className="text-xs tracking-luxe text-grafito uppercase">
@@ -91,39 +86,19 @@ export default function InvitationPage() {
       {/* ─────────────────────────────────────────── */}
       <KeyInfo />
 
+      {/* ─────────────────────────────────────────── */}
+      {/* SECCIÓN 1d: Ilustración de la finca (y vídeo de intro) */}
+      {/* ─────────────────────────────────────────── */}
+      <div className="mt-4">
+        <HeroVideo isNight={isNight} />
+      </div>
+
       <Separator />
 
       {/* ─────────────────────────────────────────── */}
       {/* SECCIÓN 3: Countdown */}
       {/* ─────────────────────────────────────────── */}
       <Countdown />
-
-      <Separator />
-
-      {/* ─────────────────────────────────────────── */}
-      {/* SECCIÓN 4: Información - Ubicaciones */}
-      {/* ─────────────────────────────────────────── */}
-      <section className="py-20">
-        <h2 className="text-center text-xs tracking-luxe text-grafito uppercase">
-          La celebración
-        </h2>
-
-        {/* Fecha destacada */}
-        <div className="mt-8 flex flex-col items-center text-center">
-          <span className="text-xs tracking-luxe text-champagne uppercase">
-            {BODA.fecha.dia}
-          </span>
-          <p className="mt-3 font-serif text-3xl italic text-carbon sm:text-4xl">
-            {BODA.fecha.destacado}
-          </p>
-          <span className="mt-4 h-px w-24 bg-champagne/50" />
-        </div>
-
-        <div className="mt-12 grid gap-8 sm:grid-cols-2">
-          <LocationCard id="ceremonia" data={BODA.ceremonia} />
-          <LocationCard id="banquete" data={BODA.convite} />
-        </div>
-      </section>
 
       <Separator />
 
