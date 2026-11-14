@@ -59,8 +59,9 @@ export default function InvitationPage() {
       {/* SECCIÓN 1: HERO - Mansión + Presentación */}
       {/* ─────────────────────────────────────────── */}
       <section className="flex flex-col items-center justify-center pt-8 sm:pt-12 text-center">
-        {/* Vídeo hero: intro cinematográfica */}
-        <HeroVideo isNight={isNight} />
+        {/* Ilustración de la finca (y vídeo de intro). OCULTA TEMPORALMENTE:
+            para volver a mostrarla, descomenta la línea de abajo. */}
+        {/* <HeroVideo isNight={isNight} /> */}
 
         {/* Presentación de los novios */}
         <div className="mt-12">
