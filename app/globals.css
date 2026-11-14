@@ -61,6 +61,10 @@
 
 html {
   scroll-behavior: smooth;
+  /* Tamaño base de 18px (el navegador usa 16px). Todas las utilidades de
+     Tailwind van en rem, así que la web entera escala un 12,5 %: más cómoda
+     de leer en el móvil, sobre todo para la gente mayor. */
+  font-size: 18px;
 }
 
 body {

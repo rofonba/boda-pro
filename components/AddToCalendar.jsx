@@ -20,15 +20,25 @@ function IconoCalendario() {
 }
 
 const OPCION =
-  "block px-5 py-3 text-[11px] tracking-luxe text-carbon uppercase transition-colors hover:bg-champagne/10 hover:text-champagne";
+  "block px-5 py-3 text-xs tracking-luxe text-carbon uppercase transition-colors hover:bg-champagne/10 hover:text-champagne";
+
+const BOTON_BASE =
+  "inline-flex cursor-pointer list-none items-center gap-2 rounded-full border border-champagne tracking-luxe uppercase transition-all hover:shadow-md [&::-webkit-details-marker]:hidden";
+
+const BOTON = {
+  // Discreto, a juego con "Cómo llegar".
+  secundario: `${BOTON_BASE} bg-champagne/5 px-5 py-2.5 text-xs text-champagne hover:bg-champagne/15`,
+  // Grande y relleno de dorado: la acción principal del resumen de arriba.
+  primario: `${BOTON_BASE} bg-champagne px-6 py-3 text-sm font-semibold text-marfil shadow-lg hover:bg-oro`,
+};
 
 // Botón "Añadir al calendario" con dos opciones: Google Calendar (Android y
 // web) y el archivo .ics (iPhone, Mac y Outlook). Es un <details> nativo, así
 // que el desplegable funciona sin JavaScript.
-export default function AddToCalendar() {
+export default function AddToCalendar({ primario = false }) {
   return (
     <details className="group relative inline-block">
-      <summary className="inline-flex cursor-pointer list-none items-center gap-2 rounded-full border border-champagne bg-champagne/5 px-5 py-2.5 text-[11px] tracking-luxe text-champagne uppercase transition-all hover:bg-champagne/15 hover:shadow-md [&::-webkit-details-marker]:hidden">
+      <summary className={primario ? BOTON.primario : BOTON.secundario}>
         <IconoCalendario />
         Añadir al calendario
       </summary>

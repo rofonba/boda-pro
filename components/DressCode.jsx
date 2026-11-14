@@ -31,14 +31,14 @@ export default function DressCode() {
             className="rounded-lg border border-linea bg-crema/10 px-6 py-7 text-center backdrop-blur-sm transition-all duration-500 hover:border-champagne/50"
           >
             <h3 className="font-script text-4xl text-carbon">{titulo}</h3>
-            <p className="mt-3 text-sm leading-relaxed text-grafito">{texto}</p>
+            <p className="mt-3 text-base leading-relaxed text-grafito">{texto}</p>
           </div>
         ))}
       </div>
 
       <ul className="mx-auto mt-10 max-w-xl space-y-3">
         {CONSEJOS.map((consejo) => (
-          <li key={consejo} className="flex gap-3 text-sm leading-relaxed text-grafito">
+          <li key={consejo} className="flex gap-3 text-base leading-relaxed text-grafito">
             <span className="mt-1.5 rotate-45 text-[8px] text-champagne">◆</span>
             {consejo}
           </li>

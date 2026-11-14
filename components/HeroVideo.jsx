@@ -46,7 +46,11 @@ export default function HeroVideo({ isNight }) {
       />
 
       {/* Vídeo de intro: se superpone a la imagen y, al acabar, se desmonta
-          dejándola a la vista. No hay fundido desde un hueco en blanco. */}
+          dejándola a la vista. No hay fundido desde un hueco en blanco.
+
+          DESACTIVADO TEMPORALMENTE: para volver a activarlo, descomenta el
+          bloque de abajo. La lógica (reproducirIntro) se deja intacta. */}
+      {/*
       {reproducirIntro && (
         <video
           src="/videos/video-casa-dia-entrada-boda-pro.mp4"
@@ -58,6 +62,7 @@ export default function HeroVideo({ isNight }) {
           className="absolute inset-0 z-10 h-full w-full object-cover"
         />
       )}
+      */}
     </div>
   );
 }

@@ -51,8 +51,8 @@ function Dato({ icono, etiqueta, children }) {
         {icono}
       </span>
       <div>
-        <dt className="text-[10px] tracking-luxe text-champagne uppercase">{etiqueta}</dt>
-        <dd className="mt-1 text-sm leading-snug text-carbon">{children}</dd>
+        <dt className="text-xs tracking-luxe text-champagne uppercase">{etiqueta}</dt>
+        <dd className="mt-1 text-base leading-snug text-carbon">{children}</dd>
       </div>
     </div>
   );
@@ -63,7 +63,7 @@ export default function LocationCard({ data }) {
 
   return (
     <div className="flex flex-col items-center rounded-lg border border-linea bg-crema/10 px-6 py-8 backdrop-blur-sm transition-all duration-500 hover:border-champagne/50 hover:shadow-lg">
-      <span className="text-[11px] tracking-luxe text-champagne uppercase">{titulo}</span>
+      <span className="text-xs tracking-luxe text-champagne uppercase">{titulo}</span>
 
       <h3 className="mt-4 text-center font-serif text-2xl text-carbon">{lugar}</h3>
 
@@ -76,7 +76,7 @@ export default function LocationCard({ data }) {
         <Dato icono={<IconoMapa />} etiqueta="Dónde:">
           <span className="font-serif">{lugar}</span>
           {(direccion || ciudad) && (
-            <span className="mt-0.5 block text-xs text-grafito">{direccion || ciudad}</span>
+            <span className="mt-0.5 block text-sm text-grafito">{direccion || ciudad}</span>
           )}
         </Dato>
       </dl>
@@ -87,7 +87,7 @@ export default function LocationCard({ data }) {
           target="_blank"
           rel="noopener noreferrer"
           title={`Ver ${lugar} en Google Maps`}
-          className="mt-8 inline-flex items-center gap-2 rounded-full border border-champagne bg-champagne/5 px-4 py-2.5 text-[11px] tracking-luxe text-champagne uppercase transition-all hover:bg-champagne/15 hover:shadow-md"
+          className="mt-8 inline-flex items-center gap-2 rounded-full border border-champagne bg-champagne/5 px-4 py-2.5 text-xs tracking-luxe text-champagne uppercase transition-all hover:bg-champagne/15 hover:shadow-md"
         >
           <IconoMapa />
           Cómo llegar

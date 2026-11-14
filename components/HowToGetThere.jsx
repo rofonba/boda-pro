@@ -27,7 +27,7 @@ export default function HowToGetThere() {
         />
       </a>
 
-      <p className="mt-4 text-center text-[11px] italic text-grafito">
+      <p className="mt-4 text-center text-xs italic text-grafito">
         Pulsa el mapa para verlo en grande
       </p>
     </section>

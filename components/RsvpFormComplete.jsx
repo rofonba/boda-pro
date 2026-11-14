@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useGuest } from "./GuestProvider";
 
 const CLASES_CAMPO =
-  "mt-3 w-full rounded-lg border border-linea bg-crema px-4 py-3 text-carbon " +
+  "mt-3 w-full rounded-lg border border-linea bg-crema px-4 py-4 text-lg text-carbon " +
   "placeholder-grafito/50 transition-all duration-300 focus:border-champagne " +
   "focus:outline-none focus:ring-2 focus:ring-champagne/20";
 
@@ -12,7 +12,7 @@ const CLASES_CAMPO =
 function Eleccion({ etiqueta, valor, onChange, opciones }) {
   return (
     <fieldset>
-      <legend className="font-serif text-lg text-carbon">{etiqueta}</legend>
+      <legend className="font-serif text-xl text-carbon">{etiqueta}</legend>
       <div className="mt-4 flex gap-3">
         {opciones.map((op) => {
           const activo = valor === op.valor;
@@ -23,7 +23,7 @@ function Eleccion({ etiqueta, valor, onChange, opciones }) {
               onClick={() => onChange(op.valor)}
               aria-pressed={activo}
               className={
-                "flex-1 rounded-lg border px-4 py-3 transition-all duration-300 " +
+                "flex-1 rounded-lg border px-4 py-4 text-lg transition-all duration-300 " +
                 (activo
                   ? "border-champagne bg-champagne/20 text-champagne"
                   : "border-linea text-grafito hover:border-champagne/50")
@@ -55,9 +55,9 @@ export default function RsvpFormComplete() {
   // Sin invitación identificada no hay a quién guardar la respuesta.
   if (!invitado) {
     return (
-      <section id="rsvp" className="py-20 text-center">
+      <section id="asistencia" className="scroll-mt-24 py-20 text-center">
         <h2 className="font-serif text-3xl text-carbon">Confirmación de asistencia</h2>
-        <p className="mx-auto mt-6 max-w-xl text-grafito">
+        <p className="mx-auto mt-6 max-w-xl text-lg text-grafito">
           {sinEnlace
             ? "Para confirmar tu asistencia, entra desde el enlace personal que te enviamos."
             : "No hemos podido identificar tu invitación. Escríbenos y te reenviamos tu enlace."}
@@ -94,12 +94,12 @@ export default function RsvpFormComplete() {
 
   if (guardado) {
     return (
-      <section id="rsvp" className="py-20 text-center">
+      <section id="asistencia" className="scroll-mt-24 py-20 text-center">
         <div className="mx-auto max-w-2xl rounded-lg border border-champagne/50 bg-crema/40 px-6 py-12">
           <h3 className="font-serif text-2xl text-carbon">
             {asistencia === "Sí" ? "¡Gracias por confirmar!" : "Gracias por avisarnos"}
           </h3>
-          <p className="mt-4 text-grafito">
+          <p className="mt-4 text-lg text-grafito">
             {asistencia === "Sí"
               ? "Te esperamos el 15 de mayo de 2027."
               : "Sentimos que no puedas venir. Te echaremos de menos."}
@@ -107,7 +107,7 @@ export default function RsvpFormComplete() {
           <button
             type="button"
             onClick={() => setGuardado(false)}
-            className="mt-6 text-champagne underline hover:text-carbon"
+            className="mt-6 inline-block px-4 py-3 text-lg text-champagne underline hover:text-carbon"
           >
             Editar mi respuesta
           </button>
@@ -117,7 +117,7 @@ export default function RsvpFormComplete() {
   }
 
   return (
-    <section id="rsvp" className="py-20">
+    <section id="asistencia" className="scroll-mt-24 py-20">
       <div className="mx-auto max-w-2xl">
         <h2 className="text-center font-serif text-3xl text-carbon">
           Confirmación de asistencia
@@ -127,7 +127,7 @@ export default function RsvpFormComplete() {
           {error && (
             <p
               role="alert"
-              className="rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700"
+              className="rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-base text-red-700"
             >
               {error}
             </p>
@@ -156,7 +156,7 @@ export default function RsvpFormComplete() {
           )}
 
           <div>
-            <label htmlFor="alergia" className="block font-serif text-lg text-carbon">
+            <label htmlFor="alergia" className="block font-serif text-xl text-carbon">
               Alergias o intolerancias
             </label>
             <textarea
@@ -171,7 +171,7 @@ export default function RsvpFormComplete() {
           </div>
 
           <div>
-            <label htmlFor="cancion" className="block font-serif text-lg text-carbon">
+            <label htmlFor="cancion" className="block font-serif text-xl text-carbon">
               Una canción que no puede faltar
             </label>
             <textarea
@@ -188,12 +188,12 @@ export default function RsvpFormComplete() {
           <button
             type="submit"
             disabled={guardando}
-            className="w-full rounded-lg border border-champagne bg-champagne/20 px-6 py-4 font-serif text-lg text-champagne transition-all duration-300 hover:bg-champagne/30 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50"
+            className="w-full rounded-lg border border-champagne bg-champagne/20 px-6 py-5 font-serif text-xl text-champagne transition-all duration-300 hover:bg-champagne/30 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50"
           >
             {guardando ? "Guardando…" : "Enviar respuesta"}
           </button>
 
-          <p className="text-center text-xs text-grafito">
+          <p className="text-center text-base text-grafito">
             Podrás cambiar tu respuesta cuando quieras desde este mismo enlace.
           </p>
         </form>

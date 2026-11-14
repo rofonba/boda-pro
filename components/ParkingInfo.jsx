@@ -97,23 +97,23 @@ function ParkingCard({ parking }) {
         backgroundColor: "rgba(255, 255, 255, 0.08)",
       }}>
       <div className="flex items-start justify-between gap-2">
-        <h4 className="font-serif text-sm font-medium text-carbon">
+        <h4 className="font-serif text-base font-medium text-carbon">
           {parking.nombre}
         </h4>
-        <span className="whitespace-nowrap rounded-full bg-champagne/15 px-2.5 py-1 text-[10px] font-semibold text-champagne">
+        <span className="whitespace-nowrap rounded-full bg-champagne/15 px-2.5 py-1 text-xs font-semibold text-champagne">
           {parking.distancia} ⓐ
         </span>
       </div>
-      <p className="text-xs text-grafito">{parking.capacidad}</p>
+      <p className="text-sm text-grafito">{parking.capacidad}</p>
       {parking.notas && (
-        <p className="text-xs italic text-grafito/70">{parking.notas}</p>
+        <p className="text-sm italic text-grafito/70">{parking.notas}</p>
       )}
       <a
         href={urlMapas({ nombre: parking.nombre, ciudad: "Valencia" })}
         target="_blank"
         rel="noopener noreferrer"
         title={`Ver ${parking.nombre} en Google Maps`}
-        className="mt-1 self-start text-[10px] tracking-luxe text-champagne/80 uppercase underline decoration-champagne/30 underline-offset-4 transition-colors hover:text-champagne hover:decoration-champagne"
+        className="mt-1 self-start text-xs tracking-luxe text-champagne/80 uppercase underline decoration-champagne/30 underline-offset-4 transition-colors hover:text-champagne hover:decoration-champagne"
       >
         Ver ubicación ↗
       </a>
@@ -154,13 +154,13 @@ export default function ParkingInfo() {
                 <h3 className="font-serif text-lg text-carbon">
                   {evento.titulo}
                 </h3>
-                <p className="mt-2 text-sm font-semibold text-champagne">
+                <p className="mt-2 text-base font-semibold text-champagne">
                   {evento.hora}
                 </p>
 
                 {/* Detalles */}
                 {evento.detalles.map((detalle, i) => (
-                  <p key={i} className="mt-2 text-sm text-grafito">
+                  <p key={i} className="mt-2 text-base text-grafito">
                     {detalle.label}{" "}
                     <span className="font-semibold">{detalle.valor}</span>
                   </p>
@@ -168,7 +168,7 @@ export default function ParkingInfo() {
 
                 {/* Notas */}
                 {evento.notas && (
-                  <p className="mt-2 text-xs italic text-grafito/70">
+                  <p className="mt-2 text-sm italic text-grafito/70">
                     {evento.notas}
                   </p>
                 )}
@@ -186,10 +186,10 @@ export default function ParkingInfo() {
           <span className="text-3xl flex-shrink-0">🚌</span>
           <div>
             <h3 className="font-serif text-lg text-carbon">Servicio de Autobús</h3>
-            <p className="mt-3 text-sm leading-relaxed text-grafito">
+            <p className="mt-3 text-base leading-relaxed text-grafito">
               Hemos habilitado un <span className="font-semibold text-champagne">servicio de autobús cómodo y gratuito</span> para todos los invitados que lo deseen. Es una excelente opción para disfrutar del día sin preocupaciones de conducción.
             </p>
-            <p className="mt-3 text-xs italic text-grafito/70">
+            <p className="mt-3 text-sm italic text-grafito/70">
               Puedes confirmar tu interés en el formulario de confirmación de asistencia
             </p>
           </div>
@@ -200,7 +200,7 @@ export default function ParkingInfo() {
       {/* PARKINGS */}
       {/* ─────────────────────────────────────────── */}
       <div>
-        <h2 className="text-center text-[11px] tracking-luxe text-champagne uppercase mb-8">
+        <h2 className="text-center text-xs tracking-luxe text-champagne uppercase mb-8">
           Estacionamiento (Iglesia)
         </h2>
 
@@ -210,10 +210,10 @@ export default function ParkingInfo() {
           ))}
         </div>
 
-        <p className="mt-8 text-center text-[11px] italic text-grafito">
+        <p className="mt-8 text-center text-xs italic text-grafito">
           Los tiempos indicados son estimados caminando a paso normal.
           <br />
-          <span className="text-[10px]">ⓐ a pie desde el parking</span>
+          <span className="text-xs">ⓐ a pie desde el parking</span>
         </p>
       </div>
     </section>

@@ -27,7 +27,7 @@ export default function GiftSection() {
 
   return (
     <section className="py-16 text-center">
-      <span className="text-[11px] tracking-luxe text-champagne uppercase">
+      <span className="text-xs tracking-luxe text-champagne uppercase">
         Nuestro regalo
       </span>
 
@@ -39,7 +39,7 @@ export default function GiftSection() {
 
       <div className="mx-auto mt-10 max-w-sm">
         <div className="border border-linea bg-crema px-6 py-7">
-          <p className="text-[11px] tracking-luxe text-grafito uppercase">
+          <p className="text-xs tracking-luxe text-grafito uppercase">
             {BODA.regalo.titular}
           </p>
           <p className="mt-3 font-mono text-base tracking-wide text-carbon">
@@ -47,7 +47,7 @@ export default function GiftSection() {
           </p>
           <button
             onClick={copiar}
-            className="mt-6 inline-flex items-center gap-2 text-[11px] tracking-luxe text-grafito uppercase transition-colors hover:text-carbon"
+            className="mt-6 inline-flex items-center gap-2 text-xs tracking-luxe text-grafito uppercase transition-colors hover:text-carbon"
           >
             <span
               className={`inline-block h-1.5 w-1.5 rounded-full transition-colors ${

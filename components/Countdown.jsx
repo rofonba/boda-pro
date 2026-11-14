@@ -46,7 +46,7 @@ export default function Countdown() {
 
   return (
     <section className="py-20">
-      <h2 className="text-center text-[11px] tracking-luxe text-champagne uppercase">
+      <h2 className="text-center text-xs tracking-luxe text-champagne uppercase">
         Cuenta atrás
       </h2>
 
@@ -59,7 +59,7 @@ export default function Countdown() {
             </div>
 
             {/* Etiqueta elegante */}
-            <p className="mt-2 text-[10px] tracking-widest text-grafito uppercase">
+            <p className="mt-2 text-xs tracking-widest text-grafito uppercase">
               {item.label}
             </p>
 

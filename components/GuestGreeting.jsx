@@ -30,7 +30,7 @@ export default function GuestGreeting() {
             de este día tan especial.
           </p>
           {invitacionNoEncontrada && (
-            <p className="mx-auto mt-6 max-w-xl text-sm text-grafito">
+            <p className="mx-auto mt-6 max-w-xl text-base text-grafito">
               No hemos localizado tu invitación con ese enlace. Revisa el enlace
               que te enviamos o escríbenos y te lo reenviamos encantados.
             </p>

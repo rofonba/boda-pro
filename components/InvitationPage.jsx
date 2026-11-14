@@ -10,7 +10,7 @@ import GiftSection from "./GiftSection";
 import Countdown from "./Countdown";
 import DressCode from "./DressCode";
 import Faq from "./Faq";
-import AddToCalendar from "./AddToCalendar";
+import KeyInfo from "./KeyInfo";
 import HowToGetThere from "./HowToGetThere";
 import WhatsAppContact from "./WhatsAppContact";
 import { useTheme } from "./theme/ThemeProvider";
@@ -40,7 +40,7 @@ function Separator() {
   return (
     <div className="flex items-center justify-center gap-4 py-8">
       <span className="h-px w-12 bg-linea" />
-      <span className="rotate-45 text-xs text-champagne">◆</span>
+      <span className="rotate-45 text-sm text-champagne">◆</span>
       <span className="h-px w-12 bg-linea" />
     </div>
   );
@@ -56,31 +56,32 @@ export default function InvitationPage() {
       {/* ─────────────────────────────────────────── */}
       {/* SECCIÓN 1: HERO - Mansión + Presentación */}
       {/* ─────────────────────────────────────────── */}
-      <section className="flex min-h-[100vh] flex-col items-center justify-center pt-8 sm:pt-12 text-center">
+      <section className="flex flex-col items-center justify-center pt-8 sm:pt-12 text-center">
         {/* Vídeo hero: intro cinematográfica */}
         <HeroVideo isNight={isNight} />
 
         {/* Presentación de los novios */}
         <div className="mt-12">
-          <span className="text-[11px] tracking-luxe text-grafito uppercase">
+          <span className="text-xs tracking-luxe text-grafito uppercase">
             {BODA.fecha.dia} · {BODA.fecha.largo}
           </span>
 
-          <div className="mt-5">
-            <AddToCalendar />
-          </div>
-
-          <h1 className="mt-8 font-script text-7xl leading-[0.9] text-carbon sm:text-8xl">
+          <h1 className="mt-6 font-script text-6xl leading-[0.9] text-carbon sm:text-8xl">
             {BODA.novios.nombres.split("&")[0].trim()}
           </h1>
           <span className="my-2 font-script text-4xl text-champagne sm:text-5xl">
             &amp;
           </span>
-          <h1 className="font-script text-7xl leading-[0.9] text-carbon sm:text-8xl">
+          <h1 className="font-script text-6xl leading-[0.9] text-carbon sm:text-8xl">
             {BODA.novios.nombres.split("&")[1]?.trim()}
           </h1>
         </div>
       </section>
+
+      {/* ─────────────────────────────────────────── */}
+      {/* SECCIÓN 1b: Resumen de datos clave (fecha, ceremonia, banquete) */}
+      {/* ─────────────────────────────────────────── */}
+      <KeyInfo />
 
       <Separator />
 
@@ -102,13 +103,13 @@ export default function InvitationPage() {
       {/* SECCIÓN 4: Información - Ubicaciones */}
       {/* ─────────────────────────────────────────── */}
       <section className="py-20">
-        <h2 className="text-center text-[11px] tracking-luxe text-grafito uppercase">
+        <h2 className="text-center text-xs tracking-luxe text-grafito uppercase">
           La celebración
         </h2>
 
         {/* Fecha destacada */}
         <div className="mt-8 flex flex-col items-center text-center">
-          <span className="text-[11px] tracking-luxe text-champagne uppercase">
+          <span className="text-xs tracking-luxe text-champagne uppercase">
             {BODA.fecha.dia}
           </span>
           <p className="mt-3 font-serif text-3xl italic text-carbon sm:text-4xl">
@@ -176,7 +177,7 @@ export default function InvitationPage() {
       {/* ─────────────────────────────────────────── */}
       <footer className="mt-20 text-center">
         <div className="font-script text-4xl text-carbon">{BODA.novios.monograma}</div>
-        <p className="mt-3 text-[11px] tracking-luxe text-grafito uppercase">
+        <p className="mt-3 text-xs tracking-luxe text-grafito uppercase">
           {BODA.fecha.largo}
         </p>
       </footer>

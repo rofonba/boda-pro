@@ -66,7 +66,7 @@ export default function Faq() {
                 +
               </span>
             </summary>
-            <p className="mt-3 pr-8 text-sm leading-relaxed text-grafito">{respuesta}</p>
+            <p className="mt-3 pr-8 text-base leading-relaxed text-grafito">{respuesta}</p>
           </details>
         ))}
       </div>

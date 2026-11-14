@@ -51,8 +51,8 @@ export default function WhatsAppContact() {
           >
             <IconoWhatsApp />
             <span className="flex flex-col items-start leading-tight">
-              <span className="text-[11px] tracking-luxe uppercase">{persona.nombre}</span>
-              <span className="mt-1 text-xs tracking-wide text-grafito">
+              <span className="text-xs tracking-luxe uppercase">{persona.nombre}</span>
+              <span className="mt-1 text-sm tracking-wide text-grafito">
                 {formatearTelefono(persona.telefono)}
               </span>
             </span>
