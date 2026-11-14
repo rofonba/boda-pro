@@ -37,7 +37,7 @@ export default function KeyInfo() {
   const { fecha, ceremonia, convite } = BODA;
 
   return (
-    <section className="py-12 sm:py-16">
+    <section id="fecha" className="scroll-mt-24 py-12 sm:py-16">
       <ul className="mx-auto flex max-w-2xl flex-col gap-8 rounded-2xl border border-linea bg-crema/20 px-6 py-10 backdrop-blur-sm sm:gap-10 sm:px-10">
         <Dato pregunta="¿Cuándo?" accion={<AddToCalendar primario />}>
           {fecha.dia}, {fecha.largo}

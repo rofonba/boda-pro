@@ -11,6 +11,7 @@ import Countdown from "./Countdown";
 import DressCode from "./DressCode";
 import Faq from "./Faq";
 import KeyInfo from "./KeyInfo";
+import NavDrawer from "./NavDrawer";
 import HowToGetThere from "./HowToGetThere";
 import WhatsAppContact from "./WhatsAppContact";
 import { useTheme } from "./theme/ThemeProvider";
@@ -51,6 +52,7 @@ export default function InvitationPage() {
 
   return (
     <main className="mx-auto w-full max-w-4xl px-3 sm:px-6 pb-24">
+      <NavDrawer />
       <Monograma />
 
       {/* ─────────────────────────────────────────── */}
@@ -119,8 +121,8 @@ export default function InvitationPage() {
         </div>
 
         <div className="mt-12 grid gap-8 sm:grid-cols-2">
-          <LocationCard data={BODA.ceremonia} />
-          <LocationCard data={BODA.convite} />
+          <LocationCard id="ceremonia" data={BODA.ceremonia} />
+          <LocationCard id="banquete" data={BODA.convite} />
         </div>
       </section>
 

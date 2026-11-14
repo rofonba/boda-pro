@@ -58,11 +58,12 @@ function Dato({ icono, etiqueta, children }) {
   );
 }
 
-export default function LocationCard({ data }) {
+// `id` es el ancla del menú lateral (#ceremonia, #banquete).
+export default function LocationCard({ id, data }) {
   const { titulo, lugar, ciudad, direccion, hora, mapsUrl } = data;
 
   return (
-    <div className="flex flex-col items-center rounded-lg border border-linea bg-crema/10 px-6 py-8 backdrop-blur-sm transition-all duration-500 hover:border-champagne/50 hover:shadow-lg">
+    <div id={id} className="scroll-mt-24 flex flex-col items-center rounded-lg border border-linea bg-crema/10 px-6 py-8 backdrop-blur-sm transition-all duration-500 hover:border-champagne/50 hover:shadow-lg">
       <span className="text-xs tracking-luxe text-champagne uppercase">{titulo}</span>
 
       <h3 className="mt-4 text-center font-serif text-2xl text-carbon">{lugar}</h3>

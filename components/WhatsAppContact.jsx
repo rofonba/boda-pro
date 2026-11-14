@@ -33,7 +33,7 @@ function urlWhatsApp({ nombre, telefono }) {
 
 export default function WhatsAppContact() {
   return (
-    <section className="py-20">
+    <section id="contacto" className="scroll-mt-24 py-20">
       <SectionTitle antetitulo="¿Alguna duda?" titulo="Escríbenos" />
 
       <p className="mx-auto mt-8 max-w-md text-center font-serif text-lg italic leading-relaxed text-carbon">
