@@ -3,18 +3,18 @@ Nº,Quién,Relación
 2,Joaquín,
 3,Blanca,Pareja 1
 4,Lázaro,Pareja 1
-5,Tía Pilar,Pareja 2
-6,Tío Manolo,Pareja 2
-7,Tía Beatriz,Pareja 3
+5,Pilar,Pareja 2
+6,Manolo,Pareja 2
+7,Beatriz,Pareja 3
 8,Xabi,Pareja 3
-9,Tía Esther,Pareja 4
-10,Abuela,Pareja 4
+9,Esther,Pareja 4
+10,Abuelita,Pareja 4
 11,Carlos,
 12,Víctor,Pareja 5
 13,Claire,Pareja 5
 14,Gael,Pareja 5
-15,Tío Javier,
-16,Tío Bernardino,
+15,Javier,
+16,Bernardino,
 17,Mercedes,Pareja 6
 18,Quique,Pareja 6
 19,Maricarmen,Pareja 7
@@ -23,31 +23,31 @@ Nº,Quién,Relación
 22,Lola,Pareja 8
 23,Javi Aznar,Pareja 9
 24,Inma,Pareja 9
-25,Edu Nogues,Pareja 10
-26,Vir Jarabo,Pareja 10
+25,Edu Nogués,Pareja 10
+26,Virrginia Jarabo,Pareja 10
 27,Carmen,Pareja 11
 28,Pedro,Pareja 11
 29,Jorge,Pareja 11
 30,Marina,Pareja 11
 31,Nacho Muñoz,
 32,Pepe Mallent,
-33,Pepu,Pareja 12
-34,Manolo,Pareja 12
+33,Mamá,Pareja 12
+34,Papá,Pareja 12
 35,Cristian,Pareja 13
 36,Lucia,Pareja 13
-37,Tío Rafa,Pareja 14
-38,Tía Amparo,Pareja 14
+37,Rafa,Pareja 14
+38,Amparo,Pareja 14
 39,Yolanda,Pareja 15
 40,Juanda,Pareja 15
 41,Leo,Pareja 15
-42,Carol,Pareja 16
+42,Carolina,Pareja 16
 43,Mario,Pareja 16
 44,Valentina,Pareja 16
 45,Mateo,Pareja 16
-46,Carmensin,Pareja 17
+46,Carmen,Pareja 17
 47,Juan Carlos marido,Pareja 17
 48,Mª Jose ,Pareja 18
-49,Ángel Sanahuja,Pareja 18
+49,Ángel,Pareja 18
 50,Alex,
 51,Eva,
 52,Blanca,
@@ -56,9 +56,9 @@ Nº,Quién,Relación
 55,Isabel,Pareja 19
 56,Nacho,Pareja 20
 57,Inma,Pareja 20
-58,Tio Pepe,Pareja 21
-59,Tia Carmensin,Pareja 21
-60,Tia Conchin,
+58,Tío Pepe,Pareja 21
+59,Carmensin,Pareja 21
+60,Tía Conchin,
 61,Begoña,Pareja 22
 62,Ximo,Pareja 22
 63,Cristina,Pareja 23
@@ -73,44 +73,44 @@ Nº,Quién,Relación
 72,Joan,
 73,Marcos,
 74,Claudia,
-75,Maricarmen,Pareja 25
+75,Mª Carmen,Pareja 25
 76,José,Pareja 26
 77,Cristina de Rosa,Pareja 27
-78,Novio suizo Cristina (Erhardt),Pareja 27
-79,Pepa Company,
+78,Erhardt,Pareja 27
+79,Pepa,
 80,Adela,Pareja 28
 81,José Luis,Pareja 29
-82,Cris Romero,Pareja 30
+82,Cristina,Pareja 30
 83,Carlos,Pareja 30
-84,Ferran Romero,Pareja 31
+84,Ferran,Pareja 31
 85,Borja,Pareja 31
 86,Ana Mora,Pareja 32
-87,Nacho chileno,Pareja 32
+87,Nacho,Pareja 32
 88,Cameron,
 89,Gema,
 90,Luisa,Pareja 33
-91,Andrés pareja luisa,Pareja 33
+91,Andrés,Pareja 33
 92,Macarena,Pareja 34
-93,Marcos pareja macarena,Pareja 34
+93,Marcos,Pareja 34
 94,Marta Gimeno,
 95,Laura Rausell,Pareja 35
 96,Rodrigo,Pareja 35
 97,Joan,
 98,Ana Briz,
-99,Mario JCB,Pareja 36
-100,Memen JCB,Pareja 36
+99,Mario,Pareja 36
+100,Memen,Pareja 36
 101,Marta Benlloch,Pareja 37
-102,Moni Arribas,
-103,Acompañante Moni,
+102,Mónica Arribas,
+103,Acompañante Mónica arribas,
 104,Paula Mira,Pareja 38
 105,Josso,Pareja 38
-106,Moni Gómez Lechón,
+106,Mónica Gómez Lechón,
 107,Acompañante Moni,
 108,Shere,
 109,Andrea,Pareja 39
 110,David,Pareja 39
 111,Bea Esteban,Pareja 40
-112,Acompañante Bea Esteban,Pareja 40
+112,Nacho,Pareja 40
 113,Tamara,
 114,Laura liebana,
 115,Cris Rubio,
@@ -120,7 +120,7 @@ Nº,Quién,Relación
 119,Mar Andrés,
 120,Iborra,
 121,Marcos,Pareja 41
-122,Acompañante Marcos Natalia,Pareja 41
+122,Natalia,Pareja 41
 123,Mateo,Pareja 42
 124,Sara,Pareja 42
 125,Juanan,Pareja 43
@@ -128,8 +128,8 @@ Nº,Quién,Relación
 127,Sarri,Pareja 44
 128,Olga,Pareja 44
 129,Muso,Pareja 37
-130,Bea Musoles,Pareja 45
-131,Miguel novio Bea,Pareja 45
+130,Bea,Pareja 45
+131,Miguel,Pareja 45
 132,Sánchez,
 133,Dolz,Pareja 46
 134,Kiara,Pareja 46
@@ -142,9 +142,9 @@ Nº,Quién,Relación
 140,Nacho Vidal,
 141,Alberto Aires,Pareja 50
 142,Marta Lozano,Pareja 50
-143,Carlos Blasquito,Pareja 51
+143,Carlos Blasco,Pareja 51
 144,Esther,Pareja 51
-145,Pablo Mdm,Pareja 52
+145,Pablo,Pareja 52
 146,Rosalía,Pareja 52
 147,Manu Seguí,Pareja 53
 148,Paula,Pareja 53
@@ -162,10 +162,10 @@ Nº,Quién,Relación
 160,Finn Harrens,
 161,Ezra,
 162,Salva,Pareja 55
-163,Luna Novia Salva,Pareja 55
-164,Juanfe Gallego,Pareja 56
-165,Cris Novia Juanfe,Pareja 56
-166,Sergio Colombia,
+163,Luna,Pareja 55
+164,Juanfe,Pareja 56
+165,Cris,Pareja 56
+166,Sergio Acosta,
 167,Augusto,Pareja 57
 168,Mujer Augusto,Pareja 57
 169,Arancha,Pareja 58
