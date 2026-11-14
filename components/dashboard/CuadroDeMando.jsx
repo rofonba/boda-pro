@@ -36,29 +36,31 @@ function desenrollar(invitaciones) {
 
 // ── Piezas visuales ─────────────────────────────────────────────────────────
 
-/** Bloque de cuatro cifras (Asistencia / Autobús). */
-function Contador({ titulo, datos }) {
-  const filas = [
-    { etiqueta: "Confirmados", valor: datos.confirmados },
-    { etiqueta: "Pendientes", valor: datos.pendientes },
-    { etiqueta: "Rechazados", valor: datos.rechazados },
-    { etiqueta: "Total", valor: datos.total, destacado: true },
+/** Porcentaje entero sobre el total; 0 si no hay nadie (evita dividir por cero). */
+const porcentaje = (parte, total) => (total ? Math.round((parte / total) * 100) : 0);
+
+/** Las cuatro métricas principales, en personas: cifra grande y porcentaje. */
+function Metricas({ asistencia }) {
+  const { total } = asistencia;
+  const metricas = [
+    { etiqueta: "Enviadas", valor: total, destacado: true },
+    { etiqueta: "Aceptadas", valor: asistencia.confirmados },
+    { etiqueta: "Pendientes", valor: asistencia.pendientes },
+    { etiqueta: "Rechazadas", valor: asistencia.rechazados },
   ];
 
   return (
-    <section>
-      <h2 className="text-[11px] tracking-luxe text-grafito uppercase">{titulo}</h2>
-      <dl className="mt-4 divide-y divide-linea border-y border-linea">
-        {filas.map(({ etiqueta, valor, destacado }) => (
-          <div key={etiqueta} className="flex items-baseline justify-between py-3">
-            <dt className={destacado ? "text-carbon" : "text-grafito"}>{etiqueta}</dt>
-            <dd className={`font-serif text-2xl ${destacado ? "text-champagne" : "text-carbon"}`}>
-              {valor}
-            </dd>
-          </div>
-        ))}
-      </dl>
-    </section>
+    <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-linea bg-linea sm:grid-cols-4">
+      {metricas.map(({ etiqueta, valor, destacado }) => (
+        <div key={etiqueta} className="flex flex-col items-center bg-crema/60 px-4 py-6 text-center">
+          <dt className="text-[11px] tracking-luxe text-grafito uppercase">{etiqueta}</dt>
+          <dd className={`mt-3 font-serif text-4xl ${destacado ? "text-champagne" : "text-carbon"}`}>
+            {valor}
+          </dd>
+          <dd className="mt-1 text-sm text-grafito">{porcentaje(valor, total)} %</dd>
+        </div>
+      ))}
+    </dl>
   );
 }
 
@@ -192,8 +194,11 @@ export default function CuadroDeMando({ invitados }) {
 
   return (
     <>
+      {/* ── Métricas principales ── */}
+      <Metricas asistencia={resumen.asistencia} />
+
       {/* ── Buscador ── */}
-      <section>
+      <section className="mt-16">
         <label htmlFor="buscador" className="text-[11px] tracking-luxe text-grafito uppercase">
           Buscar invitado
         </label>
@@ -221,12 +226,6 @@ export default function CuadroDeMando({ invitados }) {
           </div>
         )}
       </section>
-
-      {/* ── Cifras ── */}
-      <div className="mt-16 grid gap-12 sm:grid-cols-2">
-        <Contador titulo="Asistencia (personas)" datos={resumen.asistencia} />
-        <Contador titulo="Autobús (personas)" datos={resumen.autobus} />
-      </div>
 
       {/* ── Listados con nombres ── */}
       <div className="mt-16 space-y-8">

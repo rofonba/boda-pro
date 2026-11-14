@@ -82,16 +82,14 @@ export default function InvitationPage() {
       </section>
 
       {/* ─────────────────────────────────────────── */}
-      {/* SECCIÓN 1b: Resumen de datos clave (fecha, ceremonia, banquete) */}
-      {/* ─────────────────────────────────────────── */}
-      <KeyInfo />
-
-      <Separator />
-
-      {/* ─────────────────────────────────────────── */}
-      {/* SECCIÓN 2: Bienvenida personalizada */}
+      {/* SECCIÓN 1b: Bienvenida (genérica o personalizada) */}
       {/* ─────────────────────────────────────────── */}
       <GuestGreeting />
+
+      {/* ─────────────────────────────────────────── */}
+      {/* SECCIÓN 1c: Resumen de datos clave (fecha, ceremonia, banquete) */}
+      {/* ─────────────────────────────────────────── */}
+      <KeyInfo />
 
       <Separator />
 
