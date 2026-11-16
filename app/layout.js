@@ -1,6 +1,8 @@
 import localFont from "next/font/local";
 import "./globals.css";
 import ThemeProvider from "@/components/theme/ThemeProvider";
+import LanguageProvider from "@/components/i18n/LanguageProvider";
+import LanguageToggle from "@/components/i18n/LanguageToggle";
 
 // Fuentes AUTO-ALOJADAS (next/font/local) en lugar de next/font/google.
 // Motivo: next/font/google descarga las fuentes de Google EN TIEMPO DE BUILD,
@@ -83,7 +85,13 @@ export default function RootLayout({ children }) {
         <script dangerouslySetInnerHTML={{ __html: SCRIPT_TEMA }} />
       </head>
       <body className="min-h-full flex flex-col">
-        <ThemeProvider>{children}</ThemeProvider>
+        <LanguageProvider>
+          <ThemeProvider>
+            {/* Selector ES / EN, fijo arriba a la derecha */}
+            <LanguageToggle />
+            {children}
+          </ThemeProvider>
+        </LanguageProvider>
       </body>
     </html>
   );

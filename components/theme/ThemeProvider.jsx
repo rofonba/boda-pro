@@ -1,7 +1,6 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import ThemeToggle from "./ThemeToggle";
 
 const CLAVE_TEMA = "boda-tema";
 
@@ -14,9 +13,12 @@ const CLAVE_TEMA = "boda-tema";
  *    Ese atributo lo pone un script síncrono del <head> (ver app/layout.js)
  *    antes del primer pintado.
  *
- *  • Quién CAMBIA el tema: este provider, al pulsar el interruptor. El cambio
- *    es inmediato; si el navegador soporta View Transitions, la página entera
+ *  • Quién CAMBIA el tema: este provider, con `toggle()`. El cambio es
+ *    inmediato; si el navegador soporta View Transitions, la página entera
  *    funde de un tema al otro en un solo paso (fondo, textos y casa a la vez).
+ *    El botón manual (ThemeToggle) se ha retirado de la cabecera: ahora el
+ *    tema sigue la preferencia del sistema (o la última elegida en
+ *    localStorage). El componente se conserva por si se quiere volver a poner.
  *
  * React nunca decide los colores del primer render, así que no puede haber
  * destello del tema contrario ni desajuste de hidratación.
@@ -82,8 +84,6 @@ export default function ThemeProvider({ children }) {
           <span className="starfield-capa starfield-capa--2" />
           <span className="starfield-capa starfield-capa--3" />
         </div>
-
-        <ThemeToggle />
 
         <div className="relative z-10 flex flex-1 flex-col">{children}</div>
       </div>
