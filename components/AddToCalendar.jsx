@@ -52,7 +52,7 @@ export default function AddToCalendar({ primario = false }) {
           Google Calendar
         </a>
         <a href={URL_ICS} className={`${OPCION} border-t border-linea`}>
-          Apple · Outlook
+          {t("Apple · Outlook", "Apple · Outlook")}
         </a>
       </div>
     </details>

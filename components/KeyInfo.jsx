@@ -52,9 +52,9 @@ export default function KeyInfo() {
         <Dato
           id="ceremonia"
           pregunta={t("¿Cuándo y dónde es la ceremonia?", "When and where is the ceremony?")}
-          accion={<ComoLlegar href={ceremonia.mapsUrl} lugar={ceremonia.lugar} />}
+          accion={<ComoLlegar href={ceremonia.mapsUrl} lugar={t(ceremonia.lugar, ceremonia.lugarEn)} />}
         >
-          {ceremonia.hora} {t("en la", "at")} {ceremonia.lugar}
+          {ceremonia.hora} {t("en la", "at")} {t(ceremonia.lugar, ceremonia.lugarEn)}
         </Dato>
 
         <Dato
@@ -62,7 +62,7 @@ export default function KeyInfo() {
           pregunta={t("¿Cuándo y dónde es el banquete?", "When and where is the reception?")}
           accion={<ComoLlegar href={convite.mapsUrl} lugar={convite.lugar} />}
         >
-          {convite.hora} {t("en la", "at")} {convite.lugar}
+          {convite.hora} {t("en la", "at")} {t(convite.lugar, convite.lugarEn)}
         </Dato>
       </ul>
     </section>

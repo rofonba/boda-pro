@@ -1,5 +1,8 @@
+"use client";
+
 import { BODA } from "@/lib/event";
 import SectionTitle from "./SectionTitle";
+import { useLanguage } from "./i18n/LanguageProvider";
 
 /** Logotipo de WhatsApp en trazo fino. */
 function IconoWhatsApp() {
@@ -26,25 +29,31 @@ function formatearTelefono(telefono) {
 }
 
 /** Enlace wa.me que abre el chat con un mensaje ya escrito. */
-function urlWhatsApp({ nombre, telefono }) {
-  const texto = `¡Hola ${nombre}! Tengo una duda sobre la boda.`;
+function urlWhatsApp({ nombre, telefono }, texto) {
   return `https://wa.me/${telefono}?text=${encodeURIComponent(texto)}`;
 }
 
 export default function WhatsAppContact() {
+  const { t } = useLanguage();
   return (
     <section id="contacto" className="scroll-mt-24 py-20">
-      <SectionTitle antetitulo="¿Alguna duda?" titulo="Escríbenos" />
+      <SectionTitle antetitulo={t("¿Alguna duda?", "Any questions?")} titulo={t("Escríbenos", "Write to us")} />
 
       <p className="mx-auto mt-8 max-w-md text-center font-serif text-lg italic leading-relaxed text-carbon">
-        Si te queda cualquier pregunta, escríbenos directamente por WhatsApp.
+        {t(
+          "Si te queda cualquier pregunta, escríbenos directamente por WhatsApp.",
+          "If you have any questions, message us directly on WhatsApp."
+        )}
       </p>
 
       <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
         {BODA.contacto.map((persona) => (
           <a
             key={persona.telefono}
-            href={urlWhatsApp(persona)}
+            href={urlWhatsApp(
+              persona,
+              t(`¡Hola ${persona.nombre}! Tengo una duda sobre la boda.`, `Hello ${persona.nombre}! I have a question about the wedding.`)
+            )}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex min-w-56 items-center justify-center gap-3 rounded-full border border-champagne bg-champagne/5 px-6 py-3 text-champagne transition-all hover:bg-champagne/15 hover:shadow-md"

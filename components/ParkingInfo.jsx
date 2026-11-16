@@ -2,85 +2,96 @@
 
 import { BODA, urlMapas } from "@/lib/event";
 import SectionTitle from "./SectionTitle";
+import { useLanguage } from "./i18n/LanguageProvider";
 
-// Cronograma del día. Las horas de ceremonia y llegada a la finca salen de
-// lib/event.js para que coincidan siempre con la cabecera y el calendario.
-const TIMELINE_EVENTOS = [
+// Cronograma del día, en los dos idiomas. Las horas de ceremonia y llegada a
+// la finca salen de lib/event.js para que coincidan siempre con la cabecera y
+// el calendario.
+const cronograma = (t) => [
   {
     id: "ceremonia",
     hora: BODA.ceremonia.hora, // 12:00h
-    titulo: "Ceremonia",
+    titulo: t("Ceremonia", "Ceremony"),
     icono: "💍",
     detalles: [
-      { label: "Lugar:", valor: BODA.ceremonia.lugar },
-      { label: "Duración estimada:", valor: "45 minutos" },
+      { label: t("Lugar:", "Venue:"), valor: t(BODA.ceremonia.lugar, BODA.ceremonia.lugarEn) },
+      { label: t("Duración estimada:", "Estimated duration:"), valor: t("45 minutos", "45 minutes") },
     ],
-    notas: "La misa empieza a las 12:00h: te recomendamos estar allí a las 11:45h",
+    notas: t(
+      "La misa empieza a las 12:00h: te recomendamos estar allí a las 11:45h",
+      "The ceremony begins at 12:00: we recommend arriving by 11:45"
+    ),
     tieneLinea: true,
   },
   {
     id: "coctel",
     hora: BODA.convite.hora, // 14:00h
-    titulo: "Cóctel de Bienvenida",
+    titulo: t("Cóctel de Bienvenida", "Welcome Cocktail"),
     icono: "🥂",
-    detalles: [
-      { label: "Lugar:", valor: BODA.convite.lugar },
-    ],
-    notas: "Disfruta de bebidas y entrantes mientras nos reencontramos",
+    detalles: [{ label: t("Lugar:", "Venue:"), valor: BODA.convite.lugar }],
+    notas: t(
+      "Disfruta de bebidas y entrantes mientras nos reencontramos",
+      "Enjoy drinks and appetisers while we catch up"
+    ),
     tieneLinea: true,
   },
   {
     id: "banquete",
     hora: "15:30h",
-    titulo: "Banquete de Celebración",
+    titulo: t("Banquete de Celebración", "Wedding Banquet"),
     icono: "🍽️",
     detalles: [
-      { label: "Menú:", valor: "Primer y segundo plato especialmente diseñado" },
+      {
+        label: t("Menú:", "Menu:"),
+        valor: t("Primer y segundo plato especialmente diseñado", "Specially designed first and main course"),
+      },
     ],
-    notas: "Brindis y celebración de nuestro gran día",
+    notas: t("Brindis y celebración de nuestro gran día", "Toasts and celebration of our big day"),
     tieneLinea: true,
   },
   {
     id: "fiesta",
     hora: "18:00h",
-    titulo: "Fiesta y Barra Libre",
+    titulo: t("Fiesta y Barra Libre", "Party and Open Bar"),
     icono: "🎶",
-    detalles: [
-      { label: "Hasta:", valor: "00:00h" },
-    ],
-    notas: "Último baile, sorpresas finales y autobús de regreso al terminar",
+    detalles: [{ label: t("Hasta:", "Until:"), valor: "00:00h" }],
+    notas: t(
+      "Último baile, sorpresas finales y autobús de regreso al terminar",
+      "Last dance, final surprises and return coach at the end"
+    ),
     tieneLinea: false, // Último evento, sin línea
   },
 ];
 
-const PARKINGS_IGLESIA = [
+const parkingsIglesia = (t) => [
   {
     nombre: "Parking Catedral",
     distancia: "2 min",
-    capacidad: "300 plazas",
-    notas: "Subterráneo, bien iluminado",
+    capacidad: t("300 plazas", "300 spaces"),
+    notas: t("Subterráneo, bien iluminado", "Underground, well lit"),
   },
   {
     nombre: "Parking Centro Histórico",
     distancia: "4 min",
-    capacidad: "400 plazas",
-    notas: "En superficie, tarifado",
+    capacidad: t("400 plazas", "400 spaces"),
+    notas: t("En superficie, tarifado", "Surface car park, paid"),
   },
   {
     nombre: "Parking San Juan",
     distancia: "3 min",
-    capacidad: "150 plazas",
-    notas: "Cercano a la iglesia",
+    capacidad: t("150 plazas", "150 spaces"),
+    notas: t("Cercano a la iglesia", "Close to the church"),
   },
   {
     nombre: "Parking Barrio",
     distancia: "6 min",
-    capacidad: "200 plazas",
-    notas: "Estacionamiento gratuito",
+    capacidad: t("200 plazas", "200 spaces"),
+    notas: t("Estacionamiento gratuito", "Free parking"),
   },
 ];
 
 function ParkingCard({ parking }) {
+  const { t } = useLanguage();
   return (
     <div className="flex flex-col gap-2 rounded-lg border border-linea bg-marfil/40 p-4 backdrop-blur-sm transition-all duration-500 hover:border-champagne/50 hover:shadow-md"
       style={{
@@ -103,16 +114,19 @@ function ParkingCard({ parking }) {
         href={urlMapas({ nombre: parking.nombre, ciudad: "Valencia" })}
         target="_blank"
         rel="noopener noreferrer"
-        title={`Ver ${parking.nombre} en Google Maps`}
+        title={t(`Ver ${parking.nombre} en Google Maps`, `View ${parking.nombre} on Google Maps`)}
         className="mt-1 self-start text-xs tracking-luxe text-champagne/80 uppercase underline decoration-champagne/30 underline-offset-4 transition-colors hover:text-champagne hover:decoration-champagne"
       >
-        Ver ubicación ↗
+        {t("Ver ubicación", "View location")} ↗
       </a>
     </div>
   );
 }
 
 export default function ParkingInfo() {
+  const { t } = useLanguage();
+  const TIMELINE_EVENTOS = cronograma(t);
+  const PARKINGS_IGLESIA = parkingsIglesia(t);
   return (
     <section className="py-20">
       {/* ─────────────────────────────────────────── */}
@@ -120,7 +134,7 @@ export default function ParkingInfo() {
       {/* ─────────────────────────────────────────── */}
       <div className="mb-16">
         <div className="mb-12">
-          <SectionTitle antetitulo="Nuestro día" titulo="Cronograma del día" />
+          <SectionTitle antetitulo={t("Nuestro día", "Our day")} titulo={t("Cronograma del día", "Schedule of the day")} />
         </div>
 
         {/* Timeline Visual */}
@@ -176,12 +190,22 @@ export default function ParkingInfo() {
         <div className="flex gap-4">
           <span className="text-3xl flex-shrink-0">🚌</span>
           <div>
-            <h3 className="font-serif text-lg text-carbon">Servicio de Autobús</h3>
+            <h3 className="font-serif text-lg text-carbon">{t("Servicio de Autobús", "Coach Service")}</h3>
             <p className="mt-3 text-base leading-relaxed text-grafito">
-              Hemos habilitado un <span className="font-semibold text-champagne">servicio de autobús cómodo y gratuito</span> para todos los invitados que lo deseen. Es una excelente opción para disfrutar del día sin preocupaciones de conducción.
+              {t("Hemos habilitado un ", "We have arranged a ")}
+              <span className="font-semibold text-champagne">
+                {t("servicio de autobús cómodo y gratuito", "comfortable, complimentary coach service")}
+              </span>
+              {t(
+                " para todos los invitados que lo deseen. Es una excelente opción para disfrutar del día sin preocupaciones de conducción.",
+                " for all guests who wish to use it. It is an excellent way to enjoy the day without worrying about driving."
+              )}
             </p>
             <p className="mt-3 text-sm italic text-grafito/70">
-              Puedes confirmar tu interés en el formulario de confirmación de asistencia
+              {t(
+                "Puedes confirmar tu interés en el formulario de confirmación de asistencia",
+                "You can let us know on the RSVP form"
+              )}
             </p>
           </div>
         </div>
@@ -192,7 +216,7 @@ export default function ParkingInfo() {
       {/* ─────────────────────────────────────────── */}
       <div>
         <h2 className="text-center text-xs tracking-luxe text-champagne uppercase mb-8">
-          Estacionamiento (Iglesia)
+          {t("Estacionamiento (Iglesia)", "Parking (Church)")}
         </h2>
 
         <div className="mt-8 grid gap-4 sm:grid-cols-2">
@@ -202,9 +226,12 @@ export default function ParkingInfo() {
         </div>
 
         <p className="mt-8 text-center text-xs italic text-grafito">
-          Los tiempos indicados son estimados caminando a paso normal.
+          {t(
+            "Los tiempos indicados son estimados caminando a paso normal.",
+            "Times shown are estimates at a normal walking pace."
+          )}
           <br />
-          <span className="text-xs">ⓐ a pie desde el parking</span>
+          <span className="text-xs">ⓐ {t("a pie desde el parking", "on foot from the car park")}</span>
         </p>
       </div>
     </section>

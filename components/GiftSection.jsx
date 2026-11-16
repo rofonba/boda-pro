@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import { BODA } from "@/lib/event";
+import { useLanguage } from "./i18n/LanguageProvider";
 
 export default function GiftSection() {
   const [copiado, setCopiado] = useState(false);
+  const { t } = useLanguage();
 
   async function copiar() {
     const iban = BODA.regalo.iban.replace(/\s+/g, "");
@@ -28,13 +30,14 @@ export default function GiftSection() {
   return (
     <section className="py-16 text-center">
       <span className="text-xs tracking-luxe text-champagne uppercase">
-        Nuestro regalo
+        {t("Nuestro regalo", "Our gift")}
       </span>
 
       <p className="mx-auto mt-6 max-w-lg font-serif text-xl italic leading-relaxed text-carbon">
-        Vuestra presencia es nuestro mayor regalo. Pero si deseáis contribuir a
-        cumplir nuestros sueños y a llenar de momentos nuestra luna de miel,
-        podéis hacerlo con un detalle.
+        {t(
+          "Vuestra presencia es nuestro mayor regalo. Pero si deseáis contribuir a cumplir nuestros sueños y a llenar de momentos nuestra luna de miel, podéis hacerlo con un detalle.",
+          "Your presence is our greatest gift. But if you would like to help make our dreams come true and fill our honeymoon with memories, you may do so with a small contribution."
+        )}
       </p>
 
       <div className="mx-auto mt-10 max-w-sm">
@@ -54,7 +57,7 @@ export default function GiftSection() {
                 copiado ? "bg-champagne" : "bg-linea"
               }`}
             />
-            {copiado ? "Copiado" : "Copiar IBAN"}
+            {copiado ? t("Copiado", "Copied") : t("Copiar IBAN", "Copy IBAN")}
           </button>
         </div>
       </div>

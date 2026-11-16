@@ -2,20 +2,22 @@
 
 import { useState } from "react";
 import { useGuest } from "./GuestProvider";
+import { useLanguage } from "./i18n/LanguageProvider";
 
 const CLASES_CAMPO =
   "mt-3 w-full rounded-lg border border-linea bg-crema px-4 py-4 text-lg text-carbon " +
   "placeholder-grafito/50 transition-all duration-300 focus:border-champagne " +
   "focus:outline-none focus:ring-2 focus:ring-champagne/20";
 
-const OPCIONES_ASISTENCIA = [
-  { valor: "Sí", texto: "Sí, allí estaré" },
-  { valor: "No", texto: "No podré ir" },
+// Opciones de los botones, por idioma (t se resuelve dentro del componente).
+const opcionesAsistencia = (t) => [
+  { valor: "Sí", texto: t("Sí, allí estaré", "Yes, I will be there") },
+  { valor: "No", texto: t("No podré ir", "Unable to attend") },
 ];
 
-const OPCIONES_SI_NO = [
-  { valor: true, texto: "Sí" },
-  { valor: false, texto: "No" },
+const opcionesSiNo = (t) => [
+  { valor: true, texto: t("Sí", "Yes") },
+  { valor: false, texto: t("No", "No") },
 ];
 
 /** Par de botones Sí / No, en lugar de radios sueltos: más claro en móvil. */
@@ -93,6 +95,9 @@ function estadoInicial(invitado) {
 
 export default function RsvpFormComplete() {
   const { invitado, sinEnlace, guardarRespuesta } = useGuest();
+  const { t } = useLanguage();
+  const OPCIONES_ASISTENCIA = opcionesAsistencia(t);
+  const OPCIONES_SI_NO = opcionesSiNo(t);
 
   const [estado, setEstado] = useState(() => (invitado ? estadoInicial(invitado) : null));
   const [guardando, setGuardando] = useState(false);
@@ -103,11 +108,17 @@ export default function RsvpFormComplete() {
   if (!invitado) {
     return (
       <section id="asistencia" className="scroll-mt-24 py-20 text-center">
-        <h2 className="font-serif text-3xl text-carbon">Confirmación de asistencia</h2>
+        <h2 className="font-serif text-3xl text-carbon">{t("Confirmación de asistencia", "RSVP")}</h2>
         <p className="mx-auto mt-6 max-w-xl text-lg text-grafito">
           {sinEnlace
-            ? "Para confirmar tu asistencia, entra desde el enlace personal que te enviamos."
-            : "No hemos podido identificar tu invitación. Escríbenos y te reenviamos tu enlace."}
+            ? t(
+                "Para confirmar tu asistencia, entra desde el enlace personal que te enviamos.",
+                "To confirm your attendance, please use the personal link we sent you."
+              )
+            : t(
+                "No hemos podido identificar tu invitación. Escríbenos y te reenviamos tu enlace.",
+                "We could not identify your invitation. Write to us and we will send your link again."
+              )}
         </p>
       </section>
     );
@@ -139,19 +150,23 @@ export default function RsvpFormComplete() {
     setError("");
 
     if (estado.asistencia === "Pendiente") {
-      setError(esGrupo ? "Decidnos si podréis acompañarnos." : "Dinos si podrás acompañarnos.");
+      setError(
+        esGrupo
+          ? t("Decidnos si podréis acompañarnos.", "Please let us know whether you can join us.")
+          : t("Dinos si podrás acompañarnos.", "Please let us know whether you can join us.")
+      );
       return;
     }
     if (asistenciaFinal.some((a) => a === null)) {
-      setError("Indicad quién podrá venir y quién no.");
+      setError(t("Indicad quién podrá venir y quién no.", "Please tell us who will be able to come and who will not."));
       return;
     }
     if (alguienViene && estado.autobus === null) {
-      setError("Decidnos si necesitáis plaza en el autobús.");
+      setError(t("Decidnos si necesitáis plaza en el autobús.", "Please let us know whether you need a seat on the coach."));
       return;
     }
     if (alguienViene && estado.tieneAlergias === null) {
-      setError("Decidnos si hay alguna alergia o intolerancia.");
+      setError(t("Decidnos si hay alguna alergia o intolerancia.", "Please let us know whether there are any allergies or intolerances."));
       return;
     }
     if (
@@ -160,7 +175,7 @@ export default function RsvpFormComplete() {
         (i) => (esGrupo ? estado.alergiaPorMiembro[i] : true) && !estado.textoAlergia[i].trim()
       )
     ) {
-      setError("Contadnos cuáles son las alergias o intolerancias.");
+      setError(t("Contadnos cuáles son las alergias o intolerancias.", "Please tell us which allergies or intolerances."));
       return;
     }
 
@@ -192,21 +207,22 @@ export default function RsvpFormComplete() {
       <section id="asistencia" className="scroll-mt-24 py-20 text-center">
         <div className="mx-auto max-w-2xl rounded-lg border border-champagne/50 bg-crema/40 px-6 py-12">
           <h3 className="font-serif text-2xl text-carbon">
-            {alguienViene ? "¡Gracias por confirmar!" : "Gracias por avisarnos"}
+            {alguienViene ? t("¡Gracias por confirmar!", "Thank you for confirming!") : t("Gracias por avisarnos", "Thank you for letting us know")}
           </h3>
           <p className="mt-4 text-lg text-grafito">
             {alguienViene
-              ? `${esGrupo ? "Os" : "Te"} esperamos el 15 de mayo de 2027.`
-              : `Sentimos que no ${esGrupo ? "podáis" : "puedas"} venir. ${
-                  esGrupo ? "Os" : "Te"
-                } echaremos de menos.`}
+              ? t(`${esGrupo ? "Os" : "Te"} esperamos el 15 de mayo de 2027.`, "We look forward to seeing you on 15 May 2027.")
+              : t(
+                  `Sentimos que no ${esGrupo ? "podáis" : "puedas"} venir. ${esGrupo ? "Os" : "Te"} echaremos de menos.`,
+                  "We are sorry you are unable to come. You will be missed."
+                )}
           </p>
           <button
             type="button"
             onClick={() => setGuardado(false)}
             className="mt-6 inline-block px-4 py-3 text-lg text-champagne underline hover:text-carbon"
           >
-            Editar nuestra respuesta
+            {t("Editar nuestra respuesta", "Edit our reply")}
           </button>
         </div>
       </section>
@@ -217,11 +233,11 @@ export default function RsvpFormComplete() {
     <section id="asistencia" className="scroll-mt-24 py-20">
       <div className="mx-auto max-w-2xl">
         <h2 className="text-center font-serif text-3xl text-carbon">
-          Confirmación de asistencia
+          {t("Confirmación de asistencia", "RSVP")}
         </h2>
         {esGrupo && (
           <p className="mt-4 text-center text-base text-grafito">
-            Invitación para {miembros.map((m) => m.nombre).join(", ")}
+            {t("Invitación para", "Invitation for")} {miembros.map((m) => m.nombre).join(", ")}
           </p>
         )}
 
@@ -238,15 +254,17 @@ export default function RsvpFormComplete() {
           {/* ── 1. Asistencia ── */}
           <Eleccion
             etiqueta={
-              esGrupo ? `¿Nos acompañaréis los ${miembros.length}?` : "¿Nos acompañarás?"
+              esGrupo
+                ? t(`¿Nos acompañaréis los ${miembros.length}?`, `Will the ${miembros.length} of you be joining us?`)
+                : t("¿Nos acompañarás?", "Will you be joining us?")
             }
             valor={estado.asistencia}
             onChange={(v) => cambiar("asistencia", v)}
             opciones={
               esGrupo
                 ? [
-                    { valor: "Sí", texto: "Sí, allí estaremos" },
-                    { valor: "No", texto: "No todos / ninguno" },
+                    { valor: "Sí", texto: t("Sí, allí estaremos", "Yes, we will be there") },
+                    { valor: "No", texto: t("No todos / ninguno", "Not all of us / unable to attend") },
                   ]
                 : OPCIONES_ASISTENCIA
             }
@@ -259,7 +277,7 @@ export default function RsvpFormComplete() {
                 <Eleccion
                   key={m.nombre + i}
                   secundaria
-                  etiqueta={`¿Nos acompañará ${m.nombre}?`}
+                  etiqueta={t(`¿Nos acompañará ${m.nombre}?`, `Will ${m.nombre} be joining us?`)}
                   valor={estado.asistenciaPorMiembro[i]}
                   onChange={(v) => cambiarEn("asistenciaPorMiembro", i, v)}
                   opciones={OPCIONES_ASISTENCIA}
@@ -274,20 +292,26 @@ export default function RsvpFormComplete() {
               <Eleccion
                 etiqueta={
                   indicesAsistentes.length > 1
-                    ? "¿Necesitáis plaza en el autobús?"
-                    : "¿Necesitas plaza en el autobús?"
+                    ? t("¿Necesitáis plaza en el autobús?", "Do you need seats on the coach?")
+                    : t("¿Necesitas plaza en el autobús?", "Do you need a seat on the coach?")
                 }
                 valor={estado.autobus}
                 onChange={(v) => cambiar("autobus", v)}
                 opciones={[
-                  { valor: true, texto: indicesAsistentes.length > 1 ? "Sí, resérvanos" : "Sí, resérvame" },
-                  { valor: false, texto: "No, gracias" },
+                  {
+                    valor: true,
+                    texto:
+                      indicesAsistentes.length > 1
+                        ? t("Sí, resérvanos", "Yes, please reserve for us")
+                        : t("Sí, resérvame", "Yes, please reserve for me"),
+                  },
+                  { valor: false, texto: t("No, gracias", "No, thank you") },
                 ]}
               />
 
               {/* ── 3. Alergias ── */}
               <Eleccion
-                etiqueta="¿Alergias o intolerancias?"
+                etiqueta={t("¿Alergias o intolerancias?", "Any allergies or intolerances?")}
                 valor={estado.tieneAlergias}
                 onChange={(v) => cambiar("tieneAlergias", v)}
                 opciones={OPCIONES_SI_NO}
@@ -306,7 +330,7 @@ export default function RsvpFormComplete() {
                         {preguntar && (
                           <Eleccion
                             secundaria
-                            etiqueta={`¿Alergias de ${m.nombre}?`}
+                            etiqueta={t(`¿Alergias de ${m.nombre}?`, `Any allergies for ${m.nombre}?`)}
                             valor={estado.alergiaPorMiembro[i]}
                             onChange={(v) => cambiarEn("alergiaPorMiembro", i, v)}
                             opciones={OPCIONES_SI_NO}
@@ -319,8 +343,8 @@ export default function RsvpFormComplete() {
                               className="block font-serif text-lg text-carbon"
                             >
                               {preguntar
-                                ? `Alergias o intolerancias de ${m.nombre}`
-                                : "Cuéntanos cuáles"}
+                                ? t(`Alergias o intolerancias de ${m.nombre}`, `Allergies or intolerances for ${m.nombre}`)
+                                : t("Cuéntanos cuáles", "Please tell us which")}
                             </label>
                             <textarea
                               id={`alergia-${i}`}
@@ -328,7 +352,7 @@ export default function RsvpFormComplete() {
                               maxLength={500}
                               value={estado.textoAlergia[i]}
                               onChange={(e) => cambiarEn("textoAlergia", i, e.target.value)}
-                              placeholder="Gluten, lactosa, frutos secos…"
+                              placeholder={t("Gluten, lactosa, frutos secos…", "Gluten, lactose, nuts…")}
                               className={CLASES_CAMPO}
                             />
                           </div>
@@ -344,7 +368,7 @@ export default function RsvpFormComplete() {
           {/* ── 4. Canción (global) ── */}
           <div>
             <label htmlFor="cancion" className="block font-serif text-xl text-carbon">
-              Y finalmente, una canción que no puede faltar
+              {t("Y finalmente, una canción que no puede faltar", "And finally, a song that must be played")}
             </label>
             <textarea
               id="cancion"
@@ -352,7 +376,11 @@ export default function RsvpFormComplete() {
               maxLength={500}
               value={estado.cancion}
               onChange={(e) => cambiar("cancion", e.target.value)}
-              placeholder={esGrupo ? "La que os haría salir a la pista" : "La que te haría salir a la pista"}
+              placeholder={
+                esGrupo
+                  ? t("La que os haría salir a la pista", "The one that will get you on the dance floor")
+                  : t("La que te haría salir a la pista", "The one that will get you on the dance floor")
+              }
               className={CLASES_CAMPO}
             />
           </div>
@@ -362,13 +390,16 @@ export default function RsvpFormComplete() {
             disabled={guardando}
             className="w-full rounded-lg border border-champagne bg-champagne/20 px-6 py-5 font-serif text-xl text-champagne transition-all duration-300 hover:bg-champagne/30 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {guardando ? "Guardando…" : "Enviar respuesta"}
+            {guardando ? t("Guardando…", "Saving…") : t("Enviar respuesta", "Send reply")}
           </button>
 
           <p className="text-center text-base text-grafito">
-            {esGrupo
-              ? "Podréis cambiar vuestra respuesta cuando queráis desde este mismo enlace."
-              : "Podrás cambiar tu respuesta cuando quieras desde este mismo enlace."}
+            {t(
+              esGrupo
+                ? "Podréis cambiar vuestra respuesta cuando queráis desde este mismo enlace."
+                : "Podrás cambiar tu respuesta cuando quieras desde este mismo enlace.",
+              "You can change your response at any time using this link."
+            )}
           </p>
         </form>
       </div>

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { BODA } from "@/lib/event";
+import { useLanguage } from "./i18n/LanguageProvider";
 
 export default function Countdown() {
   const [time, setTime] = useState({
@@ -11,6 +12,7 @@ export default function Countdown() {
     segundos: 0,
   });
   const [mounted, setMounted] = useState(false);
+  const { t } = useLanguage();
 
   useEffect(() => {
     setMounted(true);
@@ -38,16 +40,16 @@ export default function Countdown() {
   }, []);
 
   const items = [
-    { label: "Días", value: time.dias },
-    { label: "Horas", value: time.horas },
-    { label: "Minutos", value: time.minutos },
-    { label: "Segundos", value: time.segundos },
+    { label: t("Días", "Days"), value: time.dias },
+    { label: t("Horas", "Hours"), value: time.horas },
+    { label: t("Minutos", "Minutes"), value: time.minutos },
+    { label: t("Segundos", "Seconds"), value: time.segundos },
   ];
 
   return (
     <section className="py-20">
       <h2 className="text-center text-xs tracking-luxe text-champagne uppercase">
-        Cuenta atrás
+        {t("Cuenta atrás", "Countdown")}
       </h2>
 
       <div className="mt-16 grid grid-cols-2 gap-6 sm:grid-cols-4 sm:gap-8">

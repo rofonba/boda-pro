@@ -14,17 +14,19 @@ import NavDrawer from "./NavDrawer";
 import HowToGetThere from "./HowToGetThere";
 import WhatsAppContact from "./WhatsAppContact";
 import { useTheme } from "./theme/ThemeProvider";
+import { useLanguage } from "./i18n/LanguageProvider";
 
 // Monograma R&C fijo en la parte superior, a juego con el botón de tema.
 // Al pulsarlo vuelve al principio de la invitación.
 function Monograma() {
+  const { t } = useLanguage();
   const [inicialA, inicialB] = BODA.novios.monograma.split("&");
 
   return (
     <div className="pointer-events-none fixed inset-x-0 top-4 z-50 flex justify-center">
       <a
         href="#"
-        aria-label={`${BODA.novios.nombres} · volver al inicio`}
+        aria-label={`${BODA.novios.nombres} · ${t("volver al inicio", "back to top")}`}
         className="pointer-events-auto flex h-14 items-baseline justify-center gap-0.5 rounded-full border border-champagne/45 bg-white/[0.06] px-5 pt-2 font-script text-3xl leading-none text-carbon shadow-[0_2px_14px_-6px_rgba(0,0,0,0.35)] backdrop-blur-sm transition-transform hover:scale-105"
       >
         <span>{inicialA}</span>
@@ -48,6 +50,7 @@ function Separator() {
 
 export default function InvitationPage() {
   const { isNight } = useTheme();
+  const { t } = useLanguage();
 
   return (
     <main className="mx-auto w-full max-w-4xl px-3 sm:px-6 pb-24">
@@ -61,7 +64,7 @@ export default function InvitationPage() {
         {/* Presentación de los novios */}
         <div className="mt-12">
           <span className="text-xs tracking-luxe text-grafito uppercase">
-            {BODA.fecha.dia} · {BODA.fecha.largo}
+            {t(`${BODA.fecha.dia} · ${BODA.fecha.largo}`, BODA.fecha.en)}
           </span>
 
           <h1 className="mt-6 font-script text-6xl leading-[0.9] text-carbon sm:text-8xl">
@@ -157,7 +160,7 @@ export default function InvitationPage() {
       <footer className="mt-20 text-center">
         <div className="font-script text-4xl text-carbon">{BODA.novios.monograma}</div>
         <p className="mt-3 text-xs tracking-luxe text-grafito uppercase">
-          {BODA.fecha.largo}
+          {t(BODA.fecha.largo, "15 May 2027")}
         </p>
       </footer>
     </main>

@@ -1,14 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLanguage } from "./i18n/LanguageProvider";
 
 // Destinos del menú. Los id están en KeyInfo.jsx (fecha, ceremonia, banquete)
 // y en WhatsAppContact.jsx (contacto).
-const ENLACES = [
-  { href: "#fecha", texto: "¿Cuándo es la boda?" },
-  { href: "#ceremonia", texto: "¿Dónde es la boda? ¿Hora?" },
-  { href: "#banquete", texto: "¿Dónde es el banquete? ¿Hora?" },
-  { href: "#contacto", texto: "Contacto con los novios" },
+const enlaces = (t) => [
+  { href: "#fecha", texto: t("¿Cuándo es la boda?", "When is the wedding?") },
+  { href: "#ceremonia", texto: t("¿Dónde es la boda? ¿Hora?", "Where is the ceremony? What time?") },
+  { href: "#banquete", texto: t("¿Dónde es el banquete? ¿Hora?", "Where is the reception? What time?") },
+  { href: "#contacto", texto: t("Contacto con los novios", "Contact the couple") },
 ];
 
 /** Icono de hamburguesa, en el mismo trazo fino que el botón de tema. */
@@ -53,6 +54,8 @@ function IconoCerrar() {
  */
 export default function NavDrawer() {
   const [isOpen, setIsOpen] = useState(false);
+  const { t } = useLanguage();
+  const ENLACES = enlaces(t);
 
   // Escape cierra el menú y, mientras está abierto, la página no hace scroll.
   useEffect(() => {
@@ -72,7 +75,7 @@ export default function NavDrawer() {
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        aria-label="Abrir menú"
+        aria-label={t("Abrir menú", "Open menu")}
         aria-expanded={isOpen}
         aria-controls="menu-lateral"
         className="fixed left-5 top-5 z-50 flex h-11 w-11 items-center justify-center rounded-full border border-champagne/45 bg-white/[0.06] text-champagne shadow-[0_2px_14px_-6px_rgba(0,0,0,0.35)] backdrop-blur-sm transition-transform hover:scale-105 active:scale-95"
@@ -94,7 +97,7 @@ export default function NavDrawer() {
         id="menu-lateral"
         role="dialog"
         aria-modal="true"
-        aria-label="Menú de la invitación"
+        aria-label={t("Menú de la invitación", "Invitation menu")}
         className={`fixed inset-y-0 left-0 z-[80] flex w-80 max-w-[85vw] flex-col border-r border-linea bg-marfil px-8 pb-10 pt-6 shadow-2xl transition-transform duration-300 ease-out ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
@@ -104,7 +107,7 @@ export default function NavDrawer() {
           <button
             type="button"
             onClick={() => setIsOpen(false)}
-            aria-label="Cerrar menú"
+            aria-label={t("Cerrar menú", "Close menu")}
             className="flex h-11 w-11 items-center justify-center rounded-full border border-champagne/45 text-champagne transition-transform hover:scale-105 active:scale-95"
           >
             <IconoCerrar />
