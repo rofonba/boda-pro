@@ -24,17 +24,17 @@ Nº,Quién,Relación
 23,Javi Aznar,Pareja 9
 24,Inma,Pareja 9
 25,Edu Nogués,Pareja 10
-26,Virrginia Jarabo,Pareja 10
+26,Virginia Jarabo,Pareja 10
 27,Carmen,Pareja 11
 28,Pedro,Pareja 11
-29,Jorge,Pareja 11
-30,Marina,Pareja 11
+29,Jorge,Pareja 63
+30,Marina,Pareja 63
 31,Nacho Muñoz,
 32,Pepe Mallent,
-33,Mamá,Pareja 12
-34,Papá,Pareja 12
+33,Pepa,Pareja 12
+34,Manolo,Pareja 12
 35,Cristian,Pareja 13
-36,Lucia,Pareja 13
+36,Lucía,Pareja 13
 37,Rafa,Pareja 14
 38,Amparo,Pareja 14
 39,Yolanda,Pareja 15
@@ -45,7 +45,7 @@ Nº,Quién,Relación
 44,Valentina,Pareja 16
 45,Mateo,Pareja 16
 46,Carmen,Pareja 17
-47,Juan Carlos marido,Pareja 17
+47,Juan Carlos,Pareja 17
 48,Mª Jose ,Pareja 18
 49,Ángel,Pareja 18
 50,Alex,
@@ -73,13 +73,13 @@ Nº,Quién,Relación
 72,Joan,
 73,Marcos,
 74,Claudia,
-75,Mª Carmen,Pareja 25
+75,Maricarmen,Pareja 26
 76,José,Pareja 26
 77,Cristina de Rosa,Pareja 27
 78,Erhardt,Pareja 27
 79,Pepa,
 80,Adela,Pareja 28
-81,José Luis,Pareja 29
+81,José Luis,Pareja 28
 82,Cristina,Pareja 30
 83,Carlos,Pareja 30
 84,Ferran,Pareja 31
@@ -99,23 +99,23 @@ Nº,Quién,Relación
 98,Ana Briz,
 99,Mario,Pareja 36
 100,Memen,Pareja 36
-101,Marta Benlloch,Pareja 37
+101,Marta,Pareja 37
 102,Mónica Arribas,
 103,Acompañante Mónica arribas,
-104,Paula Mira,Pareja 38
+104,Paula,Pareja 38
 105,Josso,Pareja 38
 106,Mónica Gómez Lechón,
 107,Acompañante Moni,
 108,Shere,
 109,Andrea,Pareja 39
 110,David,Pareja 39
-111,Bea Esteban,Pareja 40
+111,Bea,Pareja 40
 112,Nacho,Pareja 40
 113,Tamara,
-114,Laura liebana,
+114,Laura Liebana,
 115,Cris Rubio,
 116,Pata,
-117,Marta herreros,
+117,Marta Herreros,
 118,Nerea Garcia,
 119,Mar Andrés,
 120,Iborra,
@@ -130,12 +130,12 @@ Nº,Quién,Relación
 129,Muso,Pareja 37
 130,Bea,Pareja 45
 131,Miguel,Pareja 45
-132,Sánchez,
-133,Dolz,Pareja 46
+132,Carlos Sánchez,
+133,Javier Dolz,Pareja 46
 134,Kiara,Pareja 46
 135,Esteban,Pareja 47
 136,Patri,Pareja 47
-137,Blas,Pareja 48
+137,Sergio Blas,Pareja 48
 138,Raquel,Pareja 48
 139,Richi,Pareja 49
 140,María,Pareja 49
@@ -176,7 +176,7 @@ Nº,Quién,Relación
 174,Marvin,Pareja 60
 175,Carol Cupas,Pareja 60
 176,Víctor,Pareja 61
-177,Novio Víctor,Pareja 61
+177,Pareja Víctor,Pareja 61
 178,Álvaro Pastor,
 179,Jorge Pastor,
 180,Charlio,
