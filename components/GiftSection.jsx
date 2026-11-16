@@ -35,8 +35,8 @@ export default function GiftSection() {
 
       <p className="mx-auto mt-6 max-w-lg font-serif text-xl italic leading-relaxed text-carbon">
         {t(
-          "Vuestra presencia es nuestro mayor regalo. Pero si deseáis contribuir a cumplir nuestros sueños y a llenar de momentos nuestra luna de miel, podéis hacerlo con un detalle.",
-          "Your presence is our greatest gift. But if you would like to help make our dreams come true and fill our honeymoon with memories, you may do so with a small contribution."
+          "Vuestra presencia es nuestro mayor regalo. Pero si deseáis contribuir a cumplir nuestro sueño y llenar de momentos nuestra luna de miel por Japón y Tailandia, podéis hacerlo con un detalle.",
+          "Your presence is our greatest gift. But if you would like to help make our dream come true and fill our honeymoon in Japan and Thailand with memories, you may do so with a small contribution."
         )}
       </p>
 
@@ -45,7 +45,8 @@ export default function GiftSection() {
           <p className="text-xs tracking-luxe text-grafito uppercase">
             {BODA.regalo.titular}
           </p>
-          <p className="mt-3 font-mono text-base tracking-wide text-carbon">
+          {/* select-all: un toque selecciona el IBAN entero para copiarlo */}
+          <p className="mt-3 select-all font-mono text-base tracking-wide text-carbon">
             {BODA.regalo.iban}
           </p>
           <button
