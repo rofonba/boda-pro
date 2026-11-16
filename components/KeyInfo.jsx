@@ -44,7 +44,13 @@ export default function KeyInfo() {
 
   return (
     <section id="fecha" className="scroll-mt-24 py-12 sm:py-16">
-      <ul className="mx-auto flex max-w-2xl flex-col gap-8 rounded-2xl border border-linea bg-crema/20 px-6 py-10 backdrop-blur-sm sm:gap-10 sm:px-10">
+      <div className="mx-auto max-w-2xl rounded-2xl border border-linea bg-crema/20 px-6 py-10 backdrop-blur-sm sm:px-10">
+        <h2 className="mb-8 flex flex-col items-center text-center font-serif text-2xl font-medium text-carbon sm:text-3xl">
+          {t("Información del evento", "Event Information")}
+          <span className="mt-4 h-px w-16 bg-champagne/50" />
+        </h2>
+
+        <ul className="flex flex-col gap-8 sm:gap-10">
         <Dato pregunta={t("¿Cuándo?", "When?")} accion={<AddToCalendar primario />}>
           {t(`${fecha.dia}, ${fecha.largo}`, fecha.en)}
         </Dato>
@@ -64,7 +70,8 @@ export default function KeyInfo() {
         >
           {convite.hora} {t("en la", "at")} {t(convite.lugar, convite.lugarEn)}
         </Dato>
-      </ul>
+        </ul>
+      </div>
     </section>
   );
 }

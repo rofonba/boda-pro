@@ -23,12 +23,12 @@ export default function GuestGreeting() {
           <p className="mx-auto mt-6 max-w-2xl font-serif text-2xl italic leading-relaxed text-carbon">
             {invitado.miembros.length > 1
               ? t(
-                  "Nos hace muchísima ilusión que forméis parte de este día. Hemos preparado esta invitación solo para vosotros.",
-                  "It would mean the world to us to have you with us on this day. We have prepared this invitation especially for you."
+                  "Nos hace muchísima ilusión que forméis parte de este día.",
+                  "It would mean the world to us to have you with us on this day."
                 )
               : t(
-                  "Nos hace muchísima ilusión que formes parte de este día. Hemos preparado esta invitación solo para ti.",
-                  "It would mean the world to us to have you with us on this day. We have prepared this invitation especially for you."
+                  "Nos hace muchísima ilusión que formes parte de este día.",
+                  "It would mean the world to us to have you with us on this day."
                 )}
           </p>
         </>

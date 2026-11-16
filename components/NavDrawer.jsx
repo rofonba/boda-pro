@@ -78,8 +78,14 @@ export default function NavDrawer() {
         aria-label={t("Abrir menú", "Open menu")}
         aria-expanded={isOpen}
         aria-controls="menu-lateral"
-        className="fixed left-5 top-5 z-50 flex h-11 w-11 items-center justify-center rounded-full border border-champagne/45 bg-white/[0.06] text-champagne shadow-[0_2px_14px_-6px_rgba(0,0,0,0.35)] backdrop-blur-sm transition-transform hover:scale-105 active:scale-95"
+        className="fixed left-5 top-5 z-50 flex h-11 w-11 items-center justify-center rounded-full border border-champagne/60 bg-white/[0.06] text-champagne shadow-[0_0_18px_-2px_rgba(200,170,110,0.55)] backdrop-blur-sm transition-transform hover:scale-105 active:scale-95"
       >
+        {/* Realce discreto: un anillo dorado que late despacio para invitar a
+            abrir el menú. Es solo decorativo y no bloquea el clic. */}
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-0 animate-pulse rounded-full border border-champagne/70 [animation-duration:2.6s]"
+        />
         <IconoMenu />
       </button>
 
