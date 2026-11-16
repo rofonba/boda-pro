@@ -1,6 +1,7 @@
 "use client";
 
 import { useGuest } from "./GuestProvider";
+import { useLanguage } from "./i18n/LanguageProvider";
 
 /**
  * Saludo de bienvenida.
@@ -10,30 +11,41 @@ import { useGuest } from "./GuestProvider";
  */
 export default function GuestGreeting() {
   const { invitado, invitacionNoEncontrada } = useGuest();
+  const { t } = useLanguage();
 
   return (
     <section className="py-16 text-center">
       {invitado ? (
         <>
           <h2 className="font-script text-5xl text-carbon sm:text-6xl">
-            ¡Hola, {invitado.nombre}!
+            {t("¡Hola", "Hello")}, {invitado.nombre}!
           </h2>
           <p className="mx-auto mt-6 max-w-2xl font-serif text-2xl italic leading-relaxed text-carbon">
             {invitado.miembros.length > 1
-              ? "Nos hace muchísima ilusión que forméis parte de este día. Hemos preparado esta invitación solo para vosotros."
-              : "Nos hace muchísima ilusión que formes parte de este día. Hemos preparado esta invitación solo para ti."}
+              ? t(
+                  "Nos hace muchísima ilusión que forméis parte de este día. Hemos preparado esta invitación solo para vosotros.",
+                  "It would mean the world to us to have you with us on this day. We have prepared this invitation especially for you."
+                )
+              : t(
+                  "Nos hace muchísima ilusión que formes parte de este día. Hemos preparado esta invitación solo para ti.",
+                  "It would mean the world to us to have you with us on this day. We have prepared this invitation especially for you."
+                )}
           </p>
         </>
       ) : (
         <>
           <p className="mx-auto max-w-2xl font-serif text-2xl italic leading-relaxed text-carbon">
-            Bienvenidos a nuestra boda. Nos hace mucha ilusión que forméis parte
-            de este día tan especial.
+            {t(
+              "Bienvenidos a nuestra boda. Nos hace mucha ilusión que forméis parte de este día tan especial.",
+              "Welcome to our wedding. We are delighted to have you share this very special day with us."
+            )}
           </p>
           {invitacionNoEncontrada && (
             <p className="mx-auto mt-6 max-w-xl text-base text-grafito">
-              No hemos localizado tu invitación con ese enlace. Revisa el enlace
-              que te enviamos o escríbenos y te lo reenviamos encantados.
+              {t(
+                "No hemos localizado tu invitación con ese enlace. Revisa el enlace que te enviamos o escríbenos y te lo reenviamos encantados.",
+                "We could not find your invitation with this link. Please check the link we sent you, or write to us and we will gladly send it again."
+              )}
             </p>
           )}
         </>

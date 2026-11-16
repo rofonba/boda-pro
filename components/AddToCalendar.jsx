@@ -1,4 +1,7 @@
+"use client";
+
 import { URL_GOOGLE_CALENDAR, URL_ICS } from "@/lib/calendario";
+import { useLanguage } from "./i18n/LanguageProvider";
 
 /** Icono de calendario. */
 function IconoCalendario() {
@@ -36,11 +39,12 @@ const BOTON = {
 // web) y el archivo .ics (iPhone, Mac y Outlook). Es un <details> nativo, así
 // que el desplegable funciona sin JavaScript.
 export default function AddToCalendar({ primario = false }) {
+  const { t } = useLanguage();
   return (
     <details className="group relative inline-block">
       <summary className={primario ? BOTON.primario : BOTON.secundario}>
         <IconoCalendario />
-        Añadir al calendario
+        {t("Añadir al calendario", "Add to calendar")}
       </summary>
 
       <div className="absolute left-1/2 z-20 mt-2 w-60 -translate-x-1/2 overflow-hidden rounded-lg border border-linea bg-crema text-center shadow-xl">

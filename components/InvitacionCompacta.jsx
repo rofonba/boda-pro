@@ -4,6 +4,7 @@ import { BODA } from "@/lib/event";
 import GuestGreeting from "./GuestGreeting";
 import RsvpFormComplete from "./RsvpFormComplete";
 import KeyInfo from "./KeyInfo";
+import { useLanguage } from "./i18n/LanguageProvider";
 
 // Separador elegante (el mismo que en la web completa)
 function Separator() {
@@ -26,13 +27,14 @@ function Separator() {
  * @param {{ onVerTodo: () => void }} props
  */
 export default function InvitacionCompacta({ onVerTodo }) {
+  const { t } = useLanguage();
   return (
     <main className="mx-auto w-full max-w-4xl px-3 pb-24 pt-10 sm:px-6 sm:pt-16">
       {/* Cabecera breve: monograma y fecha, para situar al invitado */}
       <header className="text-center">
         <div className="font-script text-5xl text-carbon">{BODA.novios.monograma}</div>
         <p className="mt-3 text-xs tracking-luxe text-grafito uppercase">
-          {BODA.fecha.dia} · {BODA.fecha.largo}
+          {t(`${BODA.fecha.dia} · ${BODA.fecha.largo}`, BODA.fecha.en)}
         </p>
       </header>
 
@@ -56,17 +58,21 @@ export default function InvitacionCompacta({ onVerTodo }) {
           onClick={onVerTodo}
           className="w-full max-w-md rounded-full border border-champagne bg-champagne px-6 py-5 text-sm font-semibold tracking-luxe text-marfil uppercase shadow-lg transition-all hover:bg-oro hover:shadow-xl active:scale-[0.99]"
         >
-          Ver todos los detalles de la boda
+          {t("Ver todos los detalles de la boda", "See all the wedding details")}
         </button>
         <p className="max-w-md text-base text-grafito">
-          Cronograma del día, cómo llegar, parkings, código de vestimenta, regalo y
-          preguntas frecuentes.
+          {t(
+            "Cronograma del día, cómo llegar, parkings, código de vestimenta, regalo y preguntas frecuentes.",
+            "Schedule of the day, directions, parking, dress code, gifts and frequently asked questions."
+          )}
         </p>
       </div>
 
       <footer className="mt-20 text-center">
         <div className="font-script text-4xl text-carbon">{BODA.novios.monograma}</div>
-        <p className="mt-3 text-xs tracking-luxe text-grafito uppercase">{BODA.fecha.largo}</p>
+        <p className="mt-3 text-xs tracking-luxe text-grafito uppercase">
+          {t(BODA.fecha.largo, "15 May 2027")}
+        </p>
       </footer>
     </main>
   );

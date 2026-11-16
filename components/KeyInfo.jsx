@@ -1,5 +1,8 @@
+"use client";
+
 import { BODA } from "@/lib/event";
 import AddToCalendar from "./AddToCalendar";
+import { useLanguage } from "./i18n/LanguageProvider";
 
 // Resumen de los datos clave, lo primero que ve el invitado al entrar por su
 // enlace: fecha, ceremonia y banquete, en texto grande y con sus acciones.
@@ -10,15 +13,16 @@ import AddToCalendar from "./AddToCalendar";
 
 /** Enlace discreto a Google Maps, debajo del lugar. */
 function ComoLlegar({ href, lugar }) {
+  const { t } = useLanguage();
   return (
     <a
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      title={`Ver ${lugar} en Google Maps`}
+      title={t(`Ver ${lugar} en Google Maps`, `View ${lugar} on Google Maps`)}
       className="text-sm text-grafito/80 underline decoration-champagne/40 underline-offset-4 transition-colors hover:text-champagne hover:decoration-champagne"
     >
-      ¿Cómo llegar?
+      {t("¿Cómo llegar?", "How to get there?")}
     </a>
   );
 }
@@ -36,28 +40,29 @@ function Dato({ id, pregunta, children, accion }) {
 
 export default function KeyInfo() {
   const { fecha, ceremonia, convite } = BODA;
+  const { t } = useLanguage();
 
   return (
     <section id="fecha" className="scroll-mt-24 py-12 sm:py-16">
       <ul className="mx-auto flex max-w-2xl flex-col gap-8 rounded-2xl border border-linea bg-crema/20 px-6 py-10 backdrop-blur-sm sm:gap-10 sm:px-10">
-        <Dato pregunta="¿Cuándo?" accion={<AddToCalendar primario />}>
-          {fecha.dia}, {fecha.largo}
+        <Dato pregunta={t("¿Cuándo?", "When?")} accion={<AddToCalendar primario />}>
+          {t(`${fecha.dia}, ${fecha.largo}`, fecha.en)}
         </Dato>
 
         <Dato
           id="ceremonia"
-          pregunta="¿Cuándo y dónde es la ceremonia?"
+          pregunta={t("¿Cuándo y dónde es la ceremonia?", "When and where is the ceremony?")}
           accion={<ComoLlegar href={ceremonia.mapsUrl} lugar={ceremonia.lugar} />}
         >
-          {ceremonia.hora} en la {ceremonia.lugar}
+          {ceremonia.hora} {t("en la", "at")} {ceremonia.lugar}
         </Dato>
 
         <Dato
           id="banquete"
-          pregunta="¿Cuándo y dónde es el banquete?"
+          pregunta={t("¿Cuándo y dónde es el banquete?", "When and where is the reception?")}
           accion={<ComoLlegar href={convite.mapsUrl} lugar={convite.lugar} />}
         >
-          {convite.hora} en la {convite.lugar}
+          {convite.hora} {t("en la", "at")} {convite.lugar}
         </Dato>
       </ul>
     </section>
