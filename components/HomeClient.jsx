@@ -4,6 +4,7 @@ import { useState } from "react";
 import GuestProvider from "./GuestProvider";
 import InvitacionCompacta from "./InvitacionCompacta";
 import InvitationPage from "./InvitationPage";
+import SobreAnimacion from "./SobreAnimacion";
 
 /**
  * Puente entre la página (servidor) y el árbol interactivo (cliente).
@@ -12,7 +13,8 @@ import InvitationPage from "./InvitationPage";
  * Dos vistas sobre la misma URL (el ?id= se conserva, así que recargar
  * vuelve a la invitación):
  *
- *  • "invitacion": quien entra por su enlace personal ve solo lo esencial
+ *  • "invitacion": quien entra por su enlace personal ve primero el sobre
+ *    (SobreAnimacion, una vez por sesión) y después solo lo esencial
  *    (saludo, formulario, fecha y lugares) y un botón para ver el resto.
  *  • "web": la página completa. Es la vista por defecto si no hay enlace
  *    personal, y también si el ?id= no corresponde a ninguna invitación: en
@@ -30,7 +32,14 @@ export default function HomeClient({ invitadoInicial, slug }) {
 
   return (
     <GuestProvider invitadoInicial={invitadoInicial} slug={slug}>
-      {modo === "invitacion" ? <InvitacionCompacta onVerTodo={verTodo} /> : <InvitationPage />}
+      {modo === "invitacion" ? (
+        <>
+          <SobreAnimacion id={invitadoInicial.id} nombre={invitadoInicial.nombre} />
+          <InvitacionCompacta onVerTodo={verTodo} />
+        </>
+      ) : (
+        <InvitationPage />
+      )}
     </GuestProvider>
   );
 }
