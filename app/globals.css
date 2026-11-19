@@ -210,7 +210,108 @@ body {
 }
 
 /* ───────── Sobre de la invitación (SobreAnimacion.jsx) ─────────
-   Brillo especular que recorre el lacre cada ~4 s y micro-partículas doradas
+   Toda la coreografía de apertura vive aquí, en @keyframes sincronizados de
+   2,3 s que arrancan a la vez cuando el componente añade la clase
+   .sobre-abriendo. Así la mueve el compositor del navegador (60 fps en Safari
+   iOS) y no hay saltos entre pasos. Solo se animan transform y opacity; las
+   sombras son fijas y lo que cambia es la opacidad de la capa que las lleva. */
+
+:root {
+  --sobre-duracion: 2300ms;
+}
+
+.sobre-pieza {
+  will-change: transform, opacity;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* Lacre: micro-hundimiento táctil, leve giro y desvanecimiento (0–15 %) */
+@keyframes sobre-sello {
+  0% { transform: scale(1) rotate(0deg); opacity: 1; }
+  15%, 100% { transform: scale(0.94) rotate(6deg); opacity: 0; }
+}
+
+/* Cuerpo del sobre (forro, bolsillo): retroceso de peso, luego cae y se funde */
+@keyframes sobre-caer {
+  0% { transform: translate3d(0, 0, 0) scale(1); opacity: 1; }
+  15% { transform: translate3d(0, 0, 0) scale(0.99); opacity: 1; animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1); }
+  68% { transform: translate3d(0, 0, 0) scale(0.99); opacity: 1; animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1); }
+  88%, 100% { transform: translate3d(0, 38%, 0) scale(0.95); opacity: 0; }
+}
+
+/* Solapa: gira 180º en 3D (10–45 %). El z-index cambia justo a mitad de giro
+   (27,5 %), cuando está de canto y el salto es invisible. */
+@keyframes sobre-solapa {
+  0%, 10% { transform: rotateX(0deg); z-index: 4; animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1); }
+  27.4% { z-index: 4; }
+  27.5% { transform: rotateX(-90deg); z-index: 0; animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1); }
+  45%, 100% { transform: rotateX(-180deg); z-index: 0; }
+}
+
+/* Sombra que la solapa proyecta sobre el bolsillo: desaparece al abrirse */
+@keyframes sobre-solapa-sombra {
+  0%, 10% { opacity: 1; }
+  30%, 100% { opacity: 0; }
+}
+
+/* Tarjeta: extracción (38–68 %), presentación (68–88 %) y fundido (84–100 %).
+   Sale desde dentro del bolsillo (z-index por debajo) y, ya fuera, pasa por
+   delante y se acerca al usuario. */
+@keyframes sobre-tarjeta {
+  0%, 38% { transform: translate3d(0, 0, 0) scale(1); z-index: 1; opacity: 1; animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1); }
+  67.9% { z-index: 1; }
+  68% { transform: translate3d(0, -78%, 0) scale(1); z-index: 3; opacity: 1; animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1); }
+  84% { opacity: 1; }
+  88% { transform: translate3d(0, -6%, 0) scale(1.07); z-index: 3; }
+  100% { transform: translate3d(0, -6%, 0) scale(1.07); z-index: 3; opacity: 0; }
+}
+
+/* Sombra de elevación de la tarjeta: fija en ::after, solo cambia su opacidad */
+.sobre-tarjeta::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: 0 30px 44px -14px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  pointer-events: none;
+  z-index: -1;
+}
+@keyframes sobre-tarjeta-sombra {
+  0%, 38% { opacity: 0; }
+  68%, 100% { opacity: 1; }
+}
+
+/* Fondo del overlay: fundido final (84–100 %) */
+@keyframes sobre-fondo {
+  0%, 84% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Texto "Toca el sobre" */
+@keyframes sobre-texto {
+  0% { opacity: 1; }
+  12%, 100% { opacity: 0; }
+}
+
+/* ── Disparo: una sola clase en la raíz arranca todas las animaciones ── */
+.sobre-abriendo .sobre-sello { animation: sobre-sello var(--sobre-duracion) cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+.sobre-abriendo .sobre-cuerpo { animation: sobre-caer var(--sobre-duracion) linear forwards; }
+.sobre-abriendo .sobre-solapa { animation: sobre-solapa var(--sobre-duracion) linear forwards; }
+.sobre-abriendo .sobre-solapa-sombra { animation: sobre-solapa-sombra var(--sobre-duracion) ease-out forwards; }
+.sobre-abriendo .sobre-tarjeta { animation: sobre-tarjeta var(--sobre-duracion) linear forwards; }
+.sobre-abriendo .sobre-tarjeta::after { animation: sobre-tarjeta-sombra var(--sobre-duracion) linear forwards; }
+.sobre-abriendo .sobre-fondo { animation: sobre-fondo var(--sobre-duracion) ease-in-out forwards; }
+.sobre-abriendo .sobre-texto { animation: sobre-texto var(--sobre-duracion) ease-out forwards; }
+
+/* Con movimiento reducido: solo un fundido corto de todo el overlay */
+.sobre-cerrando {
+  transition: opacity 380ms ease-out;
+  opacity: 0;
+}
+
+/* Brillo especular que recorre el lacre cada ~4 s y micro-partículas doradas
    que salen del sello al abrir. Las variables --dx/--dy las pone cada
    partícula desde el componente. */
 @keyframes sello-brillo {

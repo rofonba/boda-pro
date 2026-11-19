@@ -10,8 +10,11 @@ import { useLanguage } from "./i18n/LanguageProvider";
  * desvanece. Solo lo monta HomeClient en "modo invitación", así que nunca
  * aparece en la web general (sin ?id=) ni en los paneles.
  *
- * Fases: cerrado → abriendo (sello, solapa y tarjeta) → desvaneciendo → fuera.
- * Con prefers-reduced-motion se salta la apertura y va directo al fundido.
+ * La coreografía de apertura es una sola clase (.sobre-abriendo) que dispara
+ * @keyframes sincronizados en globals.css: el compositor del navegador mueve
+ * todas las piezas a la vez, sin pasos encadenados. Aquí solo queda un
+ * setTimeout final para desmontar y liberar el scroll.
+ * Con prefers-reduced-motion se salta la apertura y va directo a un fundido.
  *
  * Construcción (de atrás hacia delante): forro interior → tarjeta → tres
  * pliegues del bolsillo delantero (izquierdo, derecho, inferior) → sombra de
@@ -29,15 +32,10 @@ const TINTA_SUAVE = "#6d685d";
 const ORO = "#c8aa6e";
 const ORO_OSCURO = "#9c7d45";
 
-// ── Tiempos de la apertura (ms) ─────────────────────────────────────────────
-const TIEMPOS = {
-  solapa: 200, // empieza a girar
-  solapaDetras: 650, // a mitad de giro pasa detrás de la tarjeta
-  tarjeta: 650, // la tarjeta sale del bolsillo
-  fundido: 1450, // empieza el fade-out del overlay
-  fin: 2000, // se desmonta
-};
-const CURVA = "cubic-bezier(0.22, 1, 0.36, 1)";
+// ── Tiempos (ms). La duración total debe coincidir con --sobre-duracion ──
+const DURACION = 2300; // coreografía completa (globals.css)
+const DESMONTAR = 2350; // único setTimeout: desmonta y libera el scroll
+const FUNDIDO_REDUCIDO = 400; // con movimiento reducido
 
 // Geometría: la solapa ocupa el 55 % de la altura y su vértice está en el
 // centro horizontal. El lacre se centra exactamente en ese punto.
@@ -75,15 +73,11 @@ function Textura({ opacidad = 0.28, className = "" }) {
 }
 
 // ── Sello de lacre 3D (SVG con borde orgánico) ───────────────────────────────
-function SelloLacre({ abriendo }) {
+function SelloLacre() {
   return (
     <div
-      className="relative h-[76px] w-[76px] transition-all"
+      className="sobre-sello sobre-pieza relative h-[76px] w-[76px]"
       style={{
-        transitionDuration: "320ms",
-        transitionTimingFunction: CURVA,
-        transform: abriendo ? "scale(0.92)" : "scale(1)",
-        opacity: abriendo ? 0 : 1,
         filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.35)) drop-shadow(0 1px 2px rgba(0,0,0,0.25))",
       }}
     >
@@ -188,8 +182,8 @@ function Particulas() {
 // ── Componente ──────────────────────────────────────────────────────────────
 export default function SobreAnimacion({ id, nombre }) {
   const { t } = useLanguage();
+  // "cerrado" → "abriendo" (o "cerrando" con movimiento reducido) → "fuera"
   const [fase, setFase] = useState("cerrado");
-  const [solapaDetras, setSolapaDetras] = useState(false);
 
   // Si ya se abrió en esta sesión (recarga, cambio de idioma…), no se repite.
   useEffect(() => {
@@ -220,43 +214,40 @@ export default function SobreAnimacion({ id, nombre }) {
 
     const reducirMovimiento = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reducirMovimiento) {
-      setFase("desvaneciendo");
-      setTimeout(() => setFase("fuera"), TIEMPOS.fin - TIEMPOS.fundido);
+      setFase("cerrando");
+      setTimeout(() => setFase("fuera"), FUNDIDO_REDUCIDO);
       return;
     }
 
+    // Una sola clase arranca toda la coreografía; un solo temporizador la cierra.
     setFase("abriendo");
-    setTimeout(() => setSolapaDetras(true), TIEMPOS.solapaDetras);
-    setTimeout(() => setFase("desvaneciendo"), TIEMPOS.fundido);
-    setTimeout(() => setFase("fuera"), TIEMPOS.fin);
+    setTimeout(() => setFase("fuera"), DESMONTAR);
   };
 
   if (fase === "fuera") return null;
 
-  const abriendo = fase !== "cerrado";
+  const abriendo = fase === "abriendo";
 
   return (
     <div
       role="dialog"
       aria-modal="true"
       aria-label={t("Invitación", "Invitation")}
-      className={`fixed inset-0 z-[90] flex flex-col items-center justify-center bg-marfil px-6 transition-opacity ${
-        fase === "desvaneciendo" ? "opacity-0" : "opacity-100"
-      }`}
-      style={{
-        transitionDuration: `${TIEMPOS.fin - TIEMPOS.fundido}ms`,
-        transitionTimingFunction: CURVA,
-      }}
+      className={`fixed inset-0 z-[90] flex flex-col items-center justify-center px-6 ${
+        abriendo ? "sobre-abriendo" : ""
+      } ${fase === "cerrando" ? "sobre-cerrando" : ""}`}
     >
-      {/* Viñeta suave para asentar el sobre sobre el fondo (día y noche) */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(ellipse at 50% 45%, rgba(0,0,0,0) 40%, rgba(0,0,0,0.18) 100%)",
-        }}
-      />
+      {/* Fondo y viñeta: se funden al final de la coreografía. El sobre y el
+          texto van fuera de esta capa para que la tarjeta no herede el fundido. */}
+      <div aria-hidden className="sobre-fondo sobre-pieza absolute inset-0 bg-marfil">
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(ellipse at 50% 45%, rgba(0,0,0,0) 40%, rgba(0,0,0,0.18) 100%)",
+          }}
+        />
+      </div>
 
       {/* El sobre entero es el botón: vale tocar el papel o el lacre */}
       <button
@@ -265,23 +256,17 @@ export default function SobreAnimacion({ id, nombre }) {
         disabled={abriendo}
         aria-label={t("Abrir el sobre", "Open the envelope")}
         className="group relative w-full max-w-sm cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-champagne/60 disabled:cursor-default"
-        style={{ perspective: "1200px" }}
       >
-        {/* Cuerpo del sobre: desciende y se atenúa cuando sale la tarjeta */}
-        <div
-          className="relative aspect-[4/3] w-full transition-all"
-          style={{
-            transformStyle: "preserve-3d",
-            transitionDuration: "900ms",
-            transitionTimingFunction: CURVA,
-            transitionDelay: abriendo ? `${TIEMPOS.tarjeta}ms` : "0ms",
-            transform: abriendo ? "translateY(26px)" : "translateY(0)",
-          }}
-        >
+        {/* Escena: da la perspectiva al giro de la solapa. No lleva transform
+            propio, así cada pieza (forro, tarjeta, bolsillo, solapa, lacre) es
+            hermana de las demás y su z-index decide el orden: la tarjeta puede
+            salir de DENTRO del bolsillo y luego pasar por delante. */}
+        <div className="relative aspect-[4/3] w-full" style={{ perspective: "1200px" }}>
           {/* a) Forro interior: champán oscuro con textura */}
           <div
-            className="absolute inset-0 overflow-hidden rounded-md"
+            className="sobre-cuerpo sobre-pieza absolute inset-0 overflow-hidden rounded-md"
             style={{
+              zIndex: 0,
               background:
                 "linear-gradient(160deg, #cdb582 0%, #b89a5e 45%, #a98a4f 100%)",
               boxShadow: "0 30px 50px -22px rgba(0,0,0,0.55), 0 10px 18px -12px rgba(0,0,0,0.35)",
@@ -298,20 +283,14 @@ export default function SobreAnimacion({ id, nombre }) {
 
           {/* b) Tarjeta interior: doble filete dorado, monograma y fecha */}
           <div
-            className="absolute inset-x-7 top-5 bottom-5 overflow-hidden rounded-[3px] transition-all"
+            className="sobre-tarjeta sobre-pieza absolute inset-x-7 top-5 bottom-5 rounded-[3px]"
             style={{
               backgroundColor: PAPEL,
-              zIndex: solapaDetras ? 3 : 1,
-              transitionDuration: "900ms",
-              transitionTimingFunction: CURVA,
-              transitionDelay: abriendo ? `${TIEMPOS.tarjeta}ms` : "0ms",
-              transform: abriendo ? "translateY(-44%) scale(1.06)" : "translateY(0) scale(1)",
-              boxShadow: abriendo
-                ? "0 28px 40px -14px rgba(0,0,0,0.45), inset 0 0 0 1px rgba(255,255,255,0.9)"
-                : "0 1px 2px rgba(0,0,0,0.12), inset 0 0 0 1px rgba(255,255,255,0.9)",
+              zIndex: 1,
+              boxShadow: "0 1px 2px rgba(0,0,0,0.12), inset 0 0 0 1px rgba(255,255,255,0.9)",
             }}
           >
-            <Textura opacidad={0.22} />
+            <Textura opacidad={0.22} className="rounded-[inherit]" />
             {/* Doble borde fino dorado */}
             <span
               aria-hidden
@@ -334,7 +313,7 @@ export default function SobreAnimacion({ id, nombre }) {
           </div>
 
           {/* c) Bolsillo delantero: pliegues izquierdo, derecho e inferior */}
-          <div className="absolute inset-0" style={{ zIndex: 2 }}>
+          <div className="sobre-cuerpo sobre-pieza absolute inset-0" style={{ zIndex: 2 }}>
             {/* Pliegue izquierdo */}
             <div
               className="absolute inset-0 overflow-hidden"
@@ -394,7 +373,7 @@ export default function SobreAnimacion({ id, nombre }) {
           {/* d) Sombra que la solapa proyecta sobre el bolsillo */}
           <div
             aria-hidden
-            className="absolute inset-x-0 top-0 transition-opacity"
+            className="sobre-solapa-sombra sobre-pieza absolute inset-x-0 top-0"
             style={{
               height: `${ALTURA_SOLAPA + 4}%`,
               zIndex: 2,
@@ -402,24 +381,18 @@ export default function SobreAnimacion({ id, nombre }) {
               background: "linear-gradient(180deg, rgba(0,0,0,0.0) 60%, rgba(0,0,0,0.22) 100%)",
               filter: "blur(3px)",
               transform: "translateY(6px)",
-              opacity: abriendo ? 0 : 1,
-              transitionDuration: "500ms",
-              transitionDelay: abriendo ? `${TIEMPOS.solapa}ms` : "0ms",
             }}
           />
 
           {/* d) Solapa superior: gira hacia atrás en 3D; cara frontal y trasera
               separadas para que Safari iOS no muestre la cara equivocada. */}
           <div
-            className="absolute inset-x-0 top-0 origin-top transition-transform"
+            className="sobre-solapa sobre-pieza absolute inset-x-0 top-0 origin-top"
             style={{
               height: `${ALTURA_SOLAPA}%`,
-              zIndex: solapaDetras ? 0 : 4,
+              zIndex: 4,
               transformStyle: "preserve-3d",
-              transitionDuration: "900ms",
-              transitionTimingFunction: CURVA,
-              transitionDelay: abriendo ? `${TIEMPOS.solapa}ms` : "0ms",
-              transform: abriendo ? "rotateX(-180deg)" : "rotateX(0deg)",
+              WebkitTransformStyle: "preserve-3d",
             }}
           >
             {/* Cara frontal (papel) */}
@@ -460,17 +433,13 @@ export default function SobreAnimacion({ id, nombre }) {
             className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2"
             style={{ top: `${ALTURA_SOLAPA}%`, zIndex: 5 }}
           >
-            <SelloLacre abriendo={abriendo} />
+            <SelloLacre />
             {abriendo && <Particulas />}
           </div>
         </div>
       </button>
 
-      <p
-        className={`relative mt-10 text-xs tracking-luxe text-grafito uppercase transition-opacity duration-300 ${
-          abriendo ? "opacity-0" : "animate-pulse opacity-100"
-        }`}
-      >
+      <p className="sobre-texto relative mt-10 animate-pulse text-xs tracking-luxe text-grafito uppercase">
         {t("Toca el sobre para abrir", "Tap the envelope to open")}
       </p>
     </div>
