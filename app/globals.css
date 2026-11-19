@@ -208,3 +208,42 @@ body {
 .tracking-luxe {
   letter-spacing: 0.32em;
 }
+
+/* ───────── Sobre de la invitación (SobreAnimacion.jsx) ─────────
+   Brillo especular que recorre el lacre cada ~4 s y micro-partículas doradas
+   que salen del sello al abrir. Las variables --dx/--dy las pone cada
+   partícula desde el componente. */
+@keyframes sello-brillo {
+  0%,
+  70% {
+    transform: translateX(-160%) rotate(20deg);
+  }
+  100% {
+    transform: translateX(160%) rotate(20deg);
+  }
+}
+@keyframes particula {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.4);
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1);
+  }
+}
+.sello-brillo {
+  animation: sello-brillo 4s ease-in-out infinite;
+}
+.particula {
+  animation: particula 950ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sello-brillo,
+  .particula {
+    animation: none;
+  }
+}
